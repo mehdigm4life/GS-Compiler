@@ -19,19 +19,19 @@ int g_numincludes = 0;
 char g_includedir[512] = {0};
 jmp_buf g_errbuf;
 
-static int error_count = 0;
-static int warning_count = 0;
-
-FILE *g_input_file = NULL;
-char g_input_filename[sFNAME + 1] = {0};
+int g_code_idx = 0;
 int g_line_number = 0;
 int g_stage = STAGE_NONE;
-symbol *g_symbol_table = NULL;
 int g_code_scope = 0;
-int g_code_idx = 0;
 int g_current_function = -1;
 int g_tag_count = 0;
 codeblock g_codeblock;
+symbol *g_symbol_table = NULL;
+FILE *g_input_file = NULL;
+char g_input_filename[sFNAME + 1] = {0};
+
+static int error_count = 0;
+static int warning_count = 0;
 
 /* Error message definitions */
 static const char *error_messages[] = {
