@@ -1014,7 +1014,7 @@ static int pc_parse_return_statement(void) {
     return 1;
 }
 
-static int pc_parse_statement(void) {
+int pc_parse_statement(void) {
     char token[MAX_LEXRET + 1];
     int toktype;
     int tok = pc_lexread(token, sizeof(token), &toktype);

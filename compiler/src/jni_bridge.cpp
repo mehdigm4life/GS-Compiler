@@ -94,9 +94,9 @@ static void restore_stdout(void) {
 
 static JNIEnv *get_jni_env(void) {
     JNIEnv *env;
-    int status = (*g_jvm)->GetEnv(g_jvm, (void **)&env, JNI_VERSION_1_6);
+    int status = g_jvm->GetEnv, (void **)&env, JNI_VERSION_1_6);
     if (status == JNI_EDETACHED) {
-        status = (*g_jvm)->AttachCurrentThread(g_jvm, &env, NULL);
+        status = g_jvm->AttachCurrentThread, &env, NULL);
         if (status != JNI_OK) {
             LOGE("Failed to attach thread to JVM");
             return NULL;
@@ -112,11 +112,11 @@ static void send_output_to_java(const char *text, int is_error) {
     JNIEnv *env = get_jni_env();
     if (env == NULL) return;
 
-    jstring jtext = (*env)->NewStringUTF(env, text);
+    jstring jtext =  env->NewStringUTF(, text);
     if (jtext == NULL) return;
 
-    (*env)->CallVoidMethod(env, g_callback_obj, g_on_output_method, jtext, is_error);
-    (*env)->DeleteLocalRef(env, jtext);
+     env->CallVoidMethod(, g_callback_obj, g_on_output_method, jtext, is_error);
+     env->DeleteLocalRef(, jtext);
 }
 
 /* Thread that reads from the pipes and sends to Java */
@@ -193,12 +193,12 @@ Java_com_mehdigm_compiler_compiler_NativeCompiler_nativeCompile(
 {
     (void)thiz;
 
-    const char *infile = (*env)->GetStringUTFChars(env, inputPath, NULL);
-    const char *outfile = (*env)->GetStringUTFChars(env, outputPath, NULL);
+    const char *infile =  env->GetStringUTFChars(, inputPath, NULL);
+    const char *outfile =  env->GetStringUTFChars(, outputPath, NULL);
 
     if (infile == NULL || outfile == NULL) {
         LOGE("Failed to get string UTF chars");
-        if (infile) (*env)->ReleaseStringUTFChars(env, inputPath, infile);
+        if (infile)  env->ReleaseStringUTFChars(, inputPath, infile);
         return JNI_FALSE;
     }
 
@@ -206,9 +206,9 @@ Java_com_mehdigm_compiler_compiler_NativeCompiler_nativeCompile(
 
     /* Setup callback */
     if (callback != NULL) {
-        g_callback_obj = (*env)->NewGlobalRef(env, callback);
-        jclass cbClass = (*env)->GetObjectClass(env, callback);
-        g_on_output_method = (*env)->GetMethodID(env, cbClass, "onOutput", "(Ljava/lang/String;Z)V");
+        g_callback_obj =  env->NewGlobalRef(, callback);
+        jclass cbClass =  env->GetObjectClass(, callback);
+        g_on_output_method =  env->GetMethodID(, cbClass, "onOutput", "(Ljava/lang/String;Z)V");
         if (g_on_output_method == NULL) {
             LOGE("Failed to find onOutput method in callback");
         }
@@ -220,13 +220,13 @@ Java_com_mehdigm_compiler_compiler_NativeCompiler_nativeCompile(
     memset(includes, 0, sizeof(includes));
 
     if (includePaths != NULL) {
-        jsize len = (*env)->GetArrayLength(env, includePaths);
+        jsize len =  env->GetArrayLength(, includePaths);
         for (jsize i = 0; i < len && num_includes < MAX_INCLUDE_DEPTH; i++) {
-            jstring jpath = (jstring)(*env)->GetObjectArrayElement(env, includePaths, i);
+            jstring jpath = (jstring) env->GetObjectArrayElement(, includePaths, i);
             if (jpath != NULL) {
-                includes[num_includes] = (*env)->GetStringUTFChars(env, jpath, NULL);
+                includes[num_includes] =  env->GetStringUTFChars(, jpath, NULL);
                 num_includes++;
-                (*env)->DeleteLocalRef(env, jpath);
+                 env->DeleteLocalRef(, jpath);
             }
         }
     }
@@ -277,8 +277,8 @@ Java_com_mehdigm_compiler_compiler_NativeCompiler_nativeCompile(
     }
 
     /* Cleanup */
-    (*env)->ReleaseStringUTFChars(env, inputPath, infile);
-    (*env)->ReleaseStringUTFChars(env, outputPath, outfile);
+     env->ReleaseStringUTFChars(, inputPath, infile);
+     env->ReleaseStringUTFChars(, outputPath, outfile);
 
     for (int i = 0; i < num_includes; i++) {
         if (includes[i] != NULL) {
@@ -287,7 +287,7 @@ Java_com_mehdigm_compiler_compiler_NativeCompiler_nativeCompile(
     }
 
     if (g_callback_obj != NULL) {
-        (*env)->DeleteGlobalRef(env, g_callback_obj);
+         env->DeleteGlobalRef(, g_callback_obj);
         g_callback_obj = NULL;
         g_on_output_method = NULL;
     }
