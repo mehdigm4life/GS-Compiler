@@ -26,6 +26,9 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mehdigm.compiler.storage.FileManager
 import com.mehdigm.compiler.ui.console.CompilerViewModel
@@ -33,6 +36,10 @@ import com.mehdigm.compiler.ui.console.ConsoleView
 import com.mehdigm.compiler.ui.editor.PawnEditor
 import com.mehdigm.compiler.ui.theme.GSColors
 import com.mehdigm.compiler.ui.theme.GSCompilerTheme
+import com.mehdigm.compiler.utils.AppLogger
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 class MainActivity : ComponentActivity() {
@@ -52,20 +59,39 @@ fun GSCompilerApp() {
     val context = LocalContext.current
     val viewModel: CompilerViewModel = viewModel()
     val uiState by viewModel.uiState.collectAsState()
+    val scope = rememberCoroutineScope()
 
     var showStorageDialog by remember { mutableStateOf(false) }
     var showFilePicker by remember { mutableStateOf(false) }
+
+    /* App lifecycle logging */
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    DisposableEffect(lifecycle) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_RESUME -> AppLogger.start(context)
+                Lifecycle.Event.ON_PAUSE -> AppLogger.stop()
+                else -> {}
+            }
+        }
+        lifecycle.addObserver(observer)
+        onDispose { lifecycle.removeObserver(observer) }
+    }
 
     /* File picker for .pwn files */
     val filePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri: Uri? ->
         uri?.let {
-            val content = FileManager.readFromDocument(context, it)
-            if (content != null) {
-                viewModel.setEditorValue(
-                    androidx.compose.ui.text.input.TextFieldValue(content)
-                )
+            scope.launch {
+                val content = withContext(Dispatchers.IO) {
+                    FileManager.readFromDocument(context, it)
+                }
+                if (content != null) {
+                    viewModel.setEditorValue(
+                        androidx.compose.ui.text.input.TextFieldValue(content)
+                    )
+                }
             }
         }
     }
