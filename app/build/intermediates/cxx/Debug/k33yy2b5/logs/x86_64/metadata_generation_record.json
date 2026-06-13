@@ -27,7 +27,20 @@
   },
   {
     "level_": 0,
-    "message_": "- no fingerprint file, will remove stale configuration folder",
+    "message_": "- a hard configure file changed, will remove stale configuration folder",
+    "file_": "/home/runner/work/GS-Compiler/GS-Compiler/compiler/CMakeLists.txt",
+    "tag_": "debug|x86_64",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": 0
+  },
+  {
+    "level_": 0,
+    "message_": "  - /home/runner/work/GS-Compiler/GS-Compiler/app/.cxx/Debug/k33yy2b5/x86_64/metadata_generation_command.txt (LAST_MODIFIED_CHANGED)",
     "file_": "/home/runner/work/GS-Compiler/GS-Compiler/compiler/CMakeLists.txt",
     "tag_": "debug|x86_64",
     "diagnosticCode_": 0,
@@ -119,19 +132,6 @@
   {
     "level_": 0,
     "message_": "done executing cmake",
-    "file_": "/home/runner/work/GS-Compiler/GS-Compiler/compiler/CMakeLists.txt",
-    "tag_": "debug|x86_64",
-    "diagnosticCode_": 0,
-    "memoizedIsInitialized": 1,
-    "unknownFields": {
-      "fields": {}
-    },
-    "memoizedSize": -1,
-    "memoizedHashCode": 0
-  },
-  {
-    "level_": 0,
-    "message_": "hard linked /home/runner/work/GS-Compiler/GS-Compiler/app/.cxx/Debug/k33yy2b5/x86_64/compile_commands.json to /home/runner/work/GS-Compiler/GS-Compiler/app/.cxx/tools/debug/x86_64/compile_commands.json",
     "file_": "/home/runner/work/GS-Compiler/GS-Compiler/compiler/CMakeLists.txt",
     "tag_": "debug|x86_64",
     "diagnosticCode_": 0,

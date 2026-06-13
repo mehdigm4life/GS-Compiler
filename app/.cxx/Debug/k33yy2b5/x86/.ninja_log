@@ -1,10 +1,10 @@
 # ninja log v5
-4	65	1781391832433359294	CMakeFiles/gs-compiler.dir/src/sclist.c.o	adb3b1a5842b3d13
-0	81	1781391832453359817	CMakeFiles/gs-compiler.dir/src/pawncc.c.o	85c60e5f7945acbd
-0	88	1781391832457359921	CMakeFiles/gs-compiler.dir/src/scvars.c.o	f689af60c154fd21
-7	90	1781391832462360052	CMakeFiles/gs-compiler.dir/src/memfile.c.o	c483b3ca5043f621
-65	90	1781391832463478426	CMakeFiles/gs-compiler.dir/src/lngfile.c.o	5aaf9f78d3d8cee8
-6	104	1781391832476360418	CMakeFiles/gs-compiler.dir/src/scstr.c.o	1956ad5a40207beb
-82	177	1781391832549362327	CMakeFiles/gs-compiler.dir/src/jni_bridge.cpp.o	36d5ce7fc19a93f
-0	308	1781391832680365753	CMakeFiles/gs-compiler.dir/src/sc.c.o	f4c6e32b5de4c798
-308	332	1781391832704366380	/home/runner/work/GS-Compiler/GS-Compiler/app/build/intermediates/cxx/Debug/k33yy2b5/obj/x86/libgs-compiler.so	263d666e4327c574
+8	124	1781393516536330045	CMakeFiles/gs-compiler.dir/src/sclist.c.o	adb3b1a5842b3d13
+11	136	1781393516546330305	CMakeFiles/gs-compiler.dir/src/memfile.c.o	c483b3ca5043f621
+5	154	1781393516566330827	CMakeFiles/gs-compiler.dir/src/scvars.c.o	f689af60c154fd21
+11	169	1781393516578331139	CMakeFiles/gs-compiler.dir/src/scstr.c.o	1956ad5a40207beb
+0	198	1781393516607331895	CMakeFiles/gs-compiler.dir/src/pawncc.c.o	85c60e5f7945acbd
+124	213	1781393516629332468	CMakeFiles/gs-compiler.dir/src/lngfile.c.o	5aaf9f78d3d8cee8
+136	575	1781393516987341797	CMakeFiles/gs-compiler.dir/src/jni_bridge.cpp.o	36d5ce7fc19a93f
+1	836	1781393517256348806	CMakeFiles/gs-compiler.dir/src/sc.c.o	f4c6e32b5de4c798
+836	979	1781393517397352480	/home/runner/work/GS-Compiler/GS-Compiler/app/build/intermediates/cxx/Debug/k33yy2b5/obj/x86/libgs-compiler.so	263d666e4327c574
