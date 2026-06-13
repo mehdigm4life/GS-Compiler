@@ -1,0 +1,177 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.mehdigm.compiler"
+4    android:versionCode="1"
+5    android:versionName="1.0.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="26"
+9        android:targetSdkVersion="34" />
+10
+11    <uses-permission
+11-->/home/runner/work/GS-Compiler/GS-Compiler/app/src/main/AndroidManifest.xml:5:5-6:38
+12        android:name="android.permission.READ_EXTERNAL_STORAGE"
+12-->/home/runner/work/GS-Compiler/GS-Compiler/app/src/main/AndroidManifest.xml:5:22-77
+13        android:maxSdkVersion="32" />
+13-->/home/runner/work/GS-Compiler/GS-Compiler/app/src/main/AndroidManifest.xml:6:9-35
+14    <uses-permission
+14-->/home/runner/work/GS-Compiler/GS-Compiler/app/src/main/AndroidManifest.xml:7:5-8:38
+15        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+15-->/home/runner/work/GS-Compiler/GS-Compiler/app/src/main/AndroidManifest.xml:7:22-78
+16        android:maxSdkVersion="29" />
+16-->/home/runner/work/GS-Compiler/GS-Compiler/app/src/main/AndroidManifest.xml:8:9-35
+17    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+17-->/home/runner/work/GS-Compiler/GS-Compiler/app/src/main/AndroidManifest.xml:9:5-10:40
+17-->/home/runner/work/GS-Compiler/GS-Compiler/app/src/main/AndroidManifest.xml:9:22-79
+18
+19    <permission
+19-->[androidx.core:core:1.12.0] /home/runner/.gradle/caches/transforms-3/440a64c1659b3784956be1ef27019da1/transformed/core-1.12.0/AndroidManifest.xml:22:5-24:47
+20        android:name="com.mehdigm.compiler.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+20-->[androidx.core:core:1.12.0] /home/runner/.gradle/caches/transforms-3/440a64c1659b3784956be1ef27019da1/transformed/core-1.12.0/AndroidManifest.xml:23:9-81
+21        android:protectionLevel="signature" />
+21-->[androidx.core:core:1.12.0] /home/runner/.gradle/caches/transforms-3/440a64c1659b3784956be1ef27019da1/transformed/core-1.12.0/AndroidManifest.xml:24:9-44
+22
+23    <uses-permission android:name="com.mehdigm.compiler.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+23-->[androidx.core:core:1.12.0] /home/runner/.gradle/caches/transforms-3/440a64c1659b3784956be1ef27019da1/transformed/core-1.12.0/AndroidManifest.xml:26:5-97
+23-->[androidx.core:core:1.12.0] /home/runner/.gradle/caches/transforms-3/440a64c1659b3784956be1ef27019da1/transformed/core-1.12.0/AndroidManifest.xml:26:22-94
+24
+25    <application
+25-->/home/runner/work/GS-Compiler/GS-Compiler/app/src/main/AndroidManifest.xml:12:5-39:19
+26        android:allowBackup="true"
+26-->/home/runner/work/GS-Compiler/GS-Compiler/app/src/main/AndroidManifest.xml:13:9-35
+27        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+27-->[androidx.core:core:1.12.0] /home/runner/.gradle/caches/transforms-3/440a64c1659b3784956be1ef27019da1/transformed/core-1.12.0/AndroidManifest.xml:28:18-86
+28        android:debuggable="true"
+29        android:extractNativeLibs="false"
+30        android:icon="@mipmap/ic_launcher"
+30-->/home/runner/work/GS-Compiler/GS-Compiler/app/src/main/AndroidManifest.xml:14:9-43
+31        android:label="@string/app_name"
+31-->/home/runner/work/GS-Compiler/GS-Compiler/app/src/main/AndroidManifest.xml:15:9-41
+32        android:requestLegacyExternalStorage="true"
+32-->/home/runner/work/GS-Compiler/GS-Compiler/app/src/main/AndroidManifest.xml:16:9-52
+33        android:supportsRtl="true"
+33-->/home/runner/work/GS-Compiler/GS-Compiler/app/src/main/AndroidManifest.xml:17:9-35
+34        android:theme="@style/Theme.GSCompiler" >
+34-->/home/runner/work/GS-Compiler/GS-Compiler/app/src/main/AndroidManifest.xml:18:9-48
+35        <activity
+35-->/home/runner/work/GS-Compiler/GS-Compiler/app/src/main/AndroidManifest.xml:21:9-38:20
+36            android:name="com.mehdigm.compiler.MainActivity"
+36-->/home/runner/work/GS-Compiler/GS-Compiler/app/src/main/AndroidManifest.xml:22:13-41
+37            android:exported="true"
+37-->/home/runner/work/GS-Compiler/GS-Compiler/app/src/main/AndroidManifest.xml:23:13-36
+38            android:theme="@style/Theme.GSCompiler"
+38-->/home/runner/work/GS-Compiler/GS-Compiler/app/src/main/AndroidManifest.xml:25:13-52
+39            android:windowSoftInputMode="adjustResize" >
+39-->/home/runner/work/GS-Compiler/GS-Compiler/app/src/main/AndroidManifest.xml:24:13-55
+40            <intent-filter>
+40-->/home/runner/work/GS-Compiler/GS-Compiler/app/src/main/AndroidManifest.xml:26:13-29:29
+41                <action android:name="android.intent.action.MAIN" />
+41-->/home/runner/work/GS-Compiler/GS-Compiler/app/src/main/AndroidManifest.xml:27:17-69
+41-->/home/runner/work/GS-Compiler/GS-Compiler/app/src/main/AndroidManifest.xml:27:25-66
+42
+43                <category android:name="android.intent.category.LAUNCHER" />
+43-->/home/runner/work/GS-Compiler/GS-Compiler/app/src/main/AndroidManifest.xml:28:17-77
+43-->/home/runner/work/GS-Compiler/GS-Compiler/app/src/main/AndroidManifest.xml:28:27-74
+44            </intent-filter>
+45            <intent-filter>
+45-->/home/runner/work/GS-Compiler/GS-Compiler/app/src/main/AndroidManifest.xml:31:13-37:29
+46                <action android:name="android.intent.action.VIEW" />
+46-->/home/runner/work/GS-Compiler/GS-Compiler/app/src/main/AndroidManifest.xml:32:17-69
+46-->/home/runner/work/GS-Compiler/GS-Compiler/app/src/main/AndroidManifest.xml:32:25-66
+47
+48                <category android:name="android.intent.category.DEFAULT" />
+48-->/home/runner/work/GS-Compiler/GS-Compiler/app/src/main/AndroidManifest.xml:33:17-76
+48-->/home/runner/work/GS-Compiler/GS-Compiler/app/src/main/AndroidManifest.xml:33:27-73
+49
+50                <data android:scheme="file" />
+50-->/home/runner/work/GS-Compiler/GS-Compiler/app/src/main/AndroidManifest.xml:34:17-47
+50-->/home/runner/work/GS-Compiler/GS-Compiler/app/src/main/AndroidManifest.xml:34:23-44
+51                <data android:mimeType="text/plain" />
+51-->/home/runner/work/GS-Compiler/GS-Compiler/app/src/main/AndroidManifest.xml:34:17-47
+51-->/home/runner/work/GS-Compiler/GS-Compiler/app/src/main/AndroidManifest.xml:35:23-52
+52                <data android:pathPattern=".*\\.pwn" />
+52-->/home/runner/work/GS-Compiler/GS-Compiler/app/src/main/AndroidManifest.xml:34:17-47
+52-->/home/runner/work/GS-Compiler/GS-Compiler/app/src/main/AndroidManifest.xml:36:23-53
+53            </intent-filter>
+54        </activity>
+55        <activity
+55-->[androidx.compose.ui:ui-test-manifest:1.6.0] /home/runner/.gradle/caches/transforms-3/e870c39d11391e94292e712d09da0b2c/transformed/ui-test-manifest-1.6.0/AndroidManifest.xml:23:9-25:39
+56            android:name="androidx.activity.ComponentActivity"
+56-->[androidx.compose.ui:ui-test-manifest:1.6.0] /home/runner/.gradle/caches/transforms-3/e870c39d11391e94292e712d09da0b2c/transformed/ui-test-manifest-1.6.0/AndroidManifest.xml:24:13-63
+57            android:exported="true" />
+57-->[androidx.compose.ui:ui-test-manifest:1.6.0] /home/runner/.gradle/caches/transforms-3/e870c39d11391e94292e712d09da0b2c/transformed/ui-test-manifest-1.6.0/AndroidManifest.xml:25:13-36
+58        <activity
+58-->[androidx.compose.ui:ui-tooling-android:1.6.0] /home/runner/.gradle/caches/transforms-3/9b6a843e0cc5ede4305544f532123897/transformed/ui-tooling-release/AndroidManifest.xml:23:9-25:39
+59            android:name="androidx.compose.ui.tooling.PreviewActivity"
+59-->[androidx.compose.ui:ui-tooling-android:1.6.0] /home/runner/.gradle/caches/transforms-3/9b6a843e0cc5ede4305544f532123897/transformed/ui-tooling-release/AndroidManifest.xml:24:13-71
+60            android:exported="true" />
+60-->[androidx.compose.ui:ui-tooling-android:1.6.0] /home/runner/.gradle/caches/transforms-3/9b6a843e0cc5ede4305544f532123897/transformed/ui-tooling-release/AndroidManifest.xml:25:13-36
+61
+62        <provider
+62-->[androidx.emoji2:emoji2:1.3.0] /home/runner/.gradle/caches/transforms-3/161d2e0566de4dbd90cbc47319c186f1/transformed/emoji2-1.3.0/AndroidManifest.xml:24:9-32:20
+63            android:name="androidx.startup.InitializationProvider"
+63-->[androidx.emoji2:emoji2:1.3.0] /home/runner/.gradle/caches/transforms-3/161d2e0566de4dbd90cbc47319c186f1/transformed/emoji2-1.3.0/AndroidManifest.xml:25:13-67
+64            android:authorities="com.mehdigm.compiler.androidx-startup"
+64-->[androidx.emoji2:emoji2:1.3.0] /home/runner/.gradle/caches/transforms-3/161d2e0566de4dbd90cbc47319c186f1/transformed/emoji2-1.3.0/AndroidManifest.xml:26:13-68
+65            android:exported="false" >
+65-->[androidx.emoji2:emoji2:1.3.0] /home/runner/.gradle/caches/transforms-3/161d2e0566de4dbd90cbc47319c186f1/transformed/emoji2-1.3.0/AndroidManifest.xml:27:13-37
+66            <meta-data
+66-->[androidx.emoji2:emoji2:1.3.0] /home/runner/.gradle/caches/transforms-3/161d2e0566de4dbd90cbc47319c186f1/transformed/emoji2-1.3.0/AndroidManifest.xml:29:13-31:52
+67                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+67-->[androidx.emoji2:emoji2:1.3.0] /home/runner/.gradle/caches/transforms-3/161d2e0566de4dbd90cbc47319c186f1/transformed/emoji2-1.3.0/AndroidManifest.xml:30:17-75
+68                android:value="androidx.startup" />
+68-->[androidx.emoji2:emoji2:1.3.0] /home/runner/.gradle/caches/transforms-3/161d2e0566de4dbd90cbc47319c186f1/transformed/emoji2-1.3.0/AndroidManifest.xml:31:17-49
+69            <meta-data
+69-->[androidx.lifecycle:lifecycle-process:2.7.0] /home/runner/.gradle/caches/transforms-3/01096349b0936ba7f741e909295c017b/transformed/lifecycle-process-2.7.0/AndroidManifest.xml:29:13-31:52
+70                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+70-->[androidx.lifecycle:lifecycle-process:2.7.0] /home/runner/.gradle/caches/transforms-3/01096349b0936ba7f741e909295c017b/transformed/lifecycle-process-2.7.0/AndroidManifest.xml:30:17-78
+71                android:value="androidx.startup" />
+71-->[androidx.lifecycle:lifecycle-process:2.7.0] /home/runner/.gradle/caches/transforms-3/01096349b0936ba7f741e909295c017b/transformed/lifecycle-process-2.7.0/AndroidManifest.xml:31:17-49
+72            <meta-data
+72-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/runner/.gradle/caches/transforms-3/4dbbd11a74d28bd64c37893cccf57482/transformed/profileinstaller-1.3.0/AndroidManifest.xml:29:13-31:52
+73                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+73-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/runner/.gradle/caches/transforms-3/4dbbd11a74d28bd64c37893cccf57482/transformed/profileinstaller-1.3.0/AndroidManifest.xml:30:17-85
+74                android:value="androidx.startup" />
+74-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/runner/.gradle/caches/transforms-3/4dbbd11a74d28bd64c37893cccf57482/transformed/profileinstaller-1.3.0/AndroidManifest.xml:31:17-49
+75        </provider>
+76
+77        <receiver
+77-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/runner/.gradle/caches/transforms-3/4dbbd11a74d28bd64c37893cccf57482/transformed/profileinstaller-1.3.0/AndroidManifest.xml:34:9-52:20
+78            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+78-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/runner/.gradle/caches/transforms-3/4dbbd11a74d28bd64c37893cccf57482/transformed/profileinstaller-1.3.0/AndroidManifest.xml:35:13-76
+79            android:directBootAware="false"
+79-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/runner/.gradle/caches/transforms-3/4dbbd11a74d28bd64c37893cccf57482/transformed/profileinstaller-1.3.0/AndroidManifest.xml:36:13-44
+80            android:enabled="true"
+80-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/runner/.gradle/caches/transforms-3/4dbbd11a74d28bd64c37893cccf57482/transformed/profileinstaller-1.3.0/AndroidManifest.xml:37:13-35
+81            android:exported="true"
+81-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/runner/.gradle/caches/transforms-3/4dbbd11a74d28bd64c37893cccf57482/transformed/profileinstaller-1.3.0/AndroidManifest.xml:38:13-36
+82            android:permission="android.permission.DUMP" >
+82-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/runner/.gradle/caches/transforms-3/4dbbd11a74d28bd64c37893cccf57482/transformed/profileinstaller-1.3.0/AndroidManifest.xml:39:13-57
+83            <intent-filter>
+83-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/runner/.gradle/caches/transforms-3/4dbbd11a74d28bd64c37893cccf57482/transformed/profileinstaller-1.3.0/AndroidManifest.xml:40:13-42:29
+84                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+84-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/runner/.gradle/caches/transforms-3/4dbbd11a74d28bd64c37893cccf57482/transformed/profileinstaller-1.3.0/AndroidManifest.xml:41:17-91
+84-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/runner/.gradle/caches/transforms-3/4dbbd11a74d28bd64c37893cccf57482/transformed/profileinstaller-1.3.0/AndroidManifest.xml:41:25-88
+85            </intent-filter>
+86            <intent-filter>
+86-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/runner/.gradle/caches/transforms-3/4dbbd11a74d28bd64c37893cccf57482/transformed/profileinstaller-1.3.0/AndroidManifest.xml:43:13-45:29
+87                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+87-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/runner/.gradle/caches/transforms-3/4dbbd11a74d28bd64c37893cccf57482/transformed/profileinstaller-1.3.0/AndroidManifest.xml:44:17-85
+87-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/runner/.gradle/caches/transforms-3/4dbbd11a74d28bd64c37893cccf57482/transformed/profileinstaller-1.3.0/AndroidManifest.xml:44:25-82
+88            </intent-filter>
+89            <intent-filter>
+89-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/runner/.gradle/caches/transforms-3/4dbbd11a74d28bd64c37893cccf57482/transformed/profileinstaller-1.3.0/AndroidManifest.xml:46:13-48:29
+90                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+90-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/runner/.gradle/caches/transforms-3/4dbbd11a74d28bd64c37893cccf57482/transformed/profileinstaller-1.3.0/AndroidManifest.xml:47:17-88
+90-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/runner/.gradle/caches/transforms-3/4dbbd11a74d28bd64c37893cccf57482/transformed/profileinstaller-1.3.0/AndroidManifest.xml:47:25-85
+91            </intent-filter>
+92            <intent-filter>
+92-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/runner/.gradle/caches/transforms-3/4dbbd11a74d28bd64c37893cccf57482/transformed/profileinstaller-1.3.0/AndroidManifest.xml:49:13-51:29
+93                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+93-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/runner/.gradle/caches/transforms-3/4dbbd11a74d28bd64c37893cccf57482/transformed/profileinstaller-1.3.0/AndroidManifest.xml:50:17-95
+93-->[androidx.profileinstaller:profileinstaller:1.3.0] /home/runner/.gradle/caches/transforms-3/4dbbd11a74d28bd64c37893cccf57482/transformed/profileinstaller-1.3.0/AndroidManifest.xml:50:25-92
+94            </intent-filter>
+95        </receiver>
+96    </application>
+97
+98</manifest>
