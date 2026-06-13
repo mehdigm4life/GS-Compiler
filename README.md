@@ -227,7 +227,6 @@ The Pawn compiler source code is based on the original work by **CompuPhase** (I
     <tr>
       <td align="center"><strong>CompuPhase</strong><br><sub>Original Pawn compiler & AMX format</sub></td>
       <td align="center"><strong>SA-MP Team</strong><br><sub>San Andreas Multiplayer platform</sub></td>
-      <td align="center"><strong>OpenCode AI</strong><br><sub>AI-assisted development</sub></td>
     </tr>
   </table>
 
