@@ -35,7 +35,7 @@ object AppLogger {
         if (_isActive.value) return
         logFile = File(context.filesDir, LOG_FILE_NAME)
         scope.launch {
-            startLogcat(context)
+            startLogcat()
         }
     }
 
@@ -53,7 +53,7 @@ object AppLogger {
         Log.i(TAG, "AppLogger stopped")
     }
 
-    private suspend fun startLogcat(context: Context) {
+    private suspend fun startLogcat() {
         try {
             val pid = android.os.Process.myPid()
             val pb = ProcessBuilder(
