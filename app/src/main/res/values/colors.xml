@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="dark_surface">#FF1A1A2E</color>
+    <color name="dark_background">#FF0F0F23</color>
+    <color name="accent_gold">#FFD4AF37</color>
+    <color name="accent_blue">#FF4FC3F7</color>
+    <color name="terminal_green">#FF00FF41</color>
+    <color name="terminal_bg">#FF0D0D0D</color>
+    <color name="editor_bg">#FF1E1E2E</color>
+    <color name="syntax_keyword">#FFCC7832</color>
+    <color name="syntax_string">#FF6A8759</color>
+    <color name="syntax_comment">#FF808080</color>
+    <color name="syntax_number">#FF6897BB</color>
+    <color name="syntax_function">#FFFFC66D</color>
+    <color name="syntax_preproc">#FF9876AA</color>
+    <color name="line_number_color">#FF555555</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="error_red">#FFFF4444</color>
+</resources>

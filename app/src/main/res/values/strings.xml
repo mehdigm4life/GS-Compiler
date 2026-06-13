@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">GS Compiler</string>
+    <string name="compile">Compile</string>
+    <string name="save">Save</string>
+    <string name="undo">Undo</string>
+    <string name="redo">Redo</string>
+    <string name="open_file">Open File</string>
+    <string name="copy_logs">Copy All Logs</string>
+    <string name="compilation_success">Build successful</string>
+    <string name="compilation_failed">Build failed</string>
+    <string name="output_amx">Output: %s</string>
+    <string name="select_pawn_file">Select .pwn File</string>
+    <string name="no_file_selected">No file selected</string>
+    <string name="console_title">Console</string>
+    <string name="storage_permission_required">Storage permission required to access .pwn files</string>
+</resources>
