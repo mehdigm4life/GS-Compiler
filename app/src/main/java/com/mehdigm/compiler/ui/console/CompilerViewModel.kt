@@ -7,10 +7,14 @@ import com.mehdigm.compiler.compiler.CompilationCallback
 import com.mehdigm.compiler.compiler.NativeCompiler
 import com.mehdigm.compiler.include.IncludeDetector
 import com.mehdigm.compiler.storage.FileManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 data class CompilerUiState(
@@ -31,6 +35,18 @@ class CompilerViewModel : ViewModel() {
     private val compiler = NativeCompiler()
     private var currentContent: String = ""
 
+    private val _consoleChannel = Channel<ConsoleEntry>(Channel.UNLIMITED)
+
+    init {
+        viewModelScope.launch {
+            _consoleChannel.consumeAsFlow().collect { entry ->
+                _uiState.value = _uiState.value.copy(
+                    consoleEntries = _uiState.value.consoleEntries + entry
+                )
+            }
+        }
+    }
+
     fun setEditorValue(value: TextFieldValue) {
         _uiState.value = _uiState.value.copy(editorValue = value)
         currentContent = value.text
@@ -39,11 +55,14 @@ class CompilerViewModel : ViewModel() {
     fun loadFile(file: File) {
         viewModelScope.launch {
             try {
-                val content = FileManager.readFileContent(file)
+                val content = withContext(Dispatchers.IO) {
+                    FileManager.readFileContent(file)
+                }
                 currentContent = content
 
-                /* Auto-detect includes */
-                val includeResult = IncludeDetector.detect(file)
+                val includeResult = withContext(Dispatchers.IO) {
+                    IncludeDetector.detect(file)
+                }
 
                 _uiState.value = _uiState.value.copy(
                     editorValue = TextFieldValue(content),
@@ -67,7 +86,9 @@ class CompilerViewModel : ViewModel() {
         val file = _uiState.value.currentFile ?: return
         viewModelScope.launch {
             try {
-                FileManager.writeFileContent(file, currentContent)
+                withContext(Dispatchers.IO) {
+                    FileManager.writeFileContent(file, currentContent)
+                }
                 addConsoleEntry("=== Saved: ${file.name} ===", isError = false)
             } catch (e: Exception) {
                 addConsoleEntry("Failed to save: ${e.message}", isError = true)
@@ -78,7 +99,9 @@ class CompilerViewModel : ViewModel() {
     fun saveAs(file: File) {
         viewModelScope.launch {
             try {
-                FileManager.writeFileContent(file, currentContent)
+                withContext(Dispatchers.IO) {
+                    FileManager.writeFileContent(file, currentContent)
+                }
                 _uiState.value = _uiState.value.copy(currentFile = file)
                 addConsoleEntry("=== Saved as: ${file.absolutePath} ===", isError = false)
             } catch (e: Exception) {
@@ -104,8 +127,9 @@ class CompilerViewModel : ViewModel() {
             addConsoleEntry("\n=== Compilation started ===", isError = false)
             addConsoleEntry("Input: ${file.absolutePath}", isError = false)
 
-            /* Save current content first */
-            FileManager.writeFileContent(file, currentContent)
+            withContext(Dispatchers.IO) {
+                FileManager.writeFileContent(file, currentContent)
+            }
 
             val outputFile = FileManager.getSuggestedOutputFile(file)
             val includePaths = _uiState.value.detectedIncludes
@@ -123,12 +147,14 @@ class CompilerViewModel : ViewModel() {
                 }
             }
 
-            val result = compiler.compile(
-                inputFile = file,
-                outputFile = outputFile,
-                includePaths = includePaths,
-                callback = callback
-            )
+            val result = withContext(Dispatchers.IO) {
+                compiler.compile(
+                    inputFile = file,
+                    outputFile = outputFile,
+                    includePaths = includePaths,
+                    callback = callback
+                )
+            }
 
             if (result.success) {
                 addConsoleEntry("\n=== Compilation successful! ===", isError = false)
@@ -155,9 +181,6 @@ class CompilerViewModel : ViewModel() {
     }
 
     private fun addConsoleEntry(text: String, isError: Boolean) {
-        val entry = ConsoleEntry(text = text, isError = isError)
-        _uiState.value = _uiState.value.copy(
-            consoleEntries = _uiState.value.consoleEntries + entry
-        )
+        _consoleChannel.trySend(ConsoleEntry(text = text, isError = isError))
     }
 }
