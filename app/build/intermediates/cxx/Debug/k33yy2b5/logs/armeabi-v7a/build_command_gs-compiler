@@ -1,0 +1,4 @@
+/usr/local/lib/android/sdk/cmake/3.22.1/bin/ninja \
+  -C \
+  /home/runner/work/GS-Compiler/GS-Compiler/app/.cxx/Debug/k33yy2b5/armeabi-v7a \
+  gs-compiler

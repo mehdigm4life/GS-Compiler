@@ -1,0 +1,42 @@
+[
+{
+  "directory": "/home/runner/work/GS-Compiler/GS-Compiler/app/.cxx/Debug/k33yy2b5/armeabi-v7a",
+  "command": "/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --target=armv7-none-linux-androideabi26 --sysroot=/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DANDROID -D_GNU_SOURCE -D__ANDROID__ -Dgs_compiler_EXPORTS -I/home/runner/work/GS-Compiler/GS-Compiler/compiler/src -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -march=armv7-a -mthumb -Wformat -Werror=format-security  -mfpu=neon -mfloat-abi=softfp -Wall -Wextra -Wno-unused-parameter -Wno-sign-compare -Wno-missing-field-initializers -fPIC -O2 -fno-limit-debug-info  -fPIC -std=gnu11 -o CMakeFiles/gs-compiler.dir/src/pawncc.c.o -c /home/runner/work/GS-Compiler/GS-Compiler/compiler/src/pawncc.c",
+  "file": "/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/pawncc.c"
+},
+{
+  "directory": "/home/runner/work/GS-Compiler/GS-Compiler/app/.cxx/Debug/k33yy2b5/armeabi-v7a",
+  "command": "/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --target=armv7-none-linux-androideabi26 --sysroot=/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DANDROID -D_GNU_SOURCE -D__ANDROID__ -Dgs_compiler_EXPORTS -I/home/runner/work/GS-Compiler/GS-Compiler/compiler/src -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -march=armv7-a -mthumb -Wformat -Werror=format-security  -mfpu=neon -mfloat-abi=softfp -Wall -Wextra -Wno-unused-parameter -Wno-sign-compare -Wno-missing-field-initializers -fPIC -O2 -fno-limit-debug-info  -fPIC -std=gnu11 -o CMakeFiles/gs-compiler.dir/src/sc.c.o -c /home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c",
+  "file": "/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c"
+},
+{
+  "directory": "/home/runner/work/GS-Compiler/GS-Compiler/app/.cxx/Debug/k33yy2b5/armeabi-v7a",
+  "command": "/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --target=armv7-none-linux-androideabi26 --sysroot=/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DANDROID -D_GNU_SOURCE -D__ANDROID__ -Dgs_compiler_EXPORTS -I/home/runner/work/GS-Compiler/GS-Compiler/compiler/src -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -march=armv7-a -mthumb -Wformat -Werror=format-security  -mfpu=neon -mfloat-abi=softfp -Wall -Wextra -Wno-unused-parameter -Wno-sign-compare -Wno-missing-field-initializers -fPIC -O2 -fno-limit-debug-info  -fPIC -std=gnu11 -o CMakeFiles/gs-compiler.dir/src/scvars.c.o -c /home/runner/work/GS-Compiler/GS-Compiler/compiler/src/scvars.c",
+  "file": "/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/scvars.c"
+},
+{
+  "directory": "/home/runner/work/GS-Compiler/GS-Compiler/app/.cxx/Debug/k33yy2b5/armeabi-v7a",
+  "command": "/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --target=armv7-none-linux-androideabi26 --sysroot=/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DANDROID -D_GNU_SOURCE -D__ANDROID__ -Dgs_compiler_EXPORTS -I/home/runner/work/GS-Compiler/GS-Compiler/compiler/src -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -march=armv7-a -mthumb -Wformat -Werror=format-security  -mfpu=neon -mfloat-abi=softfp -Wall -Wextra -Wno-unused-parameter -Wno-sign-compare -Wno-missing-field-initializers -fPIC -O2 -fno-limit-debug-info  -fPIC -std=gnu11 -o CMakeFiles/gs-compiler.dir/src/sclist.c.o -c /home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sclist.c",
+  "file": "/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sclist.c"
+},
+{
+  "directory": "/home/runner/work/GS-Compiler/GS-Compiler/app/.cxx/Debug/k33yy2b5/armeabi-v7a",
+  "command": "/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --target=armv7-none-linux-androideabi26 --sysroot=/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DANDROID -D_GNU_SOURCE -D__ANDROID__ -Dgs_compiler_EXPORTS -I/home/runner/work/GS-Compiler/GS-Compiler/compiler/src -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -march=armv7-a -mthumb -Wformat -Werror=format-security  -mfpu=neon -mfloat-abi=softfp -Wall -Wextra -Wno-unused-parameter -Wno-sign-compare -Wno-missing-field-initializers -fPIC -O2 -fno-limit-debug-info  -fPIC -std=gnu11 -o CMakeFiles/gs-compiler.dir/src/scstr.c.o -c /home/runner/work/GS-Compiler/GS-Compiler/compiler/src/scstr.c",
+  "file": "/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/scstr.c"
+},
+{
+  "directory": "/home/runner/work/GS-Compiler/GS-Compiler/app/.cxx/Debug/k33yy2b5/armeabi-v7a",
+  "command": "/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --target=armv7-none-linux-androideabi26 --sysroot=/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DANDROID -D_GNU_SOURCE -D__ANDROID__ -Dgs_compiler_EXPORTS -I/home/runner/work/GS-Compiler/GS-Compiler/compiler/src -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -march=armv7-a -mthumb -Wformat -Werror=format-security  -mfpu=neon -mfloat-abi=softfp -Wall -Wextra -Wno-unused-parameter -Wno-sign-compare -Wno-missing-field-initializers -fPIC -O2 -fno-limit-debug-info  -fPIC -std=gnu11 -o CMakeFiles/gs-compiler.dir/src/memfile.c.o -c /home/runner/work/GS-Compiler/GS-Compiler/compiler/src/memfile.c",
+  "file": "/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/memfile.c"
+},
+{
+  "directory": "/home/runner/work/GS-Compiler/GS-Compiler/app/.cxx/Debug/k33yy2b5/armeabi-v7a",
+  "command": "/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --target=armv7-none-linux-androideabi26 --sysroot=/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DANDROID -D_GNU_SOURCE -D__ANDROID__ -Dgs_compiler_EXPORTS -I/home/runner/work/GS-Compiler/GS-Compiler/compiler/src -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -march=armv7-a -mthumb -Wformat -Werror=format-security  -mfpu=neon -mfloat-abi=softfp -Wall -Wextra -Wno-unused-parameter -Wno-sign-compare -Wno-missing-field-initializers -fPIC -O2 -fno-limit-debug-info  -fPIC -std=gnu11 -o CMakeFiles/gs-compiler.dir/src/lngfile.c.o -c /home/runner/work/GS-Compiler/GS-Compiler/compiler/src/lngfile.c",
+  "file": "/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/lngfile.c"
+},
+{
+  "directory": "/home/runner/work/GS-Compiler/GS-Compiler/app/.cxx/Debug/k33yy2b5/armeabi-v7a",
+  "command": "/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=armv7-none-linux-androideabi26 --sysroot=/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DANDROID -D_GNU_SOURCE -D__ANDROID__ -Dgs_compiler_EXPORTS -I/home/runner/work/GS-Compiler/GS-Compiler/compiler/src -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -march=armv7-a -mthumb -Wformat -Werror=format-security   -Wall -Wextra -fPIC -O2 -fno-limit-debug-info  -fPIC -std=gnu++17 -o CMakeFiles/gs-compiler.dir/src/jni_bridge.cpp.o -c /home/runner/work/GS-Compiler/GS-Compiler/compiler/src/jni_bridge.cpp",
+  "file": "/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/jni_bridge.cpp"
+}
+]

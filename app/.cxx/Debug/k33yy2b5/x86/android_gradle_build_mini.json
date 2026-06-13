@@ -1,0 +1,27 @@
+{
+  "buildFiles": [
+    "/home/runner/work/GS-Compiler/GS-Compiler/compiler/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/usr/local/lib/android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/home/runner/work/GS-Compiler/GS-Compiler/app/.cxx/Debug/k33yy2b5/x86",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/usr/local/lib/android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/home/runner/work/GS-Compiler/GS-Compiler/app/.cxx/Debug/k33yy2b5/x86",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "gs-compiler::@6890427a1f51a3e7e1df": {
+      "artifactName": "gs-compiler",
+      "abi": "x86",
+      "output": "/home/runner/work/GS-Compiler/GS-Compiler/app/build/intermediates/cxx/Debug/k33yy2b5/obj/x86/libgs-compiler.so",
+      "runtimeFiles": []
+    }
+  }
+}
