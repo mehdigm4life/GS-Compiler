@@ -3,6 +3,7 @@ package com.mehdigm.compiler.ui.editor
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import com.mehdigm.compiler.ui.theme.GSColors
 
 object PawnSyntaxHighlighter {
