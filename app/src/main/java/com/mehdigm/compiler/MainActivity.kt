@@ -62,9 +62,57 @@ fun GSCompilerApp() {
     val scope = rememberCoroutineScope()
 
     var showStorageDialog by remember { mutableStateOf(false) }
-    var showFilePicker by remember { mutableStateOf(false) }
+    val openFileTrigger = remember { mutableStateOf(false) }
 
-    /* App lifecycle logging */
+    /* File picker for .pwn files */
+    val filePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri: Uri? ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        scope.launch {
+            val content = withContext(Dispatchers.IO) {
+                FileManager.readFromDocument(context, uri)
+            }
+            if (content != null) {
+                viewModel.setEditorValue(
+                    androidx.compose.ui.text.input.TextFieldValue(content)
+                )
+            }
+        }
+    }
+
+    /* Storage permission request */
+    val storageLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { _ ->
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+            && Environment.isExternalStorageManager()
+        ) {
+            AppLogger.start(context)
+            AppLogger.i("GSCompiler", "All files access granted")
+        }
+    }
+
+    /* Check storage permission on launch */
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+            && !Environment.isExternalStorageManager()
+        ) {
+            showStorageDialog = true
+        } else {
+            AppLogger.start(context)
+        }
+    }
+
+    /* Launch file picker when trigger is set */
+    LaunchedEffect(openFileTrigger.value) {
+        if (openFileTrigger.value) {
+            filePickerLauncher.launch(arrayOf("text/plain", "*/*"))
+            openFileTrigger.value = false
+        }
+    }
+
+    /* Lifecycle logging: start/stop AppLogger on resume/pause */
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     DisposableEffect(lifecycle) {
         val observer = LifecycleEventObserver { _, event ->
@@ -76,49 +124,6 @@ fun GSCompilerApp() {
         }
         lifecycle.addObserver(observer)
         onDispose { lifecycle.removeObserver(observer) }
-    }
-
-    /* File picker for .pwn files */
-    val filePickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenDocument()
-    ) { uri: Uri? ->
-        uri?.let {
-            scope.launch {
-                val content = withContext(Dispatchers.IO) {
-                    FileManager.readFromDocument(context, it)
-                }
-                if (content != null) {
-                    viewModel.setEditorValue(
-                        androidx.compose.ui.text.input.TextFieldValue(content)
-                    )
-                }
-            }
-        }
-    }
-
-    /* Storage permission request */
-    val storageLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { _ ->
-        if (!FileManager.hasManageStoragePermission(context)) {
-            Toast.makeText(context, "Storage permission is required", Toast.LENGTH_LONG).show()
-        }
-    }
-
-    /* Check storage permission on launch */
-    LaunchedEffect(Unit) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (!Environment.isExternalStorageManager()) {
-                showStorageDialog = true
-            }
-        }
-    }
-
-    LaunchedEffect(showFilePicker) {
-        if (showFilePicker) {
-            filePickerLauncher.launch(arrayOf("text/plain", "*/*"))
-            showFilePicker = false
-        }
     }
 
     /* Storage permission dialog */
@@ -138,8 +143,9 @@ fun GSCompilerApp() {
                 TextButton(onClick = {
                     showStorageDialog = false
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                        val intent = FileManager.requestManageStorageIntent()
-                        storageLauncher.launch(intent)
+                        storageLauncher.launch(
+                            FileManager.requestManageStorageIntent()
+                        )
                     }
                 }) {
                     Text("Grant Access")
@@ -202,7 +208,7 @@ fun GSCompilerApp() {
                 onRedo = { /* redo */ },
                 onSave = { viewModel.saveFile() },
                 onCompile = { viewModel.compile() },
-                onOpenFile = { showFilePicker = true }
+                onOpenFile = { openFileTrigger.value = true }
             )
 
             /* Editor area */
