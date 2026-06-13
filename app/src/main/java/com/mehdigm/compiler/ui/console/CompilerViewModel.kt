@@ -1,0 +1,163 @@
+package com.mehdigm.compiler.ui.console
+
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.mehdigm.compiler.compiler.CompilationCallback
+import com.mehdigm.compiler.compiler.NativeCompiler
+import com.mehdigm.compiler.include.IncludeDetector
+import com.mehdigm.compiler.storage.FileManager
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import java.io.File
+
+data class CompilerUiState(
+    val editorValue: TextFieldValue = TextFieldValue(""),
+    val currentFile: File? = null,
+    val consoleEntries: List<ConsoleEntry> = emptyList(),
+    val isCompiling: Boolean = false,
+    val isCompileSuccess: Boolean? = false,
+    val detectedIncludes: List<String> = emptyList(),
+    val consoleExpanded: Boolean = true
+)
+
+class CompilerViewModel : ViewModel() {
+
+    private val _uiState = MutableStateFlow(CompilerUiState())
+    val uiState: StateFlow<CompilerUiState> = _uiState.asStateFlow()
+
+    private val compiler = NativeCompiler()
+    private var currentContent: String = ""
+
+    fun setEditorValue(value: TextFieldValue) {
+        _uiState.value = _uiState.value.copy(editorValue = value)
+        currentContent = value.text
+    }
+
+    fun loadFile(file: File) {
+        viewModelScope.launch {
+            try {
+                val content = FileManager.readFileContent(file)
+                currentContent = content
+
+                /* Auto-detect includes */
+                val includeResult = IncludeDetector.detect(file)
+
+                _uiState.value = _uiState.value.copy(
+                    editorValue = TextFieldValue(content),
+                    currentFile = file,
+                    consoleEntries = listOf(
+                        ConsoleEntry("=== File loaded: ${file.name} ===", isError = false),
+                        ConsoleEntry("Path: ${file.absolutePath}", isError = false),
+                        ConsoleEntry("Detected includes: ${includeResult.includePaths.size} paths", isError = false)
+                    ) + includeResult.includePaths.map { path ->
+                        ConsoleEntry("  Include: $path", isError = false)
+                    },
+                    detectedIncludes = includeResult.includePaths
+                )
+            } catch (e: Exception) {
+                addConsoleEntry("Failed to load file: ${e.message}", isError = true)
+            }
+        }
+    }
+
+    fun saveFile() {
+        val file = _uiState.value.currentFile ?: return
+        viewModelScope.launch {
+            try {
+                FileManager.writeFileContent(file, currentContent)
+                addConsoleEntry("=== Saved: ${file.name} ===", isError = false)
+            } catch (e: Exception) {
+                addConsoleEntry("Failed to save: ${e.message}", isError = true)
+            }
+        }
+    }
+
+    fun saveAs(file: File) {
+        viewModelScope.launch {
+            try {
+                FileManager.writeFileContent(file, currentContent)
+                _uiState.value = _uiState.value.copy(currentFile = file)
+                addConsoleEntry("=== Saved as: ${file.absolutePath} ===", isError = false)
+            } catch (e: Exception) {
+                addConsoleEntry("Failed to save: ${e.message}", isError = true)
+            }
+        }
+    }
+
+    fun compile() {
+        val file = _uiState.value.currentFile ?: run {
+            addConsoleEntry("No file selected. Save or open a .pwn file first.", isError = true)
+            return
+        }
+
+        if (!file.name.endsWith(".pwn", ignoreCase = true)) {
+            addConsoleEntry("Not a .pwn file: ${file.name}", isError = true)
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isCompiling = true, isCompileSuccess = null)
+
+            addConsoleEntry("\n=== Compilation started ===", isError = false)
+            addConsoleEntry("Input: ${file.absolutePath}", isError = false)
+
+            /* Save current content first */
+            FileManager.writeFileContent(file, currentContent)
+
+            val outputFile = FileManager.getSuggestedOutputFile(file)
+            val includePaths = _uiState.value.detectedIncludes
+
+            if (includePaths.isNotEmpty()) {
+                addConsoleEntry("Include paths (${includePaths.size}):", isError = false)
+                includePaths.forEach { path ->
+                    addConsoleEntry("  -i $path", isError = false)
+                }
+            }
+
+            val callback = object : CompilationCallback {
+                override fun onOutput(text: String, isError: Boolean) {
+                    addConsoleEntry(text.trimEnd(), isError)
+                }
+            }
+
+            val result = compiler.compile(
+                inputFile = file,
+                outputFile = outputFile,
+                includePaths = includePaths,
+                callback = callback
+            )
+
+            if (result.success) {
+                addConsoleEntry("\n=== Compilation successful! ===", isError = false)
+                addConsoleEntry("Output: ${result.outputPath}", isError = false)
+            } else {
+                addConsoleEntry("\n=== Compilation failed ===", isError = true)
+            }
+
+            _uiState.value = _uiState.value.copy(
+                isCompiling = false,
+                isCompileSuccess = result.success
+            )
+        }
+    }
+
+    fun toggleConsole() {
+        _uiState.value = _uiState.value.copy(
+            consoleExpanded = !_uiState.value.consoleExpanded
+        )
+    }
+
+    fun clearConsole() {
+        _uiState.value = _uiState.value.copy(consoleEntries = emptyList())
+    }
+
+    private fun addConsoleEntry(text: String, isError: Boolean) {
+        val entry = ConsoleEntry(text = text, isError = isError)
+        _uiState.value = _uiState.value.copy(
+            consoleEntries = _uiState.value.consoleEntries + entry
+        )
+    }
+}
