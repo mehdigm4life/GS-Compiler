@@ -1,0 +1,3 @@
+/home/runner/work/GS-Compiler/GS-Compiler/app/.cxx/Debug/k33yy2b5/arm64-v8a/CMakeFiles/gs-compiler.dir
+/home/runner/work/GS-Compiler/GS-Compiler/app/.cxx/Debug/k33yy2b5/arm64-v8a/CMakeFiles/edit_cache.dir
+/home/runner/work/GS-Compiler/GS-Compiler/app/.cxx/Debug/k33yy2b5/arm64-v8a/CMakeFiles/rebuild_cache.dir

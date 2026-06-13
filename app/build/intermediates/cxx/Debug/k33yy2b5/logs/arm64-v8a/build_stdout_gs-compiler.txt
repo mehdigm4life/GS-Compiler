@@ -1,0 +1,156 @@
+ninja: Entering directory `/home/runner/work/GS-Compiler/GS-Compiler/app/.cxx/Debug/k33yy2b5/arm64-v8a'
+[1/9] Building C object CMakeFiles/gs-compiler.dir/src/memfile.c.o
+FAILED: CMakeFiles/gs-compiler.dir/src/memfile.c.o 
+/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --target=aarch64-none-linux-android26 --sysroot=/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DANDROID -D_GNU_SOURCE -D__ANDROID__ -Dgs_compiler_EXPORTS -I/home/runner/work/GS-Compiler/GS-Compiler/compiler/src -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -Wall -Wextra -Wno-unused-parameter -Wno-sign-compare -Wno-missing-field-initializers -fPIC -O2 -fno-limit-debug-info  -fPIC -std=gnu11 -MD -MT CMakeFiles/gs-compiler.dir/src/memfile.c.o -MF CMakeFiles/gs-compiler.dir/src/memfile.c.o.d -o CMakeFiles/gs-compiler.dir/src/memfile.c.o -c /home/runner/work/GS-Compiler/GS-Compiler/compiler/src/memfile.c
+In file included from /home/runner/work/GS-Compiler/GS-Compiler/compiler/src/memfile.c:1:
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:39:44: error: expected identifier
+    OP_PUSH, OP_PUSH_C, OP_PUSH_S, OP_POP, OP_STACK,
+                                           ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:25:19: note: expanded from macro 'OP_STACK'
+#define OP_STACK  2
+                  ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:53:37: error: expected identifier
+    OP_SWAP, OP_BOUNDS, OP_ADDRESS, OP_CONST, OP_PUSH_S_PRI,
+                                    ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:24:19: note: expanded from macro 'OP_CONST'
+#define OP_CONST  1
+                  ^
+2 errors generated.
+[2/9] Building C object CMakeFiles/gs-compiler.dir/src/sclist.c.o
+FAILED: CMakeFiles/gs-compiler.dir/src/sclist.c.o 
+/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --target=aarch64-none-linux-android26 --sysroot=/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DANDROID -D_GNU_SOURCE -D__ANDROID__ -Dgs_compiler_EXPORTS -I/home/runner/work/GS-Compiler/GS-Compiler/compiler/src -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -Wall -Wextra -Wno-unused-parameter -Wno-sign-compare -Wno-missing-field-initializers -fPIC -O2 -fno-limit-debug-info  -fPIC -std=gnu11 -MD -MT CMakeFiles/gs-compiler.dir/src/sclist.c.o -MF CMakeFiles/gs-compiler.dir/src/sclist.c.o.d -o CMakeFiles/gs-compiler.dir/src/sclist.c.o -c /home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sclist.c
+In file included from /home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sclist.c:1:
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:39:44: error: expected identifier
+    OP_PUSH, OP_PUSH_C, OP_PUSH_S, OP_POP, OP_STACK,
+                                           ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:25:19: note: expanded from macro 'OP_STACK'
+#define OP_STACK  2
+                  ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:53:37: error: expected identifier
+    OP_SWAP, OP_BOUNDS, OP_ADDRESS, OP_CONST, OP_PUSH_S_PRI,
+                                    ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:24:19: note: expanded from macro 'OP_CONST'
+#define OP_CONST  1
+                  ^
+2 errors generated.
+[3/9] Building C object CMakeFiles/gs-compiler.dir/src/scvars.c.o
+FAILED: CMakeFiles/gs-compiler.dir/src/scvars.c.o 
+/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --target=aarch64-none-linux-android26 --sysroot=/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DANDROID -D_GNU_SOURCE -D__ANDROID__ -Dgs_compiler_EXPORTS -I/home/runner/work/GS-Compiler/GS-Compiler/compiler/src -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -Wall -Wextra -Wno-unused-parameter -Wno-sign-compare -Wno-missing-field-initializers -fPIC -O2 -fno-limit-debug-info  -fPIC -std=gnu11 -MD -MT CMakeFiles/gs-compiler.dir/src/scvars.c.o -MF CMakeFiles/gs-compiler.dir/src/scvars.c.o.d -o CMakeFiles/gs-compiler.dir/src/scvars.c.o -c /home/runner/work/GS-Compiler/GS-Compiler/compiler/src/scvars.c
+In file included from /home/runner/work/GS-Compiler/GS-Compiler/compiler/src/scvars.c:1:
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:39:44: error: expected identifier
+    OP_PUSH, OP_PUSH_C, OP_PUSH_S, OP_POP, OP_STACK,
+                                           ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:25:19: note: expanded from macro 'OP_STACK'
+#define OP_STACK  2
+                  ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:53:37: error: expected identifier
+    OP_SWAP, OP_BOUNDS, OP_ADDRESS, OP_CONST, OP_PUSH_S_PRI,
+                                    ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:24:19: note: expanded from macro 'OP_CONST'
+#define OP_CONST  1
+                  ^
+2 errors generated.
+[4/9] Building C object CMakeFiles/gs-compiler.dir/src/pawncc.c.o
+FAILED: CMakeFiles/gs-compiler.dir/src/pawncc.c.o 
+/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --target=aarch64-none-linux-android26 --sysroot=/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DANDROID -D_GNU_SOURCE -D__ANDROID__ -Dgs_compiler_EXPORTS -I/home/runner/work/GS-Compiler/GS-Compiler/compiler/src -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -Wall -Wextra -Wno-unused-parameter -Wno-sign-compare -Wno-missing-field-initializers -fPIC -O2 -fno-limit-debug-info  -fPIC -std=gnu11 -MD -MT CMakeFiles/gs-compiler.dir/src/pawncc.c.o -MF CMakeFiles/gs-compiler.dir/src/pawncc.c.o.d -o CMakeFiles/gs-compiler.dir/src/pawncc.c.o -c /home/runner/work/GS-Compiler/GS-Compiler/compiler/src/pawncc.c
+In file included from /home/runner/work/GS-Compiler/GS-Compiler/compiler/src/pawncc.c:1:
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:39:44: error: expected identifier
+    OP_PUSH, OP_PUSH_C, OP_PUSH_S, OP_POP, OP_STACK,
+                                           ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:25:19: note: expanded from macro 'OP_STACK'
+#define OP_STACK  2
+                  ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:53:37: error: expected identifier
+    OP_SWAP, OP_BOUNDS, OP_ADDRESS, OP_CONST, OP_PUSH_S_PRI,
+                                    ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:24:19: note: expanded from macro 'OP_CONST'
+#define OP_CONST  1
+                  ^
+2 errors generated.
+[5/9] Building C object CMakeFiles/gs-compiler.dir/src/scstr.c.o
+FAILED: CMakeFiles/gs-compiler.dir/src/scstr.c.o 
+/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --target=aarch64-none-linux-android26 --sysroot=/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DANDROID -D_GNU_SOURCE -D__ANDROID__ -Dgs_compiler_EXPORTS -I/home/runner/work/GS-Compiler/GS-Compiler/compiler/src -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -Wall -Wextra -Wno-unused-parameter -Wno-sign-compare -Wno-missing-field-initializers -fPIC -O2 -fno-limit-debug-info  -fPIC -std=gnu11 -MD -MT CMakeFiles/gs-compiler.dir/src/scstr.c.o -MF CMakeFiles/gs-compiler.dir/src/scstr.c.o.d -o CMakeFiles/gs-compiler.dir/src/scstr.c.o -c /home/runner/work/GS-Compiler/GS-Compiler/compiler/src/scstr.c
+In file included from /home/runner/work/GS-Compiler/GS-Compiler/compiler/src/scstr.c:1:
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:39:44: error: expected identifier
+    OP_PUSH, OP_PUSH_C, OP_PUSH_S, OP_POP, OP_STACK,
+                                           ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:25:19: note: expanded from macro 'OP_STACK'
+#define OP_STACK  2
+                  ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:53:37: error: expected identifier
+    OP_SWAP, OP_BOUNDS, OP_ADDRESS, OP_CONST, OP_PUSH_S_PRI,
+                                    ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:24:19: note: expanded from macro 'OP_CONST'
+#define OP_CONST  1
+                  ^
+2 errors generated.
+[6/9] Building C object CMakeFiles/gs-compiler.dir/src/sc.c.o
+FAILED: CMakeFiles/gs-compiler.dir/src/sc.c.o 
+/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --target=aarch64-none-linux-android26 --sysroot=/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DANDROID -D_GNU_SOURCE -D__ANDROID__ -Dgs_compiler_EXPORTS -I/home/runner/work/GS-Compiler/GS-Compiler/compiler/src -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -Wall -Wextra -Wno-unused-parameter -Wno-sign-compare -Wno-missing-field-initializers -fPIC -O2 -fno-limit-debug-info  -fPIC -std=gnu11 -MD -MT CMakeFiles/gs-compiler.dir/src/sc.c.o -MF CMakeFiles/gs-compiler.dir/src/sc.c.o.d -o CMakeFiles/gs-compiler.dir/src/sc.c.o -c /home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c
+In file included from /home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:1:
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:39:44: error: expected identifier
+    OP_PUSH, OP_PUSH_C, OP_PUSH_S, OP_POP, OP_STACK,
+                                           ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:25:19: note: expanded from macro 'OP_STACK'
+#define OP_STACK  2
+                  ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:53:37: error: expected identifier
+    OP_SWAP, OP_BOUNDS, OP_ADDRESS, OP_CONST, OP_PUSH_S_PRI,
+                                    ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:24:19: note: expanded from macro 'OP_CONST'
+#define OP_CONST  1
+                  ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:144:17: error: use of undeclared identifier 'g_code_idx'
+    sym->addr = g_code_idx;
+                ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:196:36: error: use of undeclared identifier 'g_codeblock'
+    memset(&g_codeblock, 0, sizeof(g_codeblock));
+                                   ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:196:13: error: use of undeclared identifier 'g_codeblock'
+    memset(&g_codeblock, 0, sizeof(g_codeblock));
+            ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:197:5: error: use of undeclared identifier 'g_codeblock'
+    g_codeblock.maxlength = 1024 * 1024;
+    ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:198:5: error: use of undeclared identifier 'g_codeblock'
+    g_codeblock.code = (char *)malloc((size_t)g_codeblock.maxlength);
+    ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:198:47: error: use of undeclared identifier 'g_codeblock'
+    g_codeblock.code = (char *)malloc((size_t)g_codeblock.maxlength);
+                                              ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:199:9: error: use of undeclared identifier 'g_codeblock'
+    if (g_codeblock.code != NULL)
+        ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:200:45: error: use of undeclared identifier 'g_codeblock'
+        memset(g_codeblock.code, 0, (size_t)g_codeblock.maxlength);
+                                            ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:200:16: error: use of undeclared identifier 'g_codeblock'
+        memset(g_codeblock.code, 0, (size_t)g_codeblock.maxlength);
+               ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:201:5: error: use of undeclared identifier 'g_codeblock'
+    g_codeblock.stage = STAGE_NONE;
+    ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:203:5: error: use of undeclared identifier 'g_codeblock'
+    g_codeblock.lfile = (long *)malloc(sizeof(long) * 4096);
+    ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:204:5: error: use of undeclared identifier 'g_codeblock'
+    g_codeblock.lline = (long *)malloc(sizeof(long) * 4096);
+    ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:205:5: error: use of undeclared identifier 'g_codeblock'
+    g_codeblock.num_file = 0;
+    ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:206:5: error: use of undeclared identifier 'g_codeblock'
+    g_codeblock.num_line = 0;
+    ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:208:5: error: use of undeclared identifier 'g_codeblock'
+    g_codeblock.curlength = 0;
+    ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:209:5: error: use of undeclared identifier 'g_codeblock'
+    g_codeblock.lastfile = 0;
+    ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:210:5: error: use of undeclared identifier 'g_codeblock'
+    g_codeblock.lastline = 0;
+    ^
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+20 errors generated.
+ninja: build stopped: subcommand failed.
