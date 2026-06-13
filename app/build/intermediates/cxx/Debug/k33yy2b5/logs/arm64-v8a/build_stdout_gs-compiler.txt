@@ -1,156 +1,132 @@
 ninja: Entering directory `/home/runner/work/GS-Compiler/GS-Compiler/app/.cxx/Debug/k33yy2b5/arm64-v8a'
-[1/9] Building C object CMakeFiles/gs-compiler.dir/src/scvars.c.o
-FAILED: CMakeFiles/gs-compiler.dir/src/scvars.c.o 
-/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --target=aarch64-none-linux-android26 --sysroot=/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DANDROID -D_GNU_SOURCE -D__ANDROID__ -Dgs_compiler_EXPORTS -I/home/runner/work/GS-Compiler/GS-Compiler/compiler/src -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -Wall -Wextra -Wno-unused-parameter -Wno-sign-compare -Wno-missing-field-initializers -fPIC -O2 -fno-limit-debug-info  -fPIC -std=gnu11 -MD -MT CMakeFiles/gs-compiler.dir/src/scvars.c.o -MF CMakeFiles/gs-compiler.dir/src/scvars.c.o.d -o CMakeFiles/gs-compiler.dir/src/scvars.c.o -c /home/runner/work/GS-Compiler/GS-Compiler/compiler/src/scvars.c
-In file included from /home/runner/work/GS-Compiler/GS-Compiler/compiler/src/scvars.c:1:
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:39:44: error: expected identifier
-    OP_PUSH, OP_PUSH_C, OP_PUSH_S, OP_POP, OP_STACK,
-                                           ^
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:25:19: note: expanded from macro 'OP_STACK'
-#define OP_STACK  2
-                  ^
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:53:37: error: expected identifier
-    OP_SWAP, OP_BOUNDS, OP_ADDRESS, OP_CONST, OP_PUSH_S_PRI,
-                                    ^
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:24:19: note: expanded from macro 'OP_CONST'
-#define OP_CONST  1
-                  ^
-2 errors generated.
-[2/9] Building C object CMakeFiles/gs-compiler.dir/src/sclist.c.o
-FAILED: CMakeFiles/gs-compiler.dir/src/sclist.c.o 
-/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --target=aarch64-none-linux-android26 --sysroot=/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DANDROID -D_GNU_SOURCE -D__ANDROID__ -Dgs_compiler_EXPORTS -I/home/runner/work/GS-Compiler/GS-Compiler/compiler/src -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -Wall -Wextra -Wno-unused-parameter -Wno-sign-compare -Wno-missing-field-initializers -fPIC -O2 -fno-limit-debug-info  -fPIC -std=gnu11 -MD -MT CMakeFiles/gs-compiler.dir/src/sclist.c.o -MF CMakeFiles/gs-compiler.dir/src/sclist.c.o.d -o CMakeFiles/gs-compiler.dir/src/sclist.c.o -c /home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sclist.c
-In file included from /home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sclist.c:1:
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:39:44: error: expected identifier
-    OP_PUSH, OP_PUSH_C, OP_PUSH_S, OP_POP, OP_STACK,
-                                           ^
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:25:19: note: expanded from macro 'OP_STACK'
-#define OP_STACK  2
-                  ^
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:53:37: error: expected identifier
-    OP_SWAP, OP_BOUNDS, OP_ADDRESS, OP_CONST, OP_PUSH_S_PRI,
-                                    ^
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:24:19: note: expanded from macro 'OP_CONST'
-#define OP_CONST  1
-                  ^
-2 errors generated.
-[3/9] Building C object CMakeFiles/gs-compiler.dir/src/scstr.c.o
-FAILED: CMakeFiles/gs-compiler.dir/src/scstr.c.o 
-/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --target=aarch64-none-linux-android26 --sysroot=/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DANDROID -D_GNU_SOURCE -D__ANDROID__ -Dgs_compiler_EXPORTS -I/home/runner/work/GS-Compiler/GS-Compiler/compiler/src -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -Wall -Wextra -Wno-unused-parameter -Wno-sign-compare -Wno-missing-field-initializers -fPIC -O2 -fno-limit-debug-info  -fPIC -std=gnu11 -MD -MT CMakeFiles/gs-compiler.dir/src/scstr.c.o -MF CMakeFiles/gs-compiler.dir/src/scstr.c.o.d -o CMakeFiles/gs-compiler.dir/src/scstr.c.o -c /home/runner/work/GS-Compiler/GS-Compiler/compiler/src/scstr.c
-In file included from /home/runner/work/GS-Compiler/GS-Compiler/compiler/src/scstr.c:1:
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:39:44: error: expected identifier
-    OP_PUSH, OP_PUSH_C, OP_PUSH_S, OP_POP, OP_STACK,
-                                           ^
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:25:19: note: expanded from macro 'OP_STACK'
-#define OP_STACK  2
-                  ^
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:53:37: error: expected identifier
-    OP_SWAP, OP_BOUNDS, OP_ADDRESS, OP_CONST, OP_PUSH_S_PRI,
-                                    ^
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:24:19: note: expanded from macro 'OP_CONST'
-#define OP_CONST  1
-                  ^
-2 errors generated.
-[4/9] Building C object CMakeFiles/gs-compiler.dir/src/pawncc.c.o
-FAILED: CMakeFiles/gs-compiler.dir/src/pawncc.c.o 
-/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --target=aarch64-none-linux-android26 --sysroot=/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DANDROID -D_GNU_SOURCE -D__ANDROID__ -Dgs_compiler_EXPORTS -I/home/runner/work/GS-Compiler/GS-Compiler/compiler/src -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -Wall -Wextra -Wno-unused-parameter -Wno-sign-compare -Wno-missing-field-initializers -fPIC -O2 -fno-limit-debug-info  -fPIC -std=gnu11 -MD -MT CMakeFiles/gs-compiler.dir/src/pawncc.c.o -MF CMakeFiles/gs-compiler.dir/src/pawncc.c.o.d -o CMakeFiles/gs-compiler.dir/src/pawncc.c.o -c /home/runner/work/GS-Compiler/GS-Compiler/compiler/src/pawncc.c
-In file included from /home/runner/work/GS-Compiler/GS-Compiler/compiler/src/pawncc.c:1:
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:39:44: error: expected identifier
-    OP_PUSH, OP_PUSH_C, OP_PUSH_S, OP_POP, OP_STACK,
-                                           ^
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:25:19: note: expanded from macro 'OP_STACK'
-#define OP_STACK  2
-                  ^
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:53:37: error: expected identifier
-    OP_SWAP, OP_BOUNDS, OP_ADDRESS, OP_CONST, OP_PUSH_S_PRI,
-                                    ^
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:24:19: note: expanded from macro 'OP_CONST'
-#define OP_CONST  1
-                  ^
-2 errors generated.
-[5/9] Building C object CMakeFiles/gs-compiler.dir/src/memfile.c.o
-FAILED: CMakeFiles/gs-compiler.dir/src/memfile.c.o 
-/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --target=aarch64-none-linux-android26 --sysroot=/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DANDROID -D_GNU_SOURCE -D__ANDROID__ -Dgs_compiler_EXPORTS -I/home/runner/work/GS-Compiler/GS-Compiler/compiler/src -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -Wall -Wextra -Wno-unused-parameter -Wno-sign-compare -Wno-missing-field-initializers -fPIC -O2 -fno-limit-debug-info  -fPIC -std=gnu11 -MD -MT CMakeFiles/gs-compiler.dir/src/memfile.c.o -MF CMakeFiles/gs-compiler.dir/src/memfile.c.o.d -o CMakeFiles/gs-compiler.dir/src/memfile.c.o -c /home/runner/work/GS-Compiler/GS-Compiler/compiler/src/memfile.c
-In file included from /home/runner/work/GS-Compiler/GS-Compiler/compiler/src/memfile.c:1:
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:39:44: error: expected identifier
-    OP_PUSH, OP_PUSH_C, OP_PUSH_S, OP_POP, OP_STACK,
-                                           ^
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:25:19: note: expanded from macro 'OP_STACK'
-#define OP_STACK  2
-                  ^
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:53:37: error: expected identifier
-    OP_SWAP, OP_BOUNDS, OP_ADDRESS, OP_CONST, OP_PUSH_S_PRI,
-                                    ^
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:24:19: note: expanded from macro 'OP_CONST'
-#define OP_CONST  1
-                  ^
-2 errors generated.
-[6/9] Building C object CMakeFiles/gs-compiler.dir/src/sc.c.o
+[1/3] Building C object CMakeFiles/gs-compiler.dir/src/sc.c.o
 FAILED: CMakeFiles/gs-compiler.dir/src/sc.c.o 
 /usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --target=aarch64-none-linux-android26 --sysroot=/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DANDROID -D_GNU_SOURCE -D__ANDROID__ -Dgs_compiler_EXPORTS -I/home/runner/work/GS-Compiler/GS-Compiler/compiler/src -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -Wall -Wextra -Wno-unused-parameter -Wno-sign-compare -Wno-missing-field-initializers -fPIC -O2 -fno-limit-debug-info  -fPIC -std=gnu11 -MD -MT CMakeFiles/gs-compiler.dir/src/sc.c.o -MF CMakeFiles/gs-compiler.dir/src/sc.c.o.d -o CMakeFiles/gs-compiler.dir/src/sc.c.o -c /home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c
-In file included from /home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:1:
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:39:44: error: expected identifier
-    OP_PUSH, OP_PUSH_C, OP_PUSH_S, OP_POP, OP_STACK,
-                                           ^
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:25:19: note: expanded from macro 'OP_STACK'
-#define OP_STACK  2
-                  ^
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:53:37: error: expected identifier
-    OP_SWAP, OP_BOUNDS, OP_ADDRESS, OP_CONST, OP_PUSH_S_PRI,
-                                    ^
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:24:19: note: expanded from macro 'OP_CONST'
-#define OP_CONST  1
-                  ^
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:144:17: error: use of undeclared identifier 'g_code_idx'
-    sym->addr = g_code_idx;
-                ^
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:196:36: error: use of undeclared identifier 'g_codeblock'
-    memset(&g_codeblock, 0, sizeof(g_codeblock));
-                                   ^
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:196:13: error: use of undeclared identifier 'g_codeblock'
-    memset(&g_codeblock, 0, sizeof(g_codeblock));
-            ^
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:197:5: error: use of undeclared identifier 'g_codeblock'
-    g_codeblock.maxlength = 1024 * 1024;
-    ^
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:198:5: error: use of undeclared identifier 'g_codeblock'
-    g_codeblock.code = (char *)malloc((size_t)g_codeblock.maxlength);
-    ^
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:198:47: error: use of undeclared identifier 'g_codeblock'
-    g_codeblock.code = (char *)malloc((size_t)g_codeblock.maxlength);
-                                              ^
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:199:9: error: use of undeclared identifier 'g_codeblock'
-    if (g_codeblock.code != NULL)
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:987:9: warning: unused variable 'jump_to_check' [-Wunused-variable]
+    int jump_to_check = loop_check;
         ^
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:200:45: error: use of undeclared identifier 'g_codeblock'
-        memset(g_codeblock.code, 0, (size_t)g_codeblock.maxlength);
-                                            ^
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:200:16: error: use of undeclared identifier 'g_codeblock'
-        memset(g_codeblock.code, 0, (size_t)g_codeblock.maxlength);
-               ^
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:201:5: error: use of undeclared identifier 'g_codeblock'
-    g_codeblock.stage = STAGE_NONE;
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:988:9: warning: unused variable 'current_pos' [-Wunused-variable]
+    int current_pos = g_codeblock.curlength;
+        ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:1017:12: error: static declaration of 'pc_parse_statement' follows non-static declaration
+static int pc_parse_statement(void) {
+           ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.h:162:5: note: previous declaration is here
+int pc_parse_statement(void);
     ^
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:203:5: error: use of undeclared identifier 'g_codeblock'
-    g_codeblock.lfile = (long *)malloc(sizeof(long) * 4096);
-    ^
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:204:5: error: use of undeclared identifier 'g_codeblock'
-    g_codeblock.lline = (long *)malloc(sizeof(long) * 4096);
-    ^
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:205:5: error: use of undeclared identifier 'g_codeblock'
-    g_codeblock.num_file = 0;
-    ^
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:206:5: error: use of undeclared identifier 'g_codeblock'
-    g_codeblock.num_line = 0;
-    ^
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:208:5: error: use of undeclared identifier 'g_codeblock'
-    g_codeblock.curlength = 0;
-    ^
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:209:5: error: use of undeclared identifier 'g_codeblock'
-    g_codeblock.lastfile = 0;
-    ^
-/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:210:5: error: use of undeclared identifier 'g_codeblock'
-    g_codeblock.lastline = 0;
-    ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/sc.c:1102:17: warning: unused variable 'old_sp' [-Wunused-variable]
+            int old_sp = func_sp;
+                ^
+3 warnings and 1 error generated.
+[2/3] Building CXX object CMakeFiles/gs-compiler.dir/src/jni_bridge.cpp.o
+FAILED: CMakeFiles/gs-compiler.dir/src/jni_bridge.cpp.o 
+/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=aarch64-none-linux-android26 --sysroot=/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DANDROID -D_GNU_SOURCE -D__ANDROID__ -Dgs_compiler_EXPORTS -I/home/runner/work/GS-Compiler/GS-Compiler/compiler/src -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -Wall -Wextra -fPIC -O2 -fno-limit-debug-info  -fPIC -std=gnu++17 -MD -MT CMakeFiles/gs-compiler.dir/src/jni_bridge.cpp.o -MF CMakeFiles/gs-compiler.dir/src/jni_bridge.cpp.o.d -o CMakeFiles/gs-compiler.dir/src/jni_bridge.cpp.o -c /home/runner/work/GS-Compiler/GS-Compiler/compiler/src/jni_bridge.cpp
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/jni_bridge.cpp:97:26: error: member reference type 'JavaVM' (aka '_JavaVM') is not a pointer; did you mean to use '.'?
+    int status = (*g_jvm)->GetEnv(g_jvm, (void **)&env, JNI_VERSION_1_6);
+                 ~~~~~~~~^~
+                         .
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/jni_bridge.cpp:97:57: error: too many arguments to function call, expected 2, have 3
+    int status = (*g_jvm)->GetEnv(g_jvm, (void **)&env, JNI_VERSION_1_6);
+                 ~~~~~~~~~~~~~~~~                       ^~~~~~~~~~~~~~~
+/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/jni.h:1129:25: note: expanded from macro 'JNI_VERSION_1_6'
+#define JNI_VERSION_1_6 0x00010006
+                        ^~~~~~~~~~
+/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/jni.h:1061:10: note: 'GetEnv' declared here
+    jint GetEnv(void** env, jint version)
+         ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/jni_bridge.cpp:99:26: error: member reference type 'JavaVM' (aka '_JavaVM') is not a pointer; did you mean to use '.'?
+        status = (*g_jvm)->AttachCurrentThread(g_jvm, &env, NULL);
+                 ~~~~~~~~^~
+                         .
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/jni_bridge.cpp:99:61: error: too many arguments to function call, expected 2, have 3
+        status = (*g_jvm)->AttachCurrentThread(g_jvm, &env, NULL);
+                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~              ^~~~
+/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/14.0.6/include/stddef.h:84:18: note: expanded from macro 'NULL'
+#    define NULL __null
+                 ^~~~~~
+/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/jni.h:1057:10: note: 'AttachCurrentThread' declared here
+    jint AttachCurrentThread(JNIEnv** p_env, void* thr_args)
+         ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/jni_bridge.cpp:115:27: error: member reference type 'JNIEnv' (aka '_JNIEnv') is not a pointer; did you mean to use '.'?
+    jstring jtext = (*env)->NewStringUTF(env, text);
+                    ~~~~~~^~
+                          .
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/jni_bridge.cpp:115:47: error: too many arguments to function call, expected single argument 'bytes', have 2 arguments
+    jstring jtext = (*env)->NewStringUTF(env, text);
+                    ~~~~~~~~~~~~~~~~~~~~      ^~~~
+/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/jni.h:839:13: note: 'NewStringUTF' declared here
+    jstring NewStringUTF(const char* bytes)
+            ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/jni_bridge.cpp:118:11: error: member reference type 'JNIEnv' (aka '_JNIEnv') is not a pointer; did you mean to use '.'?
+    (*env)->CallVoidMethod(env, g_callback_obj, g_on_output_method, jtext, is_error);
+    ~~~~~~^~
+          .
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/jni_bridge.cpp:118:28: error: cannot initialize a parameter of type 'jobject' (aka '_jobject *') with an lvalue of type 'JNIEnv *' (aka '_JNIEnv *')
+    (*env)->CallVoidMethod(env, g_callback_obj, g_on_output_method, jtext, is_error);
+                           ^~~
+/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/jni.h:627:33: note: passing argument to parameter 'obj' here
+    void CallVoidMethod(jobject obj, jmethodID methodID, ...)
+                                ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/jni_bridge.cpp:119:11: error: member reference type 'JNIEnv' (aka '_JNIEnv') is not a pointer; did you mean to use '.'?
+    (*env)->DeleteLocalRef(env, jtext);
+    ~~~~~~^~
+          .
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/jni_bridge.cpp:119:33: error: too many arguments to function call, expected single argument 'localRef', have 2 arguments
+    (*env)->DeleteLocalRef(env, jtext);
+    ~~~~~~~~~~~~~~~~~~~~~~      ^~~~~
+/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/jni.h:553:10: note: 'DeleteLocalRef' declared here
+    void DeleteLocalRef(jobject localRef)
+         ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/jni_bridge.cpp:196:32: error: member reference type 'JNIEnv' (aka '_JNIEnv') is not a pointer; did you mean to use '.'?
+    const char *infile = (*env)->GetStringUTFChars(env, inputPath, NULL);
+                         ~~~~~~^~
+                               .
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/jni_bridge.cpp:196:68: error: too many arguments to function call, expected 2, have 3
+    const char *infile = (*env)->GetStringUTFChars(env, inputPath, NULL);
+                         ~~~~~~~~~~~~~~~~~~~~~~~~~                 ^~~~
+/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/14.0.6/include/stddef.h:84:18: note: expanded from macro 'NULL'
+#    define NULL __null
+                 ^~~~~~
+/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/jni.h:845:17: note: 'GetStringUTFChars' declared here
+    const char* GetStringUTFChars(jstring string, jboolean* isCopy)
+                ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/jni_bridge.cpp:197:33: error: member reference type 'JNIEnv' (aka '_JNIEnv') is not a pointer; did you mean to use '.'?
+    const char *outfile = (*env)->GetStringUTFChars(env, outputPath, NULL);
+                          ~~~~~~^~
+                                .
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/jni_bridge.cpp:197:70: error: too many arguments to function call, expected 2, have 3
+    const char *outfile = (*env)->GetStringUTFChars(env, outputPath, NULL);
+                          ~~~~~~~~~~~~~~~~~~~~~~~~~                  ^~~~
+/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/14.0.6/include/stddef.h:84:18: note: expanded from macro 'NULL'
+#    define NULL __null
+                 ^~~~~~
+/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/jni.h:845:17: note: 'GetStringUTFChars' declared here
+    const char* GetStringUTFChars(jstring string, jboolean* isCopy)
+                ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/jni_bridge.cpp:201:27: error: member reference type 'JNIEnv' (aka '_JNIEnv') is not a pointer; did you mean to use '.'?
+        if (infile) (*env)->ReleaseStringUTFChars(env, inputPath, infile);
+                    ~~~~~~^~
+                          .
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/jni_bridge.cpp:201:67: error: too many arguments to function call, expected 2, have 3
+        if (infile) (*env)->ReleaseStringUTFChars(env, inputPath, infile);
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~                 ^~~~~~
+/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/jni.h:848:10: note: 'ReleaseStringUTFChars' declared here
+    void ReleaseStringUTFChars(jstring string, const char* utf)
+         ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/jni_bridge.cpp:209:32: error: member reference type 'JNIEnv' (aka '_JNIEnv') is not a pointer; did you mean to use '.'?
+        g_callback_obj = (*env)->NewGlobalRef(env, callback);
+                         ~~~~~~^~
+                               .
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/jni_bridge.cpp:209:52: error: too many arguments to function call, expected single argument 'obj', have 2 arguments
+        g_callback_obj = (*env)->NewGlobalRef(env, callback);
+                         ~~~~~~~~~~~~~~~~~~~~      ^~~~~~~~
+/usr/local/lib/android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/jni.h:547:13: note: 'NewGlobalRef' declared here
+    jobject NewGlobalRef(jobject obj)
+            ^
+/home/runner/work/GS-Compiler/GS-Compiler/compiler/src/jni_bridge.cpp:210:32: error: member reference type 'JNIEnv' (aka '_JNIEnv') is not a pointer; did you mean to use '.'?
+        jclass cbClass = (*env)->GetObjectClass(env, callback);
+                         ~~~~~~^~
+                               .
 fatal error: too many errors emitted, stopping now [-ferror-limit=]
 20 errors generated.
 ninja: build stopped: subcommand failed.
