@@ -18,6 +18,7 @@ import com.mehdigm.compiler.ui.theme.GSColors
 import com.mehdigm.compiler.ui.theme.EditorFontFamily
 
 @Composable
+
 fun PawnEditor(
     textFieldValue: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
@@ -74,10 +75,6 @@ fun PawnEditor(
                 .horizontalScroll(horizontalScroll)
                 .padding(start = 8.dp, top = 8.dp)
         ) {
-            val highlightedText = remember(textFieldValue.text) {
-                PawnSyntaxHighlighter.highlight(textFieldValue.text)
-            }
-
             BasicTextField(
                 value = textFieldValue,
                 onValueChange = onValueChange,
