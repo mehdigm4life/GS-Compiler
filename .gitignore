@@ -1,1 +1,14 @@
-hi
+*.iml
+.gradle
+.idea
+build
+.cxx
+local.properties
+app/build
+app/.cxx
+*.apk
+*.aab
+*.so
+*.o
+*.log
+.DS_Store
