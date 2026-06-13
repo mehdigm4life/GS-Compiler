@@ -1,7 +1,7 @@
 package com.mehdigm.compiler.ui.editor
 
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import com.mehdigm.compiler.ui.theme.GSColors
 
@@ -37,8 +37,7 @@ object PawnSyntaxHighlighter {
         "CallLocalFunction"
     )
 
-    fun highlight(text: String): AnnotatedString {
-        val builder = AnnotatedString.Builder()
+    fun highlight(text: String) = buildAnnotatedString {
         val len = text.length
         var i = 0
 
@@ -48,69 +47,69 @@ object PawnSyntaxHighlighter {
             when {
                 ch == '/' && i + 1 < len && text[i + 1] == '/' -> {
                     val end = text.indexOf('\n', i).let { if (it == -1) len else it }
-                    builder.pushStyle(SpanStyle(color = GSColors.SyntaxComment))
-                    builder.append(text.substring(i, end))
-                    builder.popStyle()
+                    withStyle(SpanStyle(color = GSColors.SyntaxComment)) {
+                        append(text.substring(i, end))
+                    }
                     i = end
                 }
 
                 ch == '/' && i + 1 < len && text[i + 1] == '*' -> {
                     val end = text.indexOf("*/", i + 2).let { if (it == -1) len - 2 else it + 2 }
-                    builder.pushStyle(SpanStyle(color = GSColors.SyntaxComment))
-                    builder.append(text.substring(i, end + 2))
-                    builder.popStyle()
+                    withStyle(SpanStyle(color = GSColors.SyntaxComment)) {
+                        append(text.substring(i, end + 2))
+                    }
                     i = end + 2
                 }
 
                 ch == '"' || ch == '\'' -> {
                     val quote = ch
-                    builder.append(ch)
+                    append(ch)
                     i++
                     while (i < len && text[i] != quote) {
                         if (text[i] == '\\' && i + 1 < len) {
-                            builder.append(text[i])
+                            append(text[i])
                             i++
-                            builder.append(text[i])
+                            append(text[i])
                             i++
                         } else {
-                            builder.append(text[i])
+                            append(text[i])
                             i++
                         }
                     }
                     if (i < len) {
-                        builder.pushStyle(SpanStyle(color = GSColors.SyntaxString))
-                        builder.append(text[i])
-                        builder.popStyle()
+                        withStyle(SpanStyle(color = GSColors.SyntaxString)) {
+                            append(text[i])
+                        }
                         i++
                     }
                 }
 
                 ch == '#' -> {
                     val end = text.indexOf('\n', i).let { if (it == -1) len else it }
-                    builder.pushStyle(SpanStyle(color = GSColors.SyntaxPreproc))
-                    builder.append(text.substring(i, end))
-                    builder.popStyle()
+                    withStyle(SpanStyle(color = GSColors.SyntaxPreproc)) {
+                        append(text.substring(i, end))
+                    }
                     i = end
                 }
 
                 ch == '{' || ch == '}' || ch == '(' || ch == ')' ||
                 ch == '[' || ch == ']' || ch == ';' || ch == ',' -> {
-                    builder.pushStyle(SpanStyle(color = GSColors.SyntaxOperator))
-                    builder.append(ch)
-                    builder.popStyle()
+                    withStyle(SpanStyle(color = GSColors.SyntaxOperator)) {
+                        append(ch)
+                    }
                     i++
                 }
 
                 ch.isDigit() || (ch == '-' && i + 1 < len && text[i + 1].isDigit()) -> {
                     val start = i
-                    if (ch == '-') { builder.append(ch); i++ }
+                    if (ch == '-') { append(ch); i++ }
                     while (i < len && (text[i].isDigit() || text[i] == '.' ||
                         text[i] == 'x' || text[i] == 'X')) {
                         i++
                     }
-                    builder.pushStyle(SpanStyle(color = GSColors.SyntaxNumber))
-                    builder.append(text.substring(start, i))
-                    builder.popStyle()
+                    withStyle(SpanStyle(color = GSColors.SyntaxNumber)) {
+                        append(text.substring(start, i))
+                    }
                 }
 
                 ch.isLetter() || ch == '_' || (ch == '@') -> {
@@ -121,39 +120,29 @@ object PawnSyntaxHighlighter {
                     val word = text.substring(start, i)
 
                     when {
-                        word in keywords -> {
-                            builder.pushStyle(SpanStyle(color = GSColors.SyntaxKeyword, fontWeight = FontWeight.Bold))
-                            builder.append(word)
-                            builder.popStyle()
-                        }
+                        word in keywords -> withStyle(
+                            SpanStyle(color = GSColors.SyntaxKeyword, fontWeight = FontWeight.Bold)
+                        ) { append(word) }
 
-                        word in builtinFunctions -> {
-                            builder.pushStyle(SpanStyle(color = GSColors.SyntaxFunction))
-                            builder.append(word)
-                            builder.popStyle()
-                        }
+                        word in builtinFunctions -> withStyle(
+                            SpanStyle(color = GSColors.SyntaxFunction)
+                        ) { append(word) }
 
-                        word[0].isUpperCase() -> {
-                            builder.pushStyle(SpanStyle(color = GSColors.SyntaxKeyword))
-                            builder.append(word)
-                            builder.popStyle()
-                        }
+                        word[0].isUpperCase() -> withStyle(
+                            SpanStyle(color = GSColors.SyntaxKeyword)
+                        ) { append(word) }
 
-                        else -> {
-                            builder.pushStyle(SpanStyle(color = GSColors.SyntaxDefault))
-                            builder.append(word)
-                            builder.popStyle()
-                        }
+                        else -> withStyle(
+                            SpanStyle(color = GSColors.SyntaxDefault)
+                        ) { append(word) }
                     }
                 }
 
                 else -> {
-                    builder.append(ch)
+                    append(ch)
                     i++
                 }
             }
         }
-
-        return builder.toAnnotatedString()
     }
 }

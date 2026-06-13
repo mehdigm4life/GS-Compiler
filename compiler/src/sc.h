@@ -19,13 +19,13 @@
 #define SEV_ERROR    2
 #define SEV_FATAL    3
 
-/* Operand types */
-#define OP_NONE   0
-#define OP_CONST  1
-#define OP_STACK  2
-#define OP_GLOBAL 3
-#define OP_LOCAL  4
-#define OP_REF    5
+/* Operand types (prefix OT_ to avoid collision with opcodes enum) */
+#define OT_NONE   0
+#define OT_CONST  1
+#define OT_STACK  2
+#define OT_GLOBAL 3
+#define OT_LOCAL  4
+#define OT_REF    5
 
 /* Instruction set */
 enum opcodes {
@@ -129,6 +129,18 @@ extern char *g_inclist[MAX_INCLUDE_DEPTH];
 extern int g_numincludes;
 extern char g_includedir[512];
 extern jmp_buf g_errbuf;
+
+/* Additional globals used by the compiler engine */
+extern int g_code_idx;
+extern int g_line_number;
+extern int g_stage;
+extern int g_code_scope;
+extern int g_current_function;
+extern int g_tag_count;
+extern codeblock g_codeblock;
+extern symbol *g_symbol_table;
+extern FILE *g_input_file;
+extern char g_input_filename[sFNAME + 1];
 
 /* Function prototypes */
 int pc_compile(const char *infile, const char *outfile, const char *includes[], int num_includes, char *error_buf, int error_buf_size);
