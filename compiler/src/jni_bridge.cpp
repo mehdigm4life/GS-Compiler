@@ -4,6 +4,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <errno.h>
 
 #include "sc.h"
 
