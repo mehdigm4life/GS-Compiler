@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.mehdigm.compiler.app-mergeDebugResources-46:/values-ml/values-ml.xml",
+            "outputFile": "com.mehdigm.compiler.app-mergeDebugResources-47:/values-ml/values-ml.xml",
             "map": [
                 {
                     "source": "/home/runner/.gradle/caches/transforms-3/a8d19365b6d65089ee91b5d4836b0be2/transformed/core-1.13.1/res/values-ml/values-ml.xml",

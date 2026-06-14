@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.mehdigm.compiler.app-mergeDebugResources-46:/values-am/values-am.xml",
+            "outputFile": "com.mehdigm.compiler.app-mergeDebugResources-47:/values-am/values-am.xml",
             "map": [
                 {
                     "source": "/home/runner/.gradle/caches/transforms-3/63a62b8a518feb6b1444781c41aee302/transformed/foundation-release/res/values-am/values-am.xml",
