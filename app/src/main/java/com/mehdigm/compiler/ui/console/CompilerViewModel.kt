@@ -170,7 +170,19 @@ class CompilerViewModel : ViewModel() {
             else -> -1
         }
         if (existing >= 0) {
-            _uiState.value = _uiState.value.copy(activeTabIndex = existing)
+            val tabs = _uiState.value.tabs.toMutableList()
+            tabs[existing] = tabs[existing].copy(
+                content = content,
+                savedContent = content,
+                uri = uri ?: tabs[existing].uri,
+                file = file ?: tabs[existing].file,
+                displayName = displayName ?: tabs[existing].displayName
+            )
+            _uiState.value = _uiState.value.copy(
+                tabs = tabs,
+                activeTabIndex = existing,
+                isReadingFile = false
+            )
             return
         }
         val name = displayName ?: file?.name ?: "untitled.pwn"
