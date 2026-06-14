@@ -7,10 +7,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mehdigm.compiler.compiler.CompilationCallback
 import com.mehdigm.compiler.compiler.NativeCompiler
-import com.mehdigm.compiler.include.IncludeDetector
 import com.mehdigm.compiler.storage.FileManager
 import com.mehdigm.compiler.utils.AppLogger
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,6 +23,7 @@ import java.io.File
 
 private const val MAX_CONSOLE_ENTRIES = 500
 private const val FILE_READ_TIMEOUT_MS = 15_000L
+private const val MAX_EDITOR_CHARS = 100_000
 
 data class CompilerUiState(
     val editorValue: TextFieldValue = TextFieldValue(""),
@@ -47,7 +48,7 @@ class CompilerViewModel : ViewModel() {
     private val _consoleChannel = Channel<ConsoleEntry>(Channel.UNLIMITED)
 
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Main) {
             _consoleChannel.consumeAsFlow().collect { entry ->
                 val current = _uiState.value.consoleEntries
                 val updated = if (current.size >= MAX_CONSOLE_ENTRIES) {
@@ -66,89 +67,106 @@ class CompilerViewModel : ViewModel() {
     }
 
     fun loadFromUri(context: Context, uri: Uri) {
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isReadingFile = true, errorMessage = null)
+        _uiState.value = _uiState.value.copy(
+            isReadingFile = true,
+            errorMessage = null
+        )
+
+        val deferred = viewModelScope.async(Dispatchers.Default) {
+            withTimeout(FILE_READ_TIMEOUT_MS) {
+                FileManager.readFromUri(context, uri)
+            }
+        }
+
+        viewModelScope.launch(Dispatchers.Main) {
             try {
-                val content = withContext(Dispatchers.IO) {
-                    withTimeout(FILE_READ_TIMEOUT_MS) {
-                        FileManager.readFromDocument(context, uri)
-                    }
-                }
+                val content = deferred.await()
                 if (content != null) {
-                    currentContent = content
-                    _uiState.value = _uiState.value.copy(
-                        editorValue = TextFieldValue(content),
-                        currentFile = null,
-                        consoleEntries = listOf(
-                            ConsoleEntry("=== File loaded ===", isError = false),
-                            ConsoleEntry("Size: ${content.length} chars", isError = false)
-                        ),
-                        isReadingFile = false
-                    )
-                    AppLogger.i("GSCompiler", "Loaded file (${content.length} chars) from URI: $uri")
+                    loadContent(content, uri)
                 } else {
-                    _uiState.value = _uiState.value.copy(
-                        isReadingFile = false,
-                        errorMessage = "Failed to read file: content resolver returned null"
-                    )
+                    fail("Failed to read file from URI")
                 }
             } catch (e: kotlinx.coroutines.TimeoutCancellationException) {
-                _uiState.value = _uiState.value.copy(
-                    isReadingFile = false,
-                    errorMessage = "File read timed out after ${FILE_READ_TIMEOUT_MS / 1000}s"
-                )
+                fail("File read timed out after ${FILE_READ_TIMEOUT_MS / 1000}s")
                 AppLogger.e("GSCompiler", "File read timeout for URI: $uri")
+            } catch (e: SecurityException) {
+                fail(e.message ?: "File too large")
+                AppLogger.e("GSCompiler", "Security error: ${e.message}")
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    isReadingFile = false,
-                    errorMessage = "Failed to open file: ${e.message}"
-                )
+                fail("Error: ${e.message}")
                 AppLogger.e("GSCompiler", "Error reading URI: $uri - ${e.message}")
             }
         }
     }
 
     fun loadFile(file: File) {
-        viewModelScope.launch {
+        _uiState.value = _uiState.value.copy(
+            isReadingFile = true,
+            errorMessage = null
+        )
+
+        val deferred = viewModelScope.async(Dispatchers.Default) {
+            withTimeout(FILE_READ_TIMEOUT_MS) {
+                FileManager.readFileContent(file)
+            }
+        }
+
+        viewModelScope.launch(Dispatchers.Main) {
             try {
-                val content = withContext(Dispatchers.IO) {
-                    withTimeout(FILE_READ_TIMEOUT_MS) {
-                        FileManager.readFileContent(file)
-                    }
-                }
-                currentContent = content
-
-                val includeResult = withContext(Dispatchers.IO) {
-                    IncludeDetector.detect(file)
-                }
-
-                _uiState.value = _uiState.value.copy(
-                    editorValue = TextFieldValue(content),
-                    currentFile = file,
-                    consoleEntries = listOf(
-                        ConsoleEntry("=== File loaded: ${file.name} ===", isError = false),
-                        ConsoleEntry("Path: ${file.absolutePath}", isError = false),
-                        ConsoleEntry("Detected includes: ${includeResult.includePaths.size} paths", isError = false)
-                    ) + includeResult.includePaths.map { path ->
-                        ConsoleEntry("  Include: $path", isError = false)
-                    },
-                    detectedIncludes = includeResult.includePaths
-                )
+                val content = deferred.await()
+                loadContent(content, file)
+            } catch (e: SecurityException) {
+                fail(e.message ?: "File too large")
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    errorMessage = "Failed to load file: ${e.message}"
-                )
+                fail("Failed to load file: ${e.message}")
             }
         }
     }
 
+    private fun loadContent(content: String, source: Any) {
+        if (content.length > MAX_EDITOR_CHARS) {
+            val truncated = content.take(MAX_EDITOR_CHARS)
+            currentContent = content
+            _uiState.value = _uiState.value.copy(
+                editorValue = TextFieldValue(truncated),
+                currentFile = (source as? File),
+                consoleEntries = listOf(
+                    ConsoleEntry("=== File loaded (truncated) ===", isError = false),
+                    ConsoleEntry("Size: ${content.length} chars (showing first $MAX_EDITOR_CHARS)", isError = true),
+                    ConsoleEntry("Full file can be compiled but editor shows preview", isError = false)
+                ),
+                isReadingFile = false
+            )
+            addConsoleEntry("Warning: large file, editor shows first ${MAX_EDITOR_CHARS / 1000}K chars", isError = true)
+        } else {
+            currentContent = content
+            val file = source as? File
+            _uiState.value = _uiState.value.copy(
+                editorValue = TextFieldValue(content),
+                currentFile = file,
+                consoleEntries = listOf(
+                    ConsoleEntry("=== File loaded ===", isError = false),
+                    ConsoleEntry("Size: ${content.length} chars", isError = false)
+                ),
+                isReadingFile = false
+            )
+            AppLogger.i("GSCompiler", "Loaded file (${content.length} chars) from: $source")
+        }
+    }
+
+    private fun fail(message: String) {
+        _uiState.value = _uiState.value.copy(
+            isReadingFile = false,
+            errorMessage = message
+        )
+        addConsoleEntry(message, isError = true)
+    }
+
     fun saveFile() {
         val file = _uiState.value.currentFile ?: return
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
-                withContext(Dispatchers.IO) {
-                    FileManager.writeFileContent(file, currentContent)
-                }
+                FileManager.writeFileContent(file, currentContent)
                 addConsoleEntry("=== Saved: ${file.name} ===", isError = false)
             } catch (e: Exception) {
                 addConsoleEntry("Failed to save: ${e.message}", isError = true)
@@ -157,11 +175,9 @@ class CompilerViewModel : ViewModel() {
     }
 
     fun saveAs(file: File) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
-                withContext(Dispatchers.IO) {
-                    FileManager.writeFileContent(file, currentContent)
-                }
+                FileManager.writeFileContent(file, currentContent)
                 _uiState.value = _uiState.value.copy(currentFile = file)
                 addConsoleEntry("=== Saved as: ${file.absolutePath} ===", isError = false)
             } catch (e: Exception) {
@@ -181,7 +197,7 @@ class CompilerViewModel : ViewModel() {
             return
         }
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Main) {
             _uiState.value = _uiState.value.copy(isCompiling = true, isCompileSuccess = null)
 
             addConsoleEntry("\n=== Compilation started ===", isError = false)
