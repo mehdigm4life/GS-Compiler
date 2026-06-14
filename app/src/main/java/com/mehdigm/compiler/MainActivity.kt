@@ -6,7 +6,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -28,9 +27,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mehdigm.compiler.storage.FileManager
 import com.mehdigm.compiler.ui.console.CompilerViewModel
@@ -202,6 +198,30 @@ fun GSCompilerApp() {
                                 color = GSColors.White,
                                 fontSize = 14.sp
                             )
+                        }
+                    }
+                }
+            }
+
+            /* Error message */
+            if (uiState.errorMessage != null) {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = GSColors.ErrorRed.copy(alpha = 0.15f)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = uiState.errorMessage ?: "",
+                            color = GSColors.ErrorRed,
+                            fontSize = 13.sp,
+                            fontFamily = FontFamily.Monospace,
+                            modifier = Modifier.weight(1f)
+                        )
+                        TextButton(onClick = { viewModel.clearError() }) {
+                            Text("Dismiss", color = GSColors.ErrorRed, fontSize = 12.sp)
                         }
                     }
                 }

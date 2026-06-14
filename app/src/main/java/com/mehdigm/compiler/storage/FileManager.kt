@@ -68,7 +68,7 @@ object FileManager {
                 }
                 FileInputStream(fd.fileDescriptor).use { input ->
                     val reader = BufferedReader(InputStreamReader(input, Charsets.UTF_8), BUFFER_SIZE)
-                    val sb = StringBuilder(fileSize.coerceAtMost(MAX_FILE_SIZE).toInt())
+                    val sb = StringBuilder(fileSize.coerceAtMost(MAX_FILE_SIZE.toLong()).toInt())
                     val buffer = CharArray(BUFFER_SIZE)
                     var read: Int
                     var total = 0
