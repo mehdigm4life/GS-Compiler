@@ -163,7 +163,7 @@ fun CodeEditor(
                 setLineInfoTextSize(10f)
 
                 try {
-                    val useTextMate = text.length < 500_000
+                    val useTextMate = text.length < 5_000_000
                     if (useTextMate) {
                         val scheme = TextMateColorScheme.create(ThemeRegistry.getInstance())
                         scheme.setColor(EditorColorScheme.LINE_NUMBER, 0xFF555555.toInt())
