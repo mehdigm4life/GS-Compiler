@@ -75,6 +75,13 @@ android {
     }
 }
 
+configurations.all {
+    resolutionStrategy {
+        force("org.jetbrains.kotlin:kotlin-stdlib:1.9.24")
+        force("org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24")
+    }
+}
+
 dependencies {
     // Align all Kotlin stdlib versions to the project's Kotlin version
     implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.9.24"))
