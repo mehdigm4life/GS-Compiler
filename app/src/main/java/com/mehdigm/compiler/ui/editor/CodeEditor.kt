@@ -121,11 +121,14 @@ fun CodeEditor(
 ) {
     val context = LocalContext.current
     val editors = remember { mutableMapOf<Long, SoraCodeEditor>() }
+    val editorLRU = remember { mutableListOf<Long>() }
+    val MAX_EDITORS = 5
 
     val prevReset = remember { mutableStateOf(resetCounter) }
     if (resetCounter != prevReset.value) {
         editors.values.forEach { it.release() }
         editors.clear()
+        editorLRU.clear()
         prevReset.value = resetCounter
     }
 
@@ -135,9 +138,21 @@ fun CodeEditor(
     }
     staleIds.forEach { id ->
         editors.remove(id)?.release()
+        editorLRU.remove(id)
     }
 
     val editor = remember(tabId, resetCounter) {
+        // Update LRU: evict least recently used if at capacity
+        editorLRU.remove(tabId)
+        if (tabId !in editors && editors.size >= MAX_EDITORS) {
+            val lruId = editorLRU.firstOrNull()
+            if (lruId != null) {
+                editorLRU.remove(lruId)
+                editors.remove(lruId)?.release()
+            }
+        }
+        editorLRU.add(tabId)
+
         editors.getOrPut(tabId) {
             initTextMate(context)
             SoraCodeEditor(context).apply {
