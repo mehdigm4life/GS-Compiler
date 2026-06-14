@@ -27,7 +27,8 @@ data class CompilerUiState(
     val isCompiling: Boolean = false,
     val isCompileSuccess: Boolean? = false,
     val detectedIncludes: List<String> = emptyList(),
-    val consoleExpanded: Boolean = true
+    val consoleExpanded: Boolean = true,
+    val isReadingFile: Boolean = false
 )
 
 class CompilerViewModel : ViewModel() {
@@ -57,8 +58,9 @@ class CompilerViewModel : ViewModel() {
 
     fun loadFromUri(context: Context, uri: Uri) {
         viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isReadingFile = true)
+            addConsoleEntry("Reading file...", isError = false)
             try {
-                addConsoleEntry("Reading file...", isError = false)
                 val content = withContext(Dispatchers.IO) {
                     FileManager.readFromDocument(context, uri)
                 }
@@ -66,17 +68,20 @@ class CompilerViewModel : ViewModel() {
                     currentContent = content
                     _uiState.value = _uiState.value.copy(
                         editorValue = TextFieldValue(content),
+                        currentFile = null,
                         consoleEntries = listOf(
-                            ConsoleEntry("=== File loaded from content URI ===", isError = false),
+                            ConsoleEntry("=== File loaded ===", isError = false),
                             ConsoleEntry("Size: ${content.length} chars", isError = false)
-                        )
+                        ),
+                        isReadingFile = false
                     )
                     AppLogger.i("GSCompiler", "Loaded file (${content.length} chars) from URI: $uri")
                 } else {
+                    _uiState.value = _uiState.value.copy(isReadingFile = false)
                     addConsoleEntry("Failed to read file: content resolver returned null", isError = true)
-                    AppLogger.e("GSCompiler", "readFromDocument returned null for URI: $uri")
                 }
             } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(isReadingFile = false)
                 addConsoleEntry("Failed to open file: ${e.message}", isError = true)
                 AppLogger.e("GSCompiler", "Error reading URI: $uri - ${e.message}")
             }

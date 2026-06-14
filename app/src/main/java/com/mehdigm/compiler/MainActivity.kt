@@ -209,8 +209,8 @@ fun GSCompilerApp() {
                     onValueChange = { viewModel.setEditorValue(it) }
                 )
 
-                /* Compilation overlay */
-                if (uiState.isCompiling) {
+                /* Loading overlay */
+                if (uiState.isReadingFile || uiState.isCompiling) {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -221,7 +221,7 @@ fun GSCompilerApp() {
                             CircularProgressIndicator(color = GSColors.AccentGold)
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                "Compiling...",
+                                if (uiState.isReadingFile) "Opening file..." else "Compiling...",
                                 color = GSColors.White,
                                 fontSize = 14.sp
                             )

@@ -27,8 +27,9 @@ fun PawnEditor(
     val verticalScroll = rememberScrollState()
     val horizontalScroll = rememberScrollState()
 
-    val lineCount = remember(textFieldValue.text) {
-        textFieldValue.text.count { it == '\n' } + 1
+    val lineNumbersText = remember(textFieldValue.text) {
+        val count = textFieldValue.text.count { it == '\n' } + 1
+        (1..count).joinToString("\n") { it.toString().padStart(4) }
     }
 
     Row(
@@ -36,27 +37,21 @@ fun PawnEditor(
             .fillMaxSize()
             .background(GSColors.EditorBackground)
     ) {
-        /* Line numbers gutter */
-        Column(
+        /* Line numbers gutter — single Text for all lines */
+        Text(
+            text = lineNumbersText,
+            style = TextStyle(
+                fontFamily = EditorFontFamily,
+                fontSize = 13.sp,
+                color = GSColors.LineNumberColor
+            ),
             modifier = Modifier
                 .width(48.dp)
                 .fillMaxHeight()
                 .verticalScroll(verticalScroll)
                 .background(GSColors.EditorBackground)
-                .padding(end = 4.dp, top = 8.dp)
-        ) {
-            for (lineNum in 1..lineCount) {
-                Text(
-                    text = lineNum.toString().padStart(4),
-                    style = TextStyle(
-                        fontFamily = EditorFontFamily,
-                        fontSize = 13.sp,
-                        color = GSColors.LineNumberColor
-                    ),
-                    modifier = Modifier.padding(end = 8.dp)
-                )
-            }
-        }
+                .padding(start = 4.dp, top = 8.dp, end = 4.dp)
+        )
 
         /* Divider */
         Divider(
