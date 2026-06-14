@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Redo
 import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.*
@@ -313,42 +314,7 @@ fun GSCompilerApp() {
             }
         }
     ) {
-        if (showConsoleView) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(GSColors.TerminalBackground)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(GSColors.DarkSurface)
-                        .padding(horizontal = 4.dp, vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    IconButton(onClick = { showConsoleView = false }) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back to editor",
-                            tint = GSColors.White
-                        )
-                    }
-                    Text(
-                        text = "[Console]",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = GSColors.TerminalGreen,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(start = 4.dp)
-                    )
-                }
-
-                ConsoleView(
-                    entries = uiState.consoleEntries,
-                    expanded = true,
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
-        } else {
+        Box(modifier = Modifier.fillMaxSize()) {
             Scaffold(
                 topBar = {
                     TopAppBar(
@@ -478,6 +444,43 @@ fun GSCompilerApp() {
                             }
                         }
                     }
+                }
+            }
+
+            if (showConsoleView) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(GSColors.TerminalBackground)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(GSColors.DarkSurface)
+                            .padding(horizontal = 4.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(onClick = { showConsoleView = false }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back to editor",
+                                tint = GSColors.White
+                            )
+                        }
+                        Text(
+                            text = "[Console]",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = GSColors.TerminalGreen,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(start = 4.dp)
+                        )
+                    }
+
+                    ConsoleView(
+                        entries = uiState.consoleEntries,
+                        expanded = true,
+                        modifier = Modifier.fillMaxSize()
+                    )
                 }
             }
         }
