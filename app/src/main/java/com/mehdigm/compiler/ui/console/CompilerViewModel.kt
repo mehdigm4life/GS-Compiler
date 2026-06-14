@@ -2,7 +2,6 @@ package com.mehdigm.compiler.ui.console
 
 import android.content.Context
 import android.net.Uri
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mehdigm.compiler.compiler.CompilationCallback
@@ -23,10 +22,9 @@ import java.io.File
 
 private const val MAX_CONSOLE_ENTRIES = 500
 private const val FILE_READ_TIMEOUT_MS = 15_000L
-private const val MAX_EDITOR_CHARS = 100_000
 
 data class CompilerUiState(
-    val editorValue: TextFieldValue = TextFieldValue(""),
+    val editorText: String = "",
     val currentFile: File? = null,
     val consoleEntries: List<ConsoleEntry> = emptyList(),
     val isCompiling: Boolean = false,
@@ -61,9 +59,9 @@ class CompilerViewModel : ViewModel() {
         }
     }
 
-    fun setEditorValue(value: TextFieldValue) {
-        _uiState.value = _uiState.value.copy(editorValue = value)
-        currentContent = value.text
+    fun setEditorText(text: String) {
+        _uiState.value = _uiState.value.copy(editorText = text)
+        currentContent = text
     }
 
     fun loadFromUri(context: Context, uri: Uri) {
@@ -124,34 +122,18 @@ class CompilerViewModel : ViewModel() {
     }
 
     private fun loadContent(content: String, source: Any) {
-        if (content.length > MAX_EDITOR_CHARS) {
-            val truncated = content.take(MAX_EDITOR_CHARS)
-            currentContent = content
-            _uiState.value = _uiState.value.copy(
-                editorValue = TextFieldValue(truncated),
-                currentFile = (source as? File),
-                consoleEntries = listOf(
-                    ConsoleEntry("=== File loaded (truncated) ===", isError = false),
-                    ConsoleEntry("Size: ${content.length} chars (showing first $MAX_EDITOR_CHARS)", isError = true),
-                    ConsoleEntry("Full file can be compiled but editor shows preview", isError = false)
-                ),
-                isReadingFile = false
-            )
-            addConsoleEntry("Warning: large file, editor shows first ${MAX_EDITOR_CHARS / 1000}K chars", isError = true)
-        } else {
-            currentContent = content
-            val file = source as? File
-            _uiState.value = _uiState.value.copy(
-                editorValue = TextFieldValue(content),
-                currentFile = file,
-                consoleEntries = listOf(
-                    ConsoleEntry("=== File loaded ===", isError = false),
-                    ConsoleEntry("Size: ${content.length} chars", isError = false)
-                ),
-                isReadingFile = false
-            )
-            AppLogger.i("GSCompiler", "Loaded file (${content.length} chars) from: $source")
-        }
+        currentContent = content
+        val file = source as? File
+        _uiState.value = _uiState.value.copy(
+            editorText = content,
+            currentFile = file,
+            consoleEntries = listOf(
+                ConsoleEntry("=== File loaded ===", isError = false),
+                ConsoleEntry("Size: ${content.length} chars", isError = false)
+            ),
+            isReadingFile = false
+        )
+        AppLogger.i("GSCompiler", "Loaded file (${content.length} chars) from: $source")
     }
 
     private fun fail(message: String) {

@@ -31,7 +31,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mehdigm.compiler.storage.FileManager
 import com.mehdigm.compiler.ui.console.CompilerViewModel
 import com.mehdigm.compiler.ui.console.ConsoleView
-import com.mehdigm.compiler.ui.editor.PawnEditor
+import com.mehdigm.compiler.ui.editor.CodeEditor
 import com.mehdigm.compiler.ui.theme.GSColors
 import com.mehdigm.compiler.ui.theme.GSCompilerTheme
 import com.mehdigm.compiler.utils.AppLogger
@@ -163,7 +163,7 @@ fun GSCompilerApp() {
                 .background(GSColors.DarkBackground)
         ) {
             ToolbarRow(
-                canUndo = uiState.editorValue.text.isNotEmpty(),
+                canUndo = uiState.editorText.isNotEmpty(),
                 canRedo = false,
                 isCompiling = uiState.isCompiling,
                 onUndo = { },
@@ -178,9 +178,12 @@ fun GSCompilerApp() {
                     .fillMaxWidth()
                     .weight(1f)
             ) {
-                PawnEditor(
-                    textFieldValue = uiState.editorValue,
-                    onValueChange = { viewModel.setEditorValue(it) }
+                CodeEditor(
+                    text = uiState.editorText,
+                    onTextChange = { viewModel.setEditorText(it) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight()
                 )
 
                 if (uiState.isReadingFile || uiState.isCompiling) {

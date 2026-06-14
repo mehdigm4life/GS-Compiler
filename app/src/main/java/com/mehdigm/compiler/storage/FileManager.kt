@@ -13,7 +13,7 @@ import java.io.InputStreamReader
 
 object FileManager {
 
-    private const val MAX_FILE_SIZE = 512 * 1024
+    private const val MAX_FILE_SIZE = 5 * 1024 * 1024
     private const val BUFFER_SIZE = 8192
 
     fun hasManageStoragePermission(context: Context): Boolean {
