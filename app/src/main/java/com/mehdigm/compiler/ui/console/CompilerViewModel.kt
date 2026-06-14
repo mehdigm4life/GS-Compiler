@@ -32,7 +32,9 @@ data class CompilerUiState(
     val detectedIncludes: List<String> = emptyList(),
     val consoleExpanded: Boolean = true,
     val isReadingFile: Boolean = false,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val showFileSavedToast: Boolean = false,
+    val fileSavedSuccess: Boolean = false
 )
 
 class CompilerViewModel : ViewModel() {
@@ -87,9 +89,6 @@ class CompilerViewModel : ViewModel() {
             } catch (e: kotlinx.coroutines.TimeoutCancellationException) {
                 fail("File read timed out after ${FILE_READ_TIMEOUT_MS / 1000}s")
                 AppLogger.e("GSCompiler", "File read timeout for URI: $uri")
-            } catch (e: SecurityException) {
-                fail(e.message ?: "File too large")
-                AppLogger.e("GSCompiler", "Security error: ${e.message}")
             } catch (e: Exception) {
                 fail("Error: ${e.message}")
                 AppLogger.e("GSCompiler", "Error reading URI: $uri - ${e.message}")
@@ -113,8 +112,6 @@ class CompilerViewModel : ViewModel() {
             try {
                 val content = deferred.await()
                 loadContent(content, file)
-            } catch (e: SecurityException) {
-                fail(e.message ?: "File too large")
             } catch (e: Exception) {
                 fail("Failed to load file: ${e.message}")
             }
@@ -149,8 +146,16 @@ class CompilerViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 FileManager.writeFileContent(file, currentContent)
+                _uiState.value = _uiState.value.copy(
+                    showFileSavedToast = true,
+                    fileSavedSuccess = true
+                )
                 addConsoleEntry("=== Saved: ${file.name} ===", isError = false)
             } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    showFileSavedToast = true,
+                    fileSavedSuccess = false
+                )
                 addConsoleEntry("Failed to save: ${e.message}", isError = true)
             }
         }
@@ -160,12 +165,24 @@ class CompilerViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 FileManager.writeFileContent(file, currentContent)
-                _uiState.value = _uiState.value.copy(currentFile = file)
+                _uiState.value = _uiState.value.copy(
+                    currentFile = file,
+                    showFileSavedToast = true,
+                    fileSavedSuccess = true
+                )
                 addConsoleEntry("=== Saved as: ${file.absolutePath} ===", isError = false)
             } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    showFileSavedToast = true,
+                    fileSavedSuccess = false
+                )
                 addConsoleEntry("Failed to save: ${e.message}", isError = true)
             }
         }
+    }
+
+    fun clearSavedToast() {
+        _uiState.value = _uiState.value.copy(showFileSavedToast = false)
     }
 
     fun compile() {
