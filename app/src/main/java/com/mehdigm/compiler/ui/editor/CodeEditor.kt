@@ -119,6 +119,8 @@ fun CodeEditor(
             isLineNumberEnabled = true
             setPinLineNumber(true)
             isWordwrap = false
+            setTextSize(12f)
+            setLineInfoTextSize(10f)
 
             try {
                 val scheme = TextMateColorScheme.create(ThemeRegistry.getInstance())
