@@ -127,35 +127,52 @@ class CompilerViewModel : ViewModel() {
         updateCursorPosition(_uiState.value.activeTabIndex, line, column)
     }
 
-    private val SESSION_PREFS = "session_prefs"
-    private val KEY_TABS = "tabs"
-    private val KEY_ACTIVE_INDEX = "active_index"
+private val SESSION_PREFS = "session_prefs"
+private val KEY_TABS = "tabs"
+private val KEY_ACTIVE_INDEX = "active_index"
+private val KEY_SESSION_DIR = "session_tabs"
 
-    fun saveSession(context: Context) {
-        val prefs: SharedPreferences = context.getSharedPreferences(SESSION_PREFS, Context.MODE_PRIVATE)
-        val tabs = _uiState.value.tabs
-        val arr = JSONArray()
-        for (tab in tabs) {
-            val obj = JSONObject()
-            tab.uri?.toString()?.let { obj.put("uri", it) }
-            tab.file?.absolutePath?.let { obj.put("filePath", it) }
-            obj.put("displayName", tab.displayName)
-            obj.put("cursorLine", tab.cursorLine)
-            obj.put("cursorColumn", tab.cursorColumn)
-            obj.put("content", tab.content)
-            obj.put("savedContent", tab.savedContent)
-            arr.put(obj)
+fun saveSession(context: Context) {
+    val tabs = _uiState.value.tabs
+    val activeIndex = _uiState.value.activeTabIndex
+    viewModelScope.launch(Dispatchers.IO) {
+        try {
+            val sessionDir = File(context.filesDir, KEY_SESSION_DIR)
+            sessionDir.mkdirs()
+            sessionDir.listFiles()?.forEach { it.delete() }
+
+            val arr = JSONArray()
+            for ((i, tab) in tabs.withIndex()) {
+                val contentFile = File(sessionDir, "tab_$i.pwn")
+                contentFile.writeText(tab.content, Charsets.UTF_8)
+
+                val obj = JSONObject()
+                tab.uri?.toString()?.let { obj.put("uri", it) }
+                tab.file?.absolutePath?.let { obj.put("filePath", it) }
+                obj.put("displayName", tab.displayName)
+                obj.put("cursorLine", tab.cursorLine)
+                obj.put("cursorColumn", tab.cursorColumn)
+                obj.put("contentFile", contentFile.absolutePath)
+                obj.put("savedContent", tab.savedContent)
+                arr.put(obj)
+            }
+
+            context.getSharedPreferences(SESSION_PREFS, Context.MODE_PRIVATE)
+                .edit()
+                .putString(KEY_TABS, arr.toString())
+                .putInt(KEY_ACTIVE_INDEX, activeIndex)
+                .apply()
+            AppLogger.i("GSCompiler", "Session saved: ${tabs.size} tabs")
+        } catch (e: Exception) {
+            AppLogger.e("GSCompiler", "Failed to save session: ${e.message}")
         }
-        prefs.edit()
-            .putString(KEY_TABS, arr.toString())
-            .putInt(KEY_ACTIVE_INDEX, _uiState.value.activeTabIndex)
-            .apply()
-        AppLogger.i("GSCompiler", "Session saved: ${tabs.size} tabs")
     }
+}
 
-    fun restoreSession(context: Context) {
-        val prefs: SharedPreferences = context.getSharedPreferences(SESSION_PREFS, Context.MODE_PRIVATE)
-        val tabsJson = prefs.getString(KEY_TABS, null) ?: return
+fun restoreSession(context: Context) {
+    viewModelScope.launch(Dispatchers.IO) {
+        val prefs = context.getSharedPreferences(SESSION_PREFS, Context.MODE_PRIVATE)
+        val tabsJson = prefs.getString(KEY_TABS, null) ?: return@launch
         val activeIndex = prefs.getInt(KEY_ACTIVE_INDEX, 0)
         try {
             val arr = JSONArray(tabsJson)
@@ -165,12 +182,19 @@ class CompilerViewModel : ViewModel() {
                 val uri = if (obj.has("uri")) Uri.parse(obj.getString("uri")) else null
                 val filePath = if (obj.has("filePath")) obj.getString("filePath") else null
                 val file = if (filePath != null) File(filePath) else null
+                val contentFile = if (obj.has("contentFile")) obj.getString("contentFile") else null
+                val content = if (contentFile != null) {
+                    File(contentFile).takeIf { it.exists() }?.readText(Charsets.UTF_8) ?: ""
+                } else {
+                    obj.optString("content", "")
+                }
+                val displayName = obj.optString("displayName", "untitled.pwn")
                 val tab = EditorTab(
                     uri = uri,
                     file = file,
-                    content = obj.getString("content"),
+                    content = content,
                     savedContent = obj.optString("savedContent", ""),
-                    displayName = obj.getString("displayName"),
+                    displayName = displayName,
                     cursorLine = obj.optInt("cursorLine", 0),
                     cursorColumn = obj.optInt("cursorColumn", 0),
                 )
@@ -189,6 +213,7 @@ class CompilerViewModel : ViewModel() {
             AppLogger.e("GSCompiler", "Failed to restore session: ${e.message}")
         }
     }
+}
 
     fun loadFromUri(context: Context, uri: Uri) {
         _uiState.value = _uiState.value.copy(
@@ -266,18 +291,22 @@ class CompilerViewModel : ViewModel() {
             )
             return
         }
-        val name = displayName ?: file?.name ?: "untitled.pwn"
-        val tab = EditorTab(uri = uri, file = file, content = content, savedContent = content, displayName = name)
-        val s = _uiState.value
-        _uiState.value = s.copy(
-            tabs = s.tabs + tab,
-            activeTabIndex = s.tabs.size,
-            consoleEntries = listOf(
-                ConsoleEntry("=== File loaded ===", isError = false),
-                ConsoleEntry("Size: ${content.length} chars", isError = false)
-            ),
-            isReadingFile = false
-        )
+    val name = displayName ?: file?.name ?: "untitled.pwn"
+    val tab = EditorTab(uri = uri, file = file, content = content, savedContent = content, displayName = name)
+    val s = _uiState.value
+    val newEntries = s.consoleEntries + listOf(
+        ConsoleEntry("=== File loaded ===", isError = false),
+        ConsoleEntry("Size: ${content.length} chars", isError = false)
+    )
+    val trimmedEntries = if (newEntries.size > MAX_CONSOLE_ENTRIES) {
+        newEntries.drop(newEntries.size - MAX_CONSOLE_ENTRIES)
+    } else newEntries
+    _uiState.value = s.copy(
+        tabs = s.tabs + tab,
+        activeTabIndex = s.tabs.size,
+        consoleEntries = trimmedEntries,
+        isReadingFile = false
+    )
         AppLogger.i("GSCompiler", "Loaded file (${content.length} chars) from: ${uri ?: file}")
     }
 
