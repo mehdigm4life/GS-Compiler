@@ -39,7 +39,7 @@ data class EditorTab(
     val isDirty: Boolean get() = content != savedContent
 
     companion object {
-        var idCounter = System.nanoTime()
+        private var idCounter = System.nanoTime()
     }
 }
 
@@ -163,7 +163,6 @@ fun saveSession(context: Context) {
                 obj.put("cursorColumn", tab.cursorColumn)
                 obj.put("contentFile", contentFile.absolutePath)
                 obj.put("savedFile", savedFile.absolutePath)
-                obj.put("tabId", tab.id)
                 arr.put(obj)
             }
 
@@ -212,7 +211,6 @@ fun restoreSession(context: Context) {
                 }
 
                 val tab = EditorTab(
-                    id = obj.optLong("tabId", System.nanoTime()),
                     uri = uri,
                     file = file,
                     content = content,
