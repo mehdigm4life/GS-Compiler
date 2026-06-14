@@ -11,8 +11,8 @@ android {
         applicationId = "com.mehdigm.compiler"
         minSdk = 26
         targetSdk = 34
-        versionCode = 8
-        versionName = "2.6.8"
+        versionCode = 9
+        versionName = "3.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -25,6 +25,15 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file("release.keystore")
+            storePassword = "gscompiler"
+            keyAlias = "gscompiler"
+            keyPassword = "gscompiler"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
@@ -32,6 +41,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
         debug {
             isMinifyEnabled = false
