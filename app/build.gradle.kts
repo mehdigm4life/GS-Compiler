@@ -25,15 +25,6 @@ android {
         }
     }
 
-    signingConfigs {
-        create("release") {
-            storeFile = file("release.keystore")
-            storePassword = "gscompiler"
-            keyAlias = "gscompiler"
-            keyPassword = "gscompiler"
-        }
-    }
-
     buildTypes {
         release {
             isMinifyEnabled = true
@@ -41,7 +32,6 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("release")
         }
         debug {
             isMinifyEnabled = false
