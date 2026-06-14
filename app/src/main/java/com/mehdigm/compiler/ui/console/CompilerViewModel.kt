@@ -24,12 +24,13 @@ private const val MAX_CONSOLE_ENTRIES = 500
 private const val FILE_READ_TIMEOUT_MS = 15_000L
 
 data class EditorTab(
+    val uri: Uri? = null,
     val file: File? = null,
     val content: String = "",
-    val savedContent: String = ""
+    val savedContent: String = "",
+    val displayName: String = "untitled.pwn"
 ) {
     val isDirty: Boolean get() = content != savedContent
-    val displayName: String get() = file?.name ?: "untitled.pwn"
 }
 
 data class CompilerUiState(
@@ -45,7 +46,8 @@ data class CompilerUiState(
     val showFileSavedToast: Boolean = false,
     val fileSavedSuccess: Boolean = false,
     val showUnsavedDialog: Boolean = false,
-    val unsavedDialogTabIndex: Int? = null
+    val unsavedDialogTabIndex: Int? = null,
+    val requestSaveAs: Boolean = false
 ) {
     val activeTab: EditorTab? get() = tabs.getOrNull(activeTabIndex)
     val editorText: String get() = activeTab?.content ?: ""
@@ -123,7 +125,9 @@ class CompilerViewModel : ViewModel() {
             try {
                 val content = deferred.await()
                 if (content != null) {
-                    addTab(content, uri)
+                    val displayName = FileManager.getFileNameFromUri(context, uri)
+                    val file = if (uri.scheme == "file") File(uri.path!!) else null
+                    addTab(content, uri = uri, file = file, displayName = displayName)
                 } else {
                     fail("Failed to read file from URI")
                 }
@@ -152,21 +156,25 @@ class CompilerViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.Main) {
             try {
                 val content = deferred.await()
-                addTab(content, file)
+                addTab(content, uri = Uri.fromFile(file), file = file)
             } catch (e: Exception) {
                 fail("Failed to load file: ${e.message}")
             }
         }
     }
 
-    private fun addTab(content: String, source: Any) {
-        val existing = _uiState.value.tabs.indexOfFirst { it.file?.absolutePath == (source as? File)?.absolutePath }
+    private fun addTab(content: String, uri: Uri? = null, file: File? = null, displayName: String? = null) {
+        val existing = when {
+            uri != null -> _uiState.value.tabs.indexOfFirst { uri == it.uri }
+            file != null -> _uiState.value.tabs.indexOfFirst { file.absolutePath == it.file?.absolutePath }
+            else -> -1
+        }
         if (existing >= 0) {
             _uiState.value = _uiState.value.copy(activeTabIndex = existing)
             return
         }
-        val file = source as? File
-        val tab = EditorTab(file = file, content = content, savedContent = content)
+        val name = displayName ?: file?.name ?: "untitled.pwn"
+        val tab = EditorTab(uri = uri, file = file, content = content, savedContent = content, displayName = name)
         val s = _uiState.value
         _uiState.value = s.copy(
             tabs = s.tabs + tab,
@@ -177,7 +185,7 @@ class CompilerViewModel : ViewModel() {
             ),
             isReadingFile = false
         )
-        AppLogger.i("GSCompiler", "Loaded file (${content.length} chars) from: $source")
+        AppLogger.i("GSCompiler", "Loaded file (${content.length} chars) from: ${uri ?: file}")
     }
 
     private fun fail(message: String) {
@@ -188,23 +196,23 @@ class CompilerViewModel : ViewModel() {
         addConsoleEntry(message, isError = true)
     }
 
-    fun saveCurrentTab() {
+    fun saveCurrentTab(context: Context) {
         val s = _uiState.value
         val tab = s.activeTab ?: return
-        val file = tab.file
-        if (file == null) {
-            addConsoleEntry("Save the file as a .pwn file first.", isError = true)
+        val uri = tab.uri
+        if (uri == null) {
+            _uiState.value = s.copy(requestSaveAs = true)
             return
         }
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                FileManager.writeFileContent(file, tab.content)
+                FileManager.writeToUri(context, uri, tab.content)
                 withActiveTab { it.copy(savedContent = it.content) }
                 _uiState.value = _uiState.value.copy(
                     showFileSavedToast = true,
                     fileSavedSuccess = true
                 )
-                addConsoleEntry("=== Saved: ${file.name} ===", isError = false)
+                addConsoleEntry("=== Saved: ${tab.displayName} ===", isError = false)
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     showFileSavedToast = true,
@@ -215,19 +223,26 @@ class CompilerViewModel : ViewModel() {
         }
     }
 
-    fun saveAs(file: File) {
-        val tab = _uiState.value.activeTab ?: return
+    fun clearRequestSaveAs() {
+        _uiState.value = _uiState.value.copy(requestSaveAs = false)
+    }
+
+    fun saveToUri(context: Context, uri: Uri) {
+        val s = _uiState.value
+        val idx = s.activeTabIndex
+        val tab = s.tabs.getOrNull(idx) ?: return
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                FileManager.writeFileContent(file, tab.content)
+                FileManager.writeToUri(context, uri, tab.content)
+                val displayName = FileManager.getFileNameFromUri(context, uri)
                 withActiveTab {
-                    it.copy(file = file, savedContent = it.content)
+                    it.copy(uri = uri, savedContent = it.content, displayName = displayName)
                 }
                 _uiState.value = _uiState.value.copy(
                     showFileSavedToast = true,
                     fileSavedSuccess = true
                 )
-                addConsoleEntry("=== Saved as: ${file.absolutePath} ===", isError = false)
+                addConsoleEntry("=== Saved: $displayName ===", isError = false)
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     showFileSavedToast = true,
@@ -330,15 +345,12 @@ class CompilerViewModel : ViewModel() {
         )
     }
 
-    fun compile() {
+    fun compile(context: Context) {
         val s = _uiState.value
-        val file = s.currentFile ?: run {
-            addConsoleEntry("No file selected. Save or open a .pwn file first.", isError = true)
-            return
-        }
+        val tab = s.activeTab ?: return
 
-        if (!file.name.endsWith(".pwn", ignoreCase = true)) {
-            addConsoleEntry("Not a .pwn file: ${file.name}", isError = true)
+        if (!tab.displayName.endsWith(".pwn", ignoreCase = true)) {
+            addConsoleEntry("Not a .pwn file: ${tab.displayName}", isError = true)
             return
         }
 
@@ -346,11 +358,13 @@ class CompilerViewModel : ViewModel() {
             _uiState.value = _uiState.value.copy(isCompiling = true, isCompileSuccess = null)
 
             addConsoleEntry("\n=== Compilation started ===", isError = false)
-            addConsoleEntry("Input: ${file.absolutePath}", isError = false)
+            addConsoleEntry("Input: ${tab.displayName}", isError = false)
 
             val content = getActiveContent()
-            withContext(Dispatchers.IO) {
-                FileManager.writeFileContent(file, content)
+            val file = withContext(Dispatchers.IO) {
+                val f = tab.file ?: File(context.cacheDir, tab.displayName)
+                f.writeText(content, Charsets.UTF_8)
+                f
             }
 
             val outputFile = FileManager.getSuggestedOutputFile(file)

@@ -5,10 +5,12 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.provider.OpenableColumns
 import android.provider.Settings
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.io.InputStreamReader
 
 object FileManager {
@@ -73,6 +75,28 @@ object FileManager {
         } catch (e: Exception) {
             return null
         }
+    }
+
+    fun writeToUri(context: Context, uri: Uri, content: String) {
+        val pfd = context.contentResolver.openFileDescriptor(uri, "w")
+            ?: throw IllegalStateException("Cannot open URI for writing: $uri")
+        pfd.use { fd ->
+            FileOutputStream(fd.fileDescriptor).use { output ->
+                output.write(content.toByteArray(Charsets.UTF_8))
+            }
+        }
+    }
+
+    fun getFileNameFromUri(context: Context, uri: Uri): String {
+        try {
+            context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                if (nameIndex >= 0 && cursor.moveToFirst()) {
+                    return cursor.getString(nameIndex) ?: "untitled.pwn"
+                }
+            }
+        } catch (_: Exception) { }
+        return uri.lastPathSegment ?: "untitled.pwn"
     }
 
     fun getSuggestedOutputFile(inputFile: File): File {

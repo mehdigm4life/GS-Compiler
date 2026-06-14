@@ -78,6 +78,15 @@ fun GSCompilerApp() {
         }
     }
 
+    val saveAsLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("text/plain")
+    ) { uri: Uri? ->
+        viewModel.clearRequestSaveAs()
+        if (uri != null) {
+            viewModel.saveToUri(context, uri)
+        }
+    }
+
     val storageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { _ ->
