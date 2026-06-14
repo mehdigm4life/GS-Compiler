@@ -55,7 +55,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        intent?.data?.let { pendingIntentUri.value = it }
+        intent.data?.let { pendingIntentUri.value = it }
         setContent {
             GSCompilerTheme {
                 GSCompilerApp()
@@ -65,7 +65,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        intent?.data?.let { pendingIntentUri.value = it }
+        intent.data?.let { pendingIntentUri.value = it }
     }
 }
 
@@ -134,7 +134,9 @@ fun GSCompilerApp() {
         pendingUri?.let { uri ->
             viewModel.updateCursorPosition(uiState.activeTabIndex, editorHandle.getCursorLine(), editorHandle.getCursorColumn())
             viewModel.loadFromUri(context, uri)
-            mainActivity?.pendingIntentUri?.value = null
+            if (mainActivity != null) {
+                mainActivity.pendingIntentUri.value = null
+            }
         }
     }
 
