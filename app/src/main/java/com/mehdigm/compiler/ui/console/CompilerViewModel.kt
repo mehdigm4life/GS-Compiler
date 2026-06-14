@@ -139,12 +139,24 @@ fun saveSession(context: Context) {
         try {
             val sessionDir = File(context.filesDir, KEY_SESSION_DIR)
             sessionDir.mkdirs()
+            // Delete old session files from previous save
             sessionDir.listFiles()?.forEach { it.delete() }
+
+            // Truncate content to avoid OOM — files larger than 1MB won't be saved
+            // and will re-open as new files. The user must use the file-system file
+            // for truly large scripts.
+            val MAX_SAVED_SIZE = 1_048_576 // 1MB
 
             val arr = JSONArray()
             for ((i, tab) in tabs.withIndex()) {
-                val contentFile = File(sessionDir, "tab_$i.pwn")
-                contentFile.writeText(tab.content, Charsets.UTF_8)
+                val content = if (tab.content.length <= MAX_SAVED_SIZE) tab.content else ""
+                val savedContent = if (tab.savedContent.length <= MAX_SAVED_SIZE) tab.savedContent else ""
+
+                val contentFile = File(sessionDir, "tab_${i}_content.pwn")
+                contentFile.writeText(content, Charsets.UTF_8)
+
+                val savedFile = File(sessionDir, "tab_${i}_saved.pwn")
+                savedFile.writeText(savedContent, Charsets.UTF_8)
 
                 val obj = JSONObject()
                 tab.uri?.toString()?.let { obj.put("uri", it) }
@@ -153,7 +165,10 @@ fun saveSession(context: Context) {
                 obj.put("cursorLine", tab.cursorLine)
                 obj.put("cursorColumn", tab.cursorColumn)
                 obj.put("contentFile", contentFile.absolutePath)
-                obj.put("savedContent", tab.savedContent)
+                obj.put("savedFile", savedFile.absolutePath)
+                if (tab.content.length > MAX_SAVED_SIZE) {
+                    obj.put("truncated", true)
+                }
                 arr.put(obj)
             }
 
@@ -171,10 +186,10 @@ fun saveSession(context: Context) {
 
 fun restoreSession(context: Context) {
     viewModelScope.launch(Dispatchers.IO) {
-        val prefs = context.getSharedPreferences(SESSION_PREFS, Context.MODE_PRIVATE)
-        val tabsJson = prefs.getString(KEY_TABS, null) ?: return@launch
-        val activeIndex = prefs.getInt(KEY_ACTIVE_INDEX, 0)
         try {
+            val prefs = context.getSharedPreferences(SESSION_PREFS, Context.MODE_PRIVATE)
+            val tabsJson = prefs.getString(KEY_TABS, null) ?: return@launch
+            val activeIndex = prefs.getInt(KEY_ACTIVE_INDEX, 0)
             val arr = JSONArray(tabsJson)
             val tabs = mutableListOf<EditorTab>()
             for (i in 0 until arr.length()) {
@@ -182,18 +197,30 @@ fun restoreSession(context: Context) {
                 val uri = if (obj.has("uri")) Uri.parse(obj.getString("uri")) else null
                 val filePath = if (obj.has("filePath")) obj.getString("filePath") else null
                 val file = if (filePath != null) File(filePath) else null
+                val displayName = obj.optString("displayName", "untitled.pwn")
+
                 val contentFile = if (obj.has("contentFile")) obj.getString("contentFile") else null
                 val content = if (contentFile != null) {
                     File(contentFile).takeIf { it.exists() }?.readText(Charsets.UTF_8) ?: ""
                 } else {
-                    obj.optString("content", "")
+                    // Fallback: old format with inline content — skip huge strings to avoid OOM
+                    val inline = obj.optString("content", "")
+                    if (inline.length > 1_048_576) "" else inline
                 }
-                val displayName = obj.optString("displayName", "untitled.pwn")
+
+                val savedFile = if (obj.has("savedFile")) obj.getString("savedFile") else null
+                val savedContent = if (savedFile != null) {
+                    File(savedFile).takeIf { it.exists() }?.readText(Charsets.UTF_8) ?: ""
+                } else {
+                    val inline = obj.optString("savedContent", "")
+                    if (inline.length > 1_048_576) "" else inline
+                }
+
                 val tab = EditorTab(
                     uri = uri,
                     file = file,
                     content = content,
-                    savedContent = obj.optString("savedContent", ""),
+                    savedContent = savedContent,
                     displayName = displayName,
                     cursorLine = obj.optInt("cursorLine", 0),
                     cursorColumn = obj.optInt("cursorColumn", 0),
@@ -211,6 +238,8 @@ fun restoreSession(context: Context) {
             }
         } catch (e: Exception) {
             AppLogger.e("GSCompiler", "Failed to restore session: ${e.message}")
+            // Clear corrupted session data so the app can start fresh
+            context.getSharedPreferences(SESSION_PREFS, Context.MODE_PRIVATE).edit().clear().apply()
         }
     }
 }
