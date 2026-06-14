@@ -113,6 +113,7 @@ fun CodeEditor(
     modifier: Modifier = Modifier,
     editorHandle: SoraEditorHandle = remember { SoraEditorHandle() },
     tabIndex: Int = 0,
+    onCursorChange: ((Int, Int) -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val editors = remember { mutableMapOf<Int, SoraCodeEditor>() }
@@ -161,6 +162,7 @@ fun CodeEditor(
 
                 subscribeEvent(ContentChangeEvent::class.java) { _, _ ->
                     onTextChange(getText().toString())
+                    onCursorChange?.invoke(cursor.leftLine, cursor.leftColumn)
                     editorHandle.syncState()
                 }
                 subscribeEvent(PublishSearchResultEvent::class.java) { _, _ ->

@@ -1,6 +1,7 @@
 package com.mehdigm.compiler.ui.console
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -19,6 +20,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import java.io.File
+import org.json.JSONArray
+import org.json.JSONObject
 
 private const val MAX_CONSOLE_ENTRIES = 500
 private const val FILE_READ_TIMEOUT_MS = 15_000L
@@ -29,6 +32,8 @@ data class EditorTab(
     val content: String = "",
     val savedContent: String = "",
     val displayName: String = "untitled.pwn",
+    val cursorLine: Int = 0,
+    val cursorColumn: Int = 0,
 ) {
     val isDirty: Boolean get() = content != savedContent
 }
