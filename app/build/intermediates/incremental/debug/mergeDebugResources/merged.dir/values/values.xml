@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:ns1="http://schemas.android.com/tools" xmlns:ns2="urn:oasis:names:tc:xliff:document:1.2">
+    <attr format="reference" name="codeEditorStyle"/>
     <attr format="reference" name="nestedScrollViewStyle"/>
     <color name="accent_blue">#FF4FC3F7</color>
     <color name="accent_gold">#FFD4AF37</color>
@@ -9,6 +10,8 @@
     <color name="call_notification_decline_color">#d93025</color>
     <color name="dark_background">#FF0F0F23</color>
     <color name="dark_surface">#FF1A1A2E</color>
+    <color name="defaultSymbolInputBackgroundColor">@android:color/background_light</color>
+    <color name="defaultSymbolInputTextColor">@android:color/black</color>
     <color name="editor_bg">#FF1E1E2E</color>
     <color name="error_red">#FFFF4444</color>
     <color name="line_number_color">#FF555555</color>
@@ -22,6 +25,7 @@
     <color name="syntax_string">#FF6A8759</color>
     <color name="terminal_bg">#FF0D0D0D</color>
     <color name="terminal_green">#FF00FF41</color>
+    <color name="textActionNameColor">@android:color/tertiary_text_light</color>
     <color name="white">#FFFFFFFF</color>
     <dimen name="compat_button_inset_horizontal_material">4dp</dimen>
     <dimen name="compat_button_inset_vertical_material">6dp</dimen>
@@ -207,6 +211,19 @@
     <string name="save">Save</string>
     <string name="select_pawn_file">Select .pwn File</string>
     <string name="selected">Selected</string>
+    <string name="sora_editor_clip_text_length_too_large">Text is too large to copy</string>
+    <string name="sora_editor_diagnostics_more_actions">More Actions...</string>
+    <string name="sora_editor_editor_formatting">Formatting your code…</string>
+    <string name="sora_editor_editor_search_busy">Editor is still preparing…</string>
+    <string name="sora_editor_editor_search_replacing">Replacing texts…</string>
+    <string name="sora_editor_last">Last</string>
+    <string name="sora_editor_long_select">Long Select</string>
+    <string name="sora_editor_more">More</string>
+    <string name="sora_editor_next">Next</string>
+    <string name="sora_editor_replace">Replace</string>
+    <string name="sora_editor_replaceAll">Replace All</string>
+    <string name="sora_editor_replacement">Replacement</string>
+    <string name="sora_editor_text_to_search">Text to search</string>
     <string name="state_empty">Empty</string>
     <string name="state_off">Off</string>
     <string name="state_on">On</string>
@@ -259,11 +276,63 @@
     </style>
     <style name="Widget.Compat.NotificationActionContainer" parent=""/>
     <style name="Widget.Compat.NotificationActionText" parent=""/>
+    <style name="diagnostic_popup_animation">
+        <item name="android:windowEnterAnimation">@anim/anim_diagnostic_tooltip_window_enter</item>
+        <item name="android:windowExitAnimation">@anim/anim_diagnostic_tooltip_window_exit</item>
+    </style>
+    <style name="text_action_popup_animation">
+        <item name="android:windowEnterAnimation">@anim/anim_text_action_popup_enter</item>
+        <item name="android:windowExitAnimation">@anim/anim_text_action_popup_exit</item>
+    </style>
     <declare-styleable name="Capability">
         
         <attr format="reference" name="queryPatterns"/>
         
         <attr format="boolean" name="shortcutMatchRequired"/>
+    </declare-styleable>
+    <declare-styleable name="CodeEditor">
+        <attr format="reference" name="scrollbarTrackHorizontal"/>
+        <attr format="reference" name="scrollbarThumbHorizontal"/>
+        <attr format="reference" name="scrollbarTrackVertical"/>
+        <attr format="reference" name="scrollbarThumbVertical"/>
+
+        <attr name="lnPanelPositionMode">
+            <enum name="fixed" value="0"/>
+            <enum name="follow" value="1"/>
+        </attr>
+        <attr name="lnPanelPosition">
+            <flag name="left" value="1"/>
+            <flag name="top" value="2"/>
+            <flag name="right" value="4"/>
+            <flag name="bottom" value="8"/>
+            <flag name="center" value="15"/>
+        </attr>
+
+        <attr format="string" name="text"/>
+        <attr format="dimension" name="textSize"/>
+        <attr format="dimension" name="dividerWidth"/>
+        <attr format="dimension" name="dividerMargin"/>
+        <attr format="boolean" name="lineNumberVisible"/>
+        <attr format="boolean" name="autoCompleteEnabled"/>
+        <attr format="boolean" name="symbolCompletionEnabled"/>
+        <attr format="integer" name="cursorBlinkPeriod"/>
+        <attr format="boolean" name="verticalScrollbarEnabled"/>
+        <attr format="boolean" name="horizontalScrollbarEnabled"/>
+        <attr format="boolean" name="pinLineNumber"/>
+        <attr name="wordwrapMode">
+            <enum name="off" value="0"/>
+            <!-- Without anti-word-breaking -->
+            <enum name="basic" value="1"/>
+            <!-- With anti-word-breaking -->
+            <enum name="standard" value="2"/>
+        </attr>
+        <attr format="boolean" name="highlightCurrentLine"/>
+        <attr format="boolean" name="highlightCurrentBlock"/>
+        <attr format="boolean" name="highlightBracketPair"/>
+        <attr format="boolean" name="ligatures"/>
+        <attr format="boolean" name="renderFunctionChars"/>
+        <attr format="boolean" name="scalable"/>
+        <attr format="integer" name="tabWidth"/>
     </declare-styleable>
     <declare-styleable name="ColorStateListItem">
         
