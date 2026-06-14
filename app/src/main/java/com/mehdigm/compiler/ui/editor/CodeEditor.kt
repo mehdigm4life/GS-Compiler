@@ -116,11 +116,19 @@ fun CodeEditor(
     onCursorChange: ((Int, Int) -> Unit)? = null,
     initialCursorLine: Int = 0,
     initialCursorColumn: Int = 0,
+    resetCounter: Int = 0,
 ) {
     val context = LocalContext.current
     val editors = remember { mutableMapOf<Int, SoraCodeEditor>() }
 
-    val editor = remember(tabIndex) {
+    val prevReset = remember { mutableStateOf(resetCounter) }
+    if (resetCounter != prevReset.value) {
+        editors.values.forEach { it.release() }
+        editors.clear()
+        prevReset.value = resetCounter
+    }
+
+    val editor = remember(tabIndex, resetCounter) {
         editors.getOrPut(tabIndex) {
             initTextMate(context)
             SoraCodeEditor(context).apply {
