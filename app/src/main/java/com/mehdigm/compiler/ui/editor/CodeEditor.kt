@@ -192,11 +192,20 @@ fun CodeEditor(
                     setText(text)
                 }
                 post {
-                    if (initialCursorLine in 0 until lineCount) {
-                        val col = initialCursorColumn.coerceIn(0, getText().getColumnCount(initialCursorLine))
-                        setSelection(initialCursorLine, col)
-                        ensurePositionVisible(initialCursorLine, col)
-                        onCursorChange?.invoke(initialCursorLine, col)
+                    val currentText = getText().toString()
+                    if (currentText != text && text.isNotEmpty()) {
+                        setText(text)
+                    }
+                    val targetLine = initialCursorLine
+                    val targetCol = if (targetLine in 0 until lineCount) {
+                        initialCursorColumn.coerceIn(0, getText().getColumnCount(targetLine))
+                    } else {
+                        initialCursorColumn
+                    }
+                    if (targetLine in 0 until lineCount) {
+                        setSelection(targetLine, targetCol)
+                        ensurePositionVisible(targetLine, targetCol)
+                        onCursorChange?.invoke(targetLine, targetCol)
                     }
                 }
             }
