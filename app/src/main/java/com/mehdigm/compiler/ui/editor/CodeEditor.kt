@@ -114,6 +114,8 @@ fun CodeEditor(
     editorHandle: SoraEditorHandle = remember { SoraEditorHandle() },
     tabIndex: Int = 0,
     onCursorChange: ((Int, Int) -> Unit)? = null,
+    initialCursorLine: Int = 0,
+    initialCursorColumn: Int = 0,
 ) {
     val context = LocalContext.current
     val editors = remember { mutableMapOf<Int, SoraCodeEditor>() }
