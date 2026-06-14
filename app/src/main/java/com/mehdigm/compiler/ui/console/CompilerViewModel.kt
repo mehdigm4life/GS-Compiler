@@ -52,7 +52,8 @@ data class CompilerUiState(
     val fileSavedSuccess: Boolean = false,
     val showUnsavedDialog: Boolean = false,
     val unsavedDialogTabIndex: Int? = null,
-    val requestSaveAs: Boolean = false
+    val requestSaveAs: Boolean = false,
+    val sessionVersion: Int = 0,
 ) {
     val activeTab: EditorTab? get() = tabs.getOrNull(activeTabIndex)
     val editorText: String get() = activeTab?.content ?: ""
@@ -176,9 +177,11 @@ class CompilerViewModel : ViewModel() {
                 tabs.add(tab)
             }
             if (tabs.isNotEmpty()) {
-                _uiState.value = _uiState.value.copy(
+                val s = _uiState.value
+                _uiState.value = s.copy(
                     tabs = tabs,
                     activeTabIndex = activeIndex.coerceIn(0, tabs.lastIndex),
+                    sessionVersion = s.sessionVersion + 1,
                 )
                 AppLogger.i("GSCompiler", "Session restored: ${tabs.size} tabs")
             }
