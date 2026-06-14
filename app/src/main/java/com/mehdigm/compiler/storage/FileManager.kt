@@ -66,12 +66,12 @@ object FileManager {
     }
 
     fun readFromDocument(context: Context, uri: Uri): String? {
-        return try {
-            context.contentResolver.openInputStream(uri)?.use { ins ->
-                ins.reader().readText()
-            }
-        } catch (e: Exception) {
-            null
+        val stream = context.contentResolver.openInputStream(uri)
+        if (stream == null) {
+            throw java.io.IOException("Content resolver returned null for URI: $uri")
+        }
+        return stream.use { ins ->
+            ins.reader().readText()
         }
     }
 

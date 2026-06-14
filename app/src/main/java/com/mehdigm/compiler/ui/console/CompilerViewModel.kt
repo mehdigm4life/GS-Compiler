@@ -1,5 +1,7 @@
 package com.mehdigm.compiler.ui.console
 
+import android.content.Context
+import android.net.Uri
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -7,6 +9,7 @@ import com.mehdigm.compiler.compiler.CompilationCallback
 import com.mehdigm.compiler.compiler.NativeCompiler
 import com.mehdigm.compiler.include.IncludeDetector
 import com.mehdigm.compiler.storage.FileManager
+import com.mehdigm.compiler.utils.AppLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -50,6 +53,34 @@ class CompilerViewModel : ViewModel() {
     fun setEditorValue(value: TextFieldValue) {
         _uiState.value = _uiState.value.copy(editorValue = value)
         currentContent = value.text
+    }
+
+    fun loadFromUri(context: Context, uri: Uri) {
+        viewModelScope.launch {
+            try {
+                addConsoleEntry("Reading file...", isError = false)
+                val content = withContext(Dispatchers.IO) {
+                    FileManager.readFromDocument(context, uri)
+                }
+                if (content != null) {
+                    currentContent = content
+                    _uiState.value = _uiState.value.copy(
+                        editorValue = TextFieldValue(content),
+                        consoleEntries = listOf(
+                            ConsoleEntry("=== File loaded from content URI ===", isError = false),
+                            ConsoleEntry("Size: ${content.length} chars", isError = false)
+                        )
+                    )
+                    AppLogger.i("GSCompiler", "Loaded file (${content.length} chars) from URI: $uri")
+                } else {
+                    addConsoleEntry("Failed to read file: content resolver returned null", isError = true)
+                    AppLogger.e("GSCompiler", "readFromDocument returned null for URI: $uri")
+                }
+            } catch (e: Exception) {
+                addConsoleEntry("Failed to open file: ${e.message}", isError = true)
+                AppLogger.e("GSCompiler", "Error reading URI: $uri", e)
+            }
+        }
     }
 
     fun loadFile(file: File) {
