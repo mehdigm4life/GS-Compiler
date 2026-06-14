@@ -450,6 +450,8 @@ fun GSCompilerApp() {
                             editorHandle = editorHandle,
                             tabIndex = uiState.activeTabIndex,
                             onCursorChange = { line, col -> viewModel.updateActiveCursor(line, col) },
+                            initialCursorLine = uiState.activeTab?.cursorLine ?: 0,
+                            initialCursorColumn = uiState.activeTab?.cursorColumn ?: 0,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .fillMaxHeight()

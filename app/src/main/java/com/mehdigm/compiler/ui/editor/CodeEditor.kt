@@ -174,6 +174,12 @@ fun CodeEditor(
                 if (text.isNotEmpty()) {
                     setText(text)
                 }
+                if (initialCursorLine in 0 until lineCount) {
+                    val col = initialCursorColumn.coerceIn(0, getText().getColumnCount(initialCursorLine))
+                    setSelection(initialCursorLine, col)
+                    ensurePositionVisible(initialCursorLine, col)
+                    onCursorChange?.invoke(initialCursorLine, col)
+                }
             }
         }
     }
