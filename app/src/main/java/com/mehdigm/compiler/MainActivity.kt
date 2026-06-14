@@ -280,7 +280,8 @@ fun GSCompilerApp() {
                 editorHandle = editorHandle,
                 onSave = { viewModel.saveCurrentTab(context) },
                 onCompile = { viewModel.compile(context) },
-                onOpenFile = { openFileTrigger.value = true }
+                onOpenFile = { openFileTrigger.value = true },
+                onFind = { showFindOverlay = !showFindOverlay }
             )
 
             /* ===== Tab Bar ===== */
@@ -304,6 +305,14 @@ fun GSCompilerApp() {
                         .fillMaxWidth()
                         .fillMaxHeight()
                 )
+
+                if (showFindOverlay) {
+                    FindOverlay(
+                        editorHandle = editorHandle,
+                        onDismiss = { showFindOverlay = false },
+                        modifier = Modifier.align(Alignment.BottomCenter)
+                    )
+                }
 
                 if (uiState.isReadingFile || uiState.isCompiling) {
                     Box(
@@ -440,7 +449,8 @@ fun ToolbarRow(
     editorHandle: SoraEditorHandle,
     onSave: () -> Unit,
     onCompile: () -> Unit,
-    onOpenFile: () -> Unit
+    onOpenFile: () -> Unit,
+    onFind: () -> Unit
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -480,6 +490,18 @@ fun ToolbarRow(
             }
 
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                IconButton(
+                    onClick = onFind,
+                    enabled = !isCompiling,
+                    modifier = Modifier.size(36.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Find in file",
+                        tint = GSColors.AccentGold
+                    )
+                }
+
                 IconButton(
                     onClick = onOpenFile,
                     enabled = !isCompiling,
