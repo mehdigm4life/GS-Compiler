@@ -175,12 +175,15 @@ fun CodeEditor(
         }
     }
 
-    LaunchedEffect(text, cursorLine, cursorColumn) {
+    LaunchedEffect(text) {
         if (editor.getText().toString() != text) {
             skipNextEvent = true
             editor.setText(text)
             skipNextEvent = false
         }
+    }
+
+    LaunchedEffect(cursorLine, cursorColumn) {
         if (cursorLine in 0 until editor.lineCount) {
             val col = cursorColumn.coerceIn(0, editor.getText().getColumnCount(cursorLine))
             editor.setSelection(cursorLine, col)
