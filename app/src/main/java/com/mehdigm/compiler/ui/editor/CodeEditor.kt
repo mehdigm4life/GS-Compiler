@@ -181,16 +181,18 @@ fun CodeEditor(
             editor.setText(text)
             skipNextEvent = false
         }
-        if (cursorLine in 0 until editor.lineCount) {
-            val col = cursorColumn.coerceIn(0, editor.getText().getColumnCount(cursorLine))
-            editor.setSelection(cursorLine, col)
-            editor.ensurePositionVisible(cursorLine, col)
+        editor.post {
+            if (cursorLine in 0 until editor.lineCount) {
+                val col = cursorColumn.coerceIn(0, editor.getText().getColumnCount(cursorLine))
+                editor.setSelection(cursorLine, col)
+                editor.ensurePositionVisible(cursorLine, col)
+            }
         }
     }
 
     LaunchedEffect(cursorLine, cursorColumn) {
-        if (editor.getText().toString() == text) {
-            if (cursorLine in 0 until editor.lineCount) {
+        editor.post {
+            if (cursorLine in 0 until editor.lineCount && editor.getText().toString() == text) {
                 val col = cursorColumn.coerceIn(0, editor.getText().getColumnCount(cursorLine))
                 editor.setSelection(cursorLine, col)
                 editor.ensurePositionVisible(cursorLine, col)
