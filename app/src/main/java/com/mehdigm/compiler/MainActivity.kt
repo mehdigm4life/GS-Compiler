@@ -433,7 +433,7 @@ fun GSCompilerApp() {
                             val curIdx = uiState.activeTabIndex
                             if (curIdx != index) {
                                 viewModel.updateCursorPosition(curIdx, editorHandle.getCursorLine(), editorHandle.getCursorColumn())
-                                viewModel.switchTab(index)
+                                viewModel.switchTab(index, context)
                             }
                         },
                         onTabClose = { viewModel.requestCloseTab(it) }

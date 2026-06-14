@@ -647,4 +647,13 @@ fun restoreSession(context: Context) {
     private fun addConsoleEntry(text: String, isError: Boolean) {
         _consoleChannel.trySend(ConsoleEntry(text = text, isError = isError))
     }
+
+    // -- Content cache for lazy loading (QuickEdit-style) --
+
+    private fun cacheDir(context: Context): File =
+        File(context.filesDir, CONTENT_CACHE_DIR).also { it.mkdirs() }
+
+    private fun contentFile(cache: File, tabId: Long): File = File(cache, "${tabId}_c.pwn")
+
+    private fun savedFile(cache: File, tabId: Long): File = File(cache, "${tabId}_s.pwn")
 }
