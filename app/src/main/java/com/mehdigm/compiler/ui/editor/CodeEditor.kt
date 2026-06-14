@@ -16,11 +16,35 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import org.eclipse.tm4e.core.registry.IGrammarSource
 import org.eclipse.tm4e.core.registry.IThemeSource
 
+class SoraEditorHandle {
+    internal var editor: SoraCodeEditor? = null
+    var canUndo by mutableStateOf(false)
+        private set
+    var canRedo by mutableStateOf(false)
+        private set
+
+    fun undo() {
+        editor?.undo()
+        syncState()
+    }
+
+    fun redo() {
+        editor?.redo()
+        syncState()
+    }
+
+    internal fun syncState() {
+        canUndo = editor?.canUndo() ?: false
+        canRedo = editor?.canRedo() ?: false
+    }
+}
+
 @Composable
 fun CodeEditor(
     text: String,
     onTextChange: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    editorHandle: SoraEditorHandle = remember { SoraEditorHandle() }
 ) {
     val context = LocalContext.current
     var skipNextEvent by remember { mutableStateOf(false) }
@@ -66,10 +90,13 @@ fun CodeEditor(
     }
 
     LaunchedEffect(Unit) {
+        editorHandle.editor = editor
+        editorHandle.syncState()
         editor.subscribeEvent(ContentChangeEvent::class.java) { _, _ ->
             if (!skipNextEvent) {
                 onTextChange(editor.getText().toString())
             }
+            editorHandle.syncState()
         }
     }
 

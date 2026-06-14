@@ -13,7 +13,6 @@ import java.io.InputStreamReader
 
 object FileManager {
 
-    private const val MAX_FILE_SIZE = 5 * 1024 * 1024
     private const val BUFFER_SIZE = 8192
 
     fun hasManageStoragePermission(context: Context): Boolean {
@@ -60,32 +59,17 @@ object FileManager {
         try {
             val pfd = context.contentResolver.openFileDescriptor(uri, "r") ?: return null
             return pfd.use { fd ->
-                val fileSize = fd.statSize
-                if (fileSize > MAX_FILE_SIZE) {
-                    throw SecurityException(
-                        "File too large (${fileSize / 1024}KB, max ${MAX_FILE_SIZE / 1024}KB)"
-                    )
-                }
                 FileInputStream(fd.fileDescriptor).use { input ->
                     val reader = BufferedReader(InputStreamReader(input, Charsets.UTF_8), BUFFER_SIZE)
-                    val sb = StringBuilder(fileSize.coerceAtMost(MAX_FILE_SIZE.toLong()).toInt())
+                    val sb = StringBuilder()
                     val buffer = CharArray(BUFFER_SIZE)
                     var read: Int
-                    var total = 0
                     while (reader.read(buffer).also { read = it } != -1) {
-                        total += read
-                        if (total > MAX_FILE_SIZE) {
-                            throw SecurityException(
-                                "File too large (over ${MAX_FILE_SIZE / 1024}KB)"
-                            )
-                        }
                         sb.append(buffer, 0, read)
                     }
                     sb.toString()
                 }
             }
-        } catch (e: SecurityException) {
-            throw e
         } catch (e: Exception) {
             return null
         }
