@@ -84,8 +84,13 @@ class SoraEditorHandle {
 
     internal fun syncSearchState() {
         val searcher = editor?.getSearcher() ?: return
+        if (!searcher.hasQuery()) {
+            searchMatchCount = 0
+            searchCurrentIndex = 0
+            return
+        }
         searchMatchCount = searcher.matchedPositionCount
-        searchCurrentIndex = if (searcher.hasQuery() && searcher.isMatchedPositionSelected()) {
+        searchCurrentIndex = if (searcher.isMatchedPositionSelected()) {
             searcher.currentMatchedPositionIndex + 1
         } else {
             0
