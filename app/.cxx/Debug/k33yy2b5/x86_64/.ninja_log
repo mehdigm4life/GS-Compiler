@@ -8,3 +8,13 @@
 93	222	1781459176885511599	CMakeFiles/gs-compiler.dir/src/jni_bridge.cpp.o	df4bde096aeb47d
 1	430	1781459177094510137	CMakeFiles/gs-compiler.dir/src/sc.c.o	66e3929d33e88986
 430	452	1781459177117509976	/home/runner/work/GS-Compiler/GS-Compiler/app/build/intermediates/cxx/Debug/k33yy2b5/obj/x86_64/libgs-compiler.so	ed89596d015867ad
+0	3	0	clean	6fccd73423502957
+7	88	1781471433981945581	CMakeFiles/gs-compiler.dir/src/scvars.c.o	136d1e2cbff59f36
+7	101	1781471433996315427	CMakeFiles/gs-compiler.dir/src/sclist.c.o	dc9887a2e934064d
+88	147	1781471434036945133	CMakeFiles/gs-compiler.dir/src/lngfile.c.o	a3373103e537fdb1
+8	152	1781471434040945100	CMakeFiles/gs-compiler.dir/src/memfile.c.o	9dfbe32a54a13349
+7	156	1781471434053944994	CMakeFiles/gs-compiler.dir/src/scstr.c.o	87ebe314572c19fd
+1	167	1781471434064944905	CMakeFiles/gs-compiler.dir/src/pawncc.c.o	6e60dd2d4593aad3
+101	446	1781471434332942935	CMakeFiles/gs-compiler.dir/src/jni_bridge.cpp.o	df4bde096aeb47d
+4	876	1781471434761939835	CMakeFiles/gs-compiler.dir/src/sc.c.o	66e3929d33e88986
+876	973	1781471434868939062	/home/runner/work/GS-Compiler/GS-Compiler/app/build/intermediates/cxx/Debug/k33yy2b5/obj/x86_64/libgs-compiler.so	ed89596d015867ad
