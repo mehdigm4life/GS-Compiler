@@ -376,7 +376,13 @@ fun GSCompilerApp() {
                     TabBar(
                         tabs = uiState.tabs,
                         activeIndex = uiState.activeTabIndex,
-                        onTabClick = { viewModel.switchTab(it) },
+                        onTabClick = { index ->
+                            val curIdx = uiState.activeTabIndex
+                            if (curIdx != index) {
+                                viewModel.updateCursorPosition(curIdx, editorHandle.getCursorLine(), editorHandle.getCursorColumn())
+                                viewModel.switchTab(index)
+                            }
+                        },
                         onTabClose = { viewModel.requestCloseTab(it) }
                     )
 
@@ -389,6 +395,8 @@ fun GSCompilerApp() {
                             text = uiState.editorText,
                             onTextChange = { viewModel.setEditorText(it) },
                             editorHandle = editorHandle,
+                            cursorLine = uiState.activeTab?.cursorLine ?: 0,
+                            cursorColumn = uiState.activeTab?.cursorColumn ?: 0,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .fillMaxHeight()

@@ -80,6 +80,9 @@ class SoraEditorHandle {
         }
     }
 
+    fun getCursorLine(): Int = editor?.cursor?.leftLine ?: 0
+    fun getCursorColumn(): Int = editor?.cursor?.leftColumn ?: 0
+
     fun getLineCount(): Int = editor?.lineCount ?: 0
 
     internal fun syncSearchState() {
@@ -108,7 +111,9 @@ fun CodeEditor(
     text: String,
     onTextChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    editorHandle: SoraEditorHandle = remember { SoraEditorHandle() }
+    editorHandle: SoraEditorHandle = remember { SoraEditorHandle() },
+    cursorLine: Int = 0,
+    cursorColumn: Int = 0
 ) {
     val context = LocalContext.current
     var skipNextEvent by remember { mutableStateOf(false) }
@@ -170,11 +175,16 @@ fun CodeEditor(
         }
     }
 
-    LaunchedEffect(text) {
+    LaunchedEffect(text, cursorLine, cursorColumn) {
         if (editor.getText().toString() != text) {
             skipNextEvent = true
             editor.setText(text)
             skipNextEvent = false
+        }
+        if (cursorLine in 0 until editor.lineCount) {
+            val col = cursorColumn.coerceIn(0, editor.getText().getColumnCount(cursorLine))
+            editor.setSelection(cursorLine, col)
+            editor.ensurePositionVisible(cursorLine, col)
         }
     }
 
