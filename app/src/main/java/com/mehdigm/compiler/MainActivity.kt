@@ -15,6 +15,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Redo
+import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -28,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mehdigm.compiler.storage.FileManager
 import com.mehdigm.compiler.ui.console.CompilerViewModel
@@ -59,7 +61,6 @@ fun GSCompilerApp() {
     var showStorageDialog by remember { mutableStateOf(false) }
     val openFileTrigger = remember { mutableStateOf(false) }
 
-    /* File picker for .pwn files */
     val filePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri: Uri? ->
@@ -68,7 +69,6 @@ fun GSCompilerApp() {
         }
     }
 
-    /* Storage permission request */
     val storageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { _ ->
@@ -80,7 +80,6 @@ fun GSCompilerApp() {
         }
     }
 
-    /* Check storage permission on launch */
     LaunchedEffect(Unit) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
             && !Environment.isExternalStorageManager()
@@ -91,7 +90,6 @@ fun GSCompilerApp() {
         }
     }
 
-    /* Launch file picker when trigger is set */
     LaunchedEffect(openFileTrigger.value) {
         if (openFileTrigger.value) {
             filePickerLauncher.launch(arrayOf("text/plain", "*/*"))
@@ -99,27 +97,10 @@ fun GSCompilerApp() {
         }
     }
 
-    /* Lifecycle logging: start/stop AppLogger on resume/pause */
-    val lifecycle = LocalLifecycleOwner.current.lifecycle
-    DisposableEffect(lifecycle) {
-        val observer = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_RESUME -> AppLogger.start(context)
-                Lifecycle.Event.ON_PAUSE -> AppLogger.stop()
-                else -> {}
-            }
-        }
-        lifecycle.addObserver(observer)
-        onDispose { lifecycle.removeObserver(observer) }
-    }
-
-    /* Storage permission dialog */
     if (showStorageDialog) {
         AlertDialog(
             onDismissRequest = { showStorageDialog = false },
-            title = {
-                Text("Storage Access Required")
-            },
+            title = { Text("Storage Access Required") },
             text = {
                 Text(
                     "GS Compiler needs access to all files to read .pwn scripts " +
@@ -166,7 +147,6 @@ fun GSCompilerApp() {
                     containerColor = GSColors.ToolbarBackground
                 ),
                 actions = {
-                    /* File info badge */
                     if (uiState.currentFile != null) {
                         Text(
                             text = uiState.currentFile!!.name,
@@ -186,19 +166,17 @@ fun GSCompilerApp() {
                 .padding(padding)
                 .background(GSColors.DarkBackground)
         ) {
-            /* Toolbar */
             ToolbarRow(
                 canUndo = uiState.editorValue.text.isNotEmpty(),
                 canRedo = false,
                 isCompiling = uiState.isCompiling,
-                onUndo = { /* undo */ },
-                onRedo = { /* redo */ },
+                onUndo = { },
+                onRedo = { },
                 onSave = { viewModel.saveFile() },
                 onCompile = { viewModel.compile() },
                 onOpenFile = { openFileTrigger.value = true }
             )
 
-            /* Editor area */
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -209,7 +187,6 @@ fun GSCompilerApp() {
                     onValueChange = { viewModel.setEditorValue(it) }
                 )
 
-                /* Loading overlay */
                 if (uiState.isReadingFile || uiState.isCompiling) {
                     Box(
                         modifier = Modifier
@@ -230,7 +207,6 @@ fun GSCompilerApp() {
                 }
             }
 
-            /* Console */
             ConsoleView(
                 entries = uiState.consoleEntries,
                 expanded = uiState.consoleExpanded,
@@ -266,7 +242,6 @@ fun ToolbarRow(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            /* Left side: Undo / Redo */
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 IconButton(
                     onClick = onUndo,
@@ -274,7 +249,7 @@ fun ToolbarRow(
                     modifier = Modifier.size(36.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Undo,
+                        imageVector = Icons.AutoMirrored.Filled.Undo,
                         contentDescription = "Undo",
                         tint = GSColors.White
                     )
@@ -285,14 +260,13 @@ fun ToolbarRow(
                     modifier = Modifier.size(36.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Redo,
+                        imageVector = Icons.AutoMirrored.Filled.Redo,
                         contentDescription = "Redo",
                         tint = GSColors.White
                     )
                 }
             }
 
-            /* Right side: Open, Save, Compile */
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 IconButton(
                     onClick = onOpenFile,

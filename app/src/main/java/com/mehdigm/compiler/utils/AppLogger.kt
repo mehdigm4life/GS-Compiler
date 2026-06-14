@@ -3,14 +3,10 @@ package com.mehdigm.compiler.utils
 import android.content.Context
 import android.os.Build
 import android.os.Environment
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.PrintWriter
@@ -18,20 +14,20 @@ import java.io.StringWriter
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlinx.coroutines.channels.Channel
 
 object AppLogger {
 
     private const val LOG_FILE_NAME = "logcat.log"
     private const val MAX_LOG_SIZE = 2L * 1024 * 1024
     private const val TAG = "GSCompiler"
-    private const val FREEZE_THRESHOLD_MS = 8000L
 
     private var logFile: File? = null
     private var logJob: Job? = null
-    private var freezeDetectorJob: Job? = null
     private val scope = CoroutineScope(Dispatchers.IO)
     private val channel = Channel<LogEntry>(Channel.UNLIMITED)
     private var enabled = false
+    private var started = false
 
     private var defaultExceptionHandler: Thread.UncaughtExceptionHandler? = null
 
@@ -43,13 +39,15 @@ object AppLogger {
     )
 
     fun start(context: Context) {
-        if (enabled) return
-        logFile = getLogFile(context)
-        logFile?.parentFile?.mkdirs()
+        if (started) return
+        started = true
         enabled = true
 
-        installCrashHandler()
-        startFreezeDetector()
+        logFile = getLogFile(context)
+
+        if (defaultExceptionHandler == null) {
+            installCrashHandler()
+        }
 
         logJob = scope.launch {
             var lastEntry: LogEntry? = null
@@ -80,18 +78,18 @@ object AppLogger {
             }
         }
 
-        logSystemInfo(context)
-        i(TAG, "AppLogger started")
+        scope.launch {
+            logSystemInfo(context)
+            i(TAG, "AppLogger started")
+        }
     }
 
     fun stop() {
-        if (!enabled) return
+        if (!started) return
         enabled = false
+        started = false
         logJob?.cancel()
         logJob = null
-        freezeDetectorJob?.cancel()
-        freezeDetectorJob = null
-        i(TAG, "AppLogger stopped")
     }
 
     private fun installCrashHandler() {
@@ -103,32 +101,6 @@ object AppLogger {
             writeEntryImmediate(LogEntry('C', "CRASH", msg))
             defaultExceptionHandler?.uncaughtException(thread, throwable)
         }
-    }
-
-    private fun startFreezeDetector() {
-        freezeDetectorJob = scope.launch {
-            val mainHandler = Handler(Looper.getMainLooper())
-            while (enabled) {
-                var responded = false
-                mainHandler.post { responded = true }
-                delay(FREEZE_THRESHOLD_MS)
-                if (!responded && enabled) {
-                    w(TAG, "!!! FREEZE DETECTED: main thread unresponsive for ${FREEZE_THRESHOLD_MS}ms")
-                    logThreadDump()
-                }
-            }
-        }
-    }
-
-    private fun logThreadDump() {
-        w(TAG, "--- Thread dump ---")
-        for ((thread, stack) in Thread.getAllStackTraces()) {
-            w(TAG, "Thread: ${thread.name} (id=${thread.id}, state=${thread.state})")
-            for (el in stack) {
-                w(TAG, "  at ${el.className}.${el.methodName}(${el.fileName}:${el.lineNumber})")
-            }
-        }
-        w(TAG, "--- End thread dump ---")
     }
 
     private fun logSystemInfo(context: Context) {
@@ -158,13 +130,15 @@ object AppLogger {
     }
 
     private fun getLogFile(context: Context): File {
-        val base = File(
-            Environment.getExternalStorageDirectory(),
-            "AndroidCSProjects"
-        )
-        if (base.exists() || base.mkdirs()) {
-            return File(base, LOG_FILE_NAME)
-        }
+        try {
+            val base = File(
+                Environment.getExternalStorageDirectory(),
+                "AndroidCSProjects"
+            )
+            if (base.exists() || base.mkdirs()) {
+                return File(base, LOG_FILE_NAME)
+            }
+        } catch (_: Exception) {}
         return File(context.filesDir, LOG_FILE_NAME)
     }
 

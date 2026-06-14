@@ -18,7 +18,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import java.io.File
+
+private const val MAX_CONSOLE_ENTRIES = 500
+private const val FILE_READ_TIMEOUT_MS = 15_000L
 
 data class CompilerUiState(
     val editorValue: TextFieldValue = TextFieldValue(""),
@@ -28,7 +32,8 @@ data class CompilerUiState(
     val isCompileSuccess: Boolean? = false,
     val detectedIncludes: List<String> = emptyList(),
     val consoleExpanded: Boolean = true,
-    val isReadingFile: Boolean = false
+    val isReadingFile: Boolean = false,
+    val errorMessage: String? = null
 )
 
 class CompilerViewModel : ViewModel() {
@@ -44,9 +49,13 @@ class CompilerViewModel : ViewModel() {
     init {
         viewModelScope.launch {
             _consoleChannel.consumeAsFlow().collect { entry ->
-                _uiState.value = _uiState.value.copy(
-                    consoleEntries = _uiState.value.consoleEntries + entry
-                )
+                val current = _uiState.value.consoleEntries
+                val updated = if (current.size >= MAX_CONSOLE_ENTRIES) {
+                    current.drop(current.size - MAX_CONSOLE_ENTRIES + 1) + entry
+                } else {
+                    current + entry
+                }
+                _uiState.value = _uiState.value.copy(consoleEntries = updated)
             }
         }
     }
@@ -58,11 +67,12 @@ class CompilerViewModel : ViewModel() {
 
     fun loadFromUri(context: Context, uri: Uri) {
         viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isReadingFile = true, errorMessage = null)
             try {
-                _uiState.value = _uiState.value.copy(isReadingFile = true)
-                addConsoleEntry("Reading file...", isError = false)
                 val content = withContext(Dispatchers.IO) {
-                    FileManager.readFromDocument(context, uri)
+                    withTimeout(FILE_READ_TIMEOUT_MS) {
+                        FileManager.readFromDocument(context, uri)
+                    }
                 }
                 if (content != null) {
                     currentContent = content
@@ -77,12 +87,22 @@ class CompilerViewModel : ViewModel() {
                     )
                     AppLogger.i("GSCompiler", "Loaded file (${content.length} chars) from URI: $uri")
                 } else {
-                    _uiState.value = _uiState.value.copy(isReadingFile = false)
-                    addConsoleEntry("Failed to read file: content resolver returned null", isError = true)
+                    _uiState.value = _uiState.value.copy(
+                        isReadingFile = false,
+                        errorMessage = "Failed to read file: content resolver returned null"
+                    )
                 }
-            } catch (e: Throwable) {
-                _uiState.value = _uiState.value.copy(isReadingFile = false)
-                addConsoleEntry("Failed to open file: ${e.message}", isError = true)
+            } catch (e: kotlinx.coroutines.TimeoutCancellationException) {
+                _uiState.value = _uiState.value.copy(
+                    isReadingFile = false,
+                    errorMessage = "File read timed out after ${FILE_READ_TIMEOUT_MS / 1000}s"
+                )
+                AppLogger.e("GSCompiler", "File read timeout for URI: $uri")
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isReadingFile = false,
+                    errorMessage = "Failed to open file: ${e.message}"
+                )
                 AppLogger.e("GSCompiler", "Error reading URI: $uri - ${e.message}")
             }
         }
@@ -92,7 +112,9 @@ class CompilerViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val content = withContext(Dispatchers.IO) {
-                    FileManager.readFileContent(file)
+                    withTimeout(FILE_READ_TIMEOUT_MS) {
+                        FileManager.readFileContent(file)
+                    }
                 }
                 currentContent = content
 
@@ -113,7 +135,9 @@ class CompilerViewModel : ViewModel() {
                     detectedIncludes = includeResult.includePaths
                 )
             } catch (e: Exception) {
-                addConsoleEntry("Failed to load file: ${e.message}", isError = true)
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = "Failed to load file: ${e.message}"
+                )
             }
         }
     }
@@ -214,6 +238,10 @@ class CompilerViewModel : ViewModel() {
 
     fun clearConsole() {
         _uiState.value = _uiState.value.copy(consoleEntries = emptyList())
+    }
+
+    fun clearError() {
+        _uiState.value = _uiState.value.copy(errorMessage = null)
     }
 
     private fun addConsoleEntry(text: String, isError: Boolean) {
