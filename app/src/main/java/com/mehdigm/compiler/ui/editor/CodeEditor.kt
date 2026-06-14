@@ -6,12 +6,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import io.github.rosemoe.sora.event.ContentChangeEvent
+import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
+import io.github.rosemoe.sora.langs.textmate.registry.GrammarRegistry
+import io.github.rosemoe.sora.langs.textmate.registry.ThemeRegistry
+import io.github.rosemoe.sora.langs.textmate.registry.provider.AssetsFileResolver
+import io.github.rosemoe.sora.langs.textmate.registry.provider.FileProviderRegistry
 import io.github.rosemoe.sora.widget.CodeEditor as SoraCodeEditor
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
-import io.github.rosemoe.sora.text.Content
-import io.github.rosemoe.sora.langs.textmate.registry.TextMateRegistry
-import io.github.rosemoe.sora.langs.textmate.registry.ThemeRegistry
+import org.eclipse.tm4e.core.registry.IThemeSource
 
 @Composable
 fun CodeEditor(
@@ -28,24 +31,36 @@ fun CodeEditor(
             isLineNumberEnabled = true
             isWordwrap = false
 
-            colorScheme = EditorColorScheme().apply {
-                setColor(EditorColorScheme.BACKGROUND, 0xFF1E1E2E.toInt())
-                setColor(EditorColorScheme.TEXT, 0xFFA9B7C6.toInt())
-                setColor(EditorColorScheme.LINE_NUMBER, 0xFF555555.toInt())
-                setColor(EditorColorScheme.LINE_NUMBER_BACKGROUND, 0xFF1E1E2E.toInt())
-                setColor(EditorColorScheme.LINE_DIVIDER, 0x4D555555.toInt())
-                setColor(EditorColorScheme.SELECTION_INSERT, 0xFF555555.toInt())
-                setColor(EditorColorScheme.SELECTION_HANDLE, 0xFFD4AF37.toInt())
-                setColor(EditorColorScheme.BLOCK_LINE, 0x33D4AF37.toInt())
-                setColor(EditorColorScheme.BLOCK_LINE_CURRENT, 0x4DD4AF37.toInt())
-            }
-
             try {
-                val language = TextMateLanguage.create("source.pawn", true)
+                val scheme = TextMateColorScheme.create(ThemeRegistry.getInstance())
+                scheme.setColor(EditorColorScheme.LINE_NUMBER, 0xFF555555.toInt())
+                scheme.setColor(EditorColorScheme.LINE_NUMBER_BACKGROUND, 0xFF1E1E2E.toInt())
+                scheme.setColor(EditorColorScheme.LINE_DIVIDER, 0x4D555555.toInt())
+                scheme.setColor(EditorColorScheme.SELECTION_INSERT, 0xFF555555.toInt())
+                scheme.setColor(EditorColorScheme.SELECTION_HANDLE, 0xFFD4AF37.toInt())
+                scheme.setColor(EditorColorScheme.BLOCK_LINE, 0x33D4AF37.toInt())
+                scheme.setColor(EditorColorScheme.BLOCK_LINE_CURRENT, 0x4DD4AF37.toInt())
+                colorScheme = scheme
+
+                val language = TextMateLanguage.create(
+                    "source.pawn",
+                    GrammarRegistry.getInstance(),
+                    ThemeRegistry.getInstance(),
+                    true
+                )
                 setEditorLanguage(language)
-                ThemeRegistry.getInstance().setTheme("dark")
             } catch (_: Exception) {
-                // Fall back to plain text if TextMate fails
+                colorScheme = EditorColorScheme().apply {
+                    setColor(EditorColorScheme.WHOLE_BACKGROUND, 0xFF1E1E2E.toInt())
+                    setColor(EditorColorScheme.TEXT_NORMAL, 0xFFA9B7C6.toInt())
+                    setColor(EditorColorScheme.LINE_NUMBER, 0xFF555555.toInt())
+                    setColor(EditorColorScheme.LINE_NUMBER_BACKGROUND, 0xFF1E1E2E.toInt())
+                    setColor(EditorColorScheme.LINE_DIVIDER, 0x4D555555.toInt())
+                    setColor(EditorColorScheme.SELECTION_INSERT, 0xFF555555.toInt())
+                    setColor(EditorColorScheme.SELECTION_HANDLE, 0xFFD4AF37.toInt())
+                    setColor(EditorColorScheme.BLOCK_LINE, 0x33D4AF37.toInt())
+                    setColor(EditorColorScheme.BLOCK_LINE_CURRENT, 0x4DD4AF37.toInt())
+                }
             }
         }
     }
@@ -53,15 +68,15 @@ fun CodeEditor(
     LaunchedEffect(Unit) {
         editor.subscribeEvent(ContentChangeEvent::class.java) { _, _ ->
             if (!skipNextEvent) {
-                onTextChange(editor.text.toString())
+                onTextChange(editor.getText().toString())
             }
         }
     }
 
     LaunchedEffect(text) {
-        if (editor.text.toString() != text) {
+        if (editor.getText().toString() != text) {
             skipNextEvent = true
-            editor.setText(text, null)
+            editor.setText(text)
             skipNextEvent = false
         }
     }
@@ -80,11 +95,13 @@ private fun initTextMate(context: Context) {
     textMateInitialized = true
 
     try {
-        TextMateRegistry.getInstance().loadGrammars(
-            context.assets.open("textmate/grammars.json")
+        FileProviderRegistry.getInstance().addFileProvider(
+            AssetsFileResolver(context.assets)
         )
-        ThemeRegistry.getInstance().loadThemes(
-            context.assets.open("textmate/themes.json")
+        GrammarRegistry.getInstance().loadGrammars("textmate/grammars.json")
+        val themeIs = context.assets.open("textmate/dark.tmTheme.json")
+        ThemeRegistry.getInstance().loadTheme(
+            IThemeSource.fromInputStream(themeIs, "dark.tmTheme.json", Charsets.UTF_8)
         )
     } catch (_: Exception) {
         // TextMate init failed — editor will use plain text
