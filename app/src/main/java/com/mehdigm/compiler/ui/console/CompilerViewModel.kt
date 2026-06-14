@@ -27,6 +27,7 @@ private const val MAX_CONSOLE_ENTRIES = 500
 private const val FILE_READ_TIMEOUT_MS = 15_000L
 
 data class EditorTab(
+    val id: Long = idCounter++,
     val uri: Uri? = null,
     val file: File? = null,
     val content: String = "",
@@ -36,6 +37,10 @@ data class EditorTab(
     val cursorColumn: Int = 0,
 ) {
     val isDirty: Boolean get() = content != savedContent
+
+    companion object {
+        private var idCounter = 1L
+    }
 }
 
 data class CompilerUiState(
@@ -166,6 +171,7 @@ fun saveSession(context: Context) {
                 obj.put("cursorColumn", tab.cursorColumn)
                 obj.put("contentFile", contentFile.absolutePath)
                 obj.put("savedFile", savedFile.absolutePath)
+                obj.put("tabId", tab.id)
                 if (tab.content.length > MAX_SAVED_SIZE) {
                     obj.put("truncated", true)
                 }
@@ -217,6 +223,7 @@ fun restoreSession(context: Context) {
                 }
 
                 val tab = EditorTab(
+                    id = obj.optLong("tabId", System.nanoTime()),
                     uri = uri,
                     file = file,
                     content = content,

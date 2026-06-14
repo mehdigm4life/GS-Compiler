@@ -112,14 +112,15 @@ fun CodeEditor(
     onTextChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     editorHandle: SoraEditorHandle = remember { SoraEditorHandle() },
-    tabIndex: Int = 0,
+    tabId: Long = 0L,
     onCursorChange: ((Int, Int) -> Unit)? = null,
     initialCursorLine: Int = 0,
     initialCursorColumn: Int = 0,
     resetCounter: Int = 0,
+    activeTabIds: List<Long> = emptyList(),
 ) {
     val context = LocalContext.current
-    val editors = remember { mutableMapOf<Int, SoraCodeEditor>() }
+    val editors = remember { mutableMapOf<Long, SoraCodeEditor>() }
 
     val prevReset = remember { mutableStateOf(resetCounter) }
     if (resetCounter != prevReset.value) {
@@ -128,8 +129,16 @@ fun CodeEditor(
         prevReset.value = resetCounter
     }
 
-    val editor = remember(tabIndex, resetCounter) {
-        editors.getOrPut(tabIndex) {
+    // Clean up editors for tabs that no longer exist
+    val staleIds = remember(activeTabIds) {
+        editors.keys.filter { it !in activeTabIds && it != tabId }
+    }
+    staleIds.forEach { id ->
+        editors.remove(id)?.release()
+    }
+
+    val editor = remember(tabId, resetCounter) {
+        editors.getOrPut(tabId) {
             initTextMate(context)
             SoraCodeEditor(context).apply {
                 isLineNumberEnabled = true
@@ -199,7 +208,7 @@ fun CodeEditor(
         editorHandle.syncState()
     }
 
-    key(tabIndex, resetCounter) {
+    key(tabId, resetCounter) {
         AndroidView(
             modifier = modifier,
             factory = { editor },
