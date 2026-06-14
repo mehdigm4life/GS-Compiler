@@ -10,10 +10,10 @@ import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
 import io.github.rosemoe.sora.langs.textmate.registry.GrammarRegistry
 import io.github.rosemoe.sora.langs.textmate.registry.ThemeRegistry
-import io.github.rosemoe.sora.langs.textmate.registry.provider.AssetsFileResolver
-import io.github.rosemoe.sora.langs.textmate.registry.provider.FileProviderRegistry
+import io.github.rosemoe.sora.langs.textmate.registry.model.DefaultGrammarDefinition
 import io.github.rosemoe.sora.widget.CodeEditor as SoraCodeEditor
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
+import org.eclipse.tm4e.core.registry.IGrammarSource
 import org.eclipse.tm4e.core.registry.IThemeSource
 
 @Composable
@@ -95,10 +95,15 @@ private fun initTextMate(context: Context) {
     textMateInitialized = true
 
     try {
-        FileProviderRegistry.getInstance().addFileProvider(
-            AssetsFileResolver(context.assets)
+        val registry = GrammarRegistry.getInstance()
+        val grammarIs = context.assets.open("textmate/pawn.tmLanguage.json")
+        val grammarSource = IGrammarSource.fromInputStream(
+            grammarIs, "textmate/pawn.tmLanguage.json", Charsets.UTF_8
         )
-        GrammarRegistry.getInstance().loadGrammars("textmate/grammars.json")
+        registry.loadGrammar(
+            DefaultGrammarDefinition.withGrammarSource(grammarSource, "source.pawn", null)
+        )
+
         val themeIs = context.assets.open("textmate/dark.tmTheme.json")
         ThemeRegistry.getInstance().loadTheme(
             IThemeSource.fromInputStream(themeIs, "dark.tmTheme.json", Charsets.UTF_8)
