@@ -73,13 +73,14 @@ class SoraEditorHandle {
 
     fun gotoLine(line: Int) {
         val e = editor ?: return
-        val lineCount = e.getLineCount()
+        val lineCount = e.lineCount
         if (line in 0 until lineCount) {
-            e.gotoLine(line)
+            e.setSelection(line, 0)
+            e.ensurePositionVisible(line, 0)
         }
     }
 
-    fun getLineCount(): Int = editor?.getLineCount() ?: 0
+    fun getLineCount(): Int = editor?.lineCount ?: 0
 
     private fun syncSearchState() {
         val searcher = editor?.getSearcher() ?: return
@@ -156,6 +157,9 @@ fun CodeEditor(
                 onTextChange(editor.getText().toString())
             }
             editorHandle.syncState()
+        }
+        editor.subscribeEvent(PublishSearchResultEvent::class.java) { _, _ ->
+            editorHandle.syncSearchState()
         }
     }
 
