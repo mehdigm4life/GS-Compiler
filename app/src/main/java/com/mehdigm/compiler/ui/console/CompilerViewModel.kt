@@ -333,7 +333,7 @@ fun restoreSession(context: Context) {
                 if (content != null) {
                     val displayName = FileManager.getFileNameFromUri(context, uri)
                     val file = if (uri.scheme == "file") File(uri.path!!) else null
-                    addTab(content, uri = uri, file = file, displayName = displayName)
+                    addTab(content, uri = uri, file = file, displayName = displayName, context = context)
                 } else {
                     fail("Failed to read file from URI")
                 }
@@ -369,10 +369,21 @@ fun restoreSession(context: Context) {
         }
     }
 
-    private fun addTab(content: String, uri: Uri? = null, file: File? = null, displayName: String? = null) {
+    private fun addTab(content: String, uri: Uri? = null, file: File? = null, displayName: String? = null, context: Context? = null) {
         val s = _uiState.value
         val oldIdx = s.activeTabIndex
         val oldTab = s.tabs.getOrNull(oldIdx)
+
+        // Save old tab content to cache before clearing (if context available)
+        if (context != null && oldTab != null && oldTab.content.isNotEmpty()) {
+            val oldContent = oldTab.content
+            val oldSaved = oldTab.savedContent
+            viewModelScope.launch(Dispatchers.IO) {
+                val cache = cacheDir(context)
+                contentFile(cache, oldTab.id).writeText(oldContent, Charsets.UTF_8)
+                savedFile(cache, oldTab.id).writeText(oldSaved, Charsets.UTF_8)
+            }
+        }
 
         val existing = when {
             uri != null -> s.tabs.indexOfFirst { uri == it.uri }
@@ -381,7 +392,6 @@ fun restoreSession(context: Context) {
         }
         if (existing >= 0) {
             val tabs = s.tabs.toMutableList()
-            // Clear old active tab's content if different from the one being opened
             if (oldIdx in tabs.indices && oldIdx != existing) {
                 tabs[oldIdx] = tabs[oldIdx].copy(content = "", savedContent = "")
             }
