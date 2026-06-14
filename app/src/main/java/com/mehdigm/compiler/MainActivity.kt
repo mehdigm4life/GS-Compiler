@@ -448,11 +448,12 @@ fun GSCompilerApp() {
                             text = uiState.editorText,
                             onTextChange = { viewModel.setEditorText(it) },
                             editorHandle = editorHandle,
-                            tabIndex = uiState.activeTabIndex,
+                            tabId = uiState.activeTab?.id ?: 0L,
                             onCursorChange = { line, col -> viewModel.updateActiveCursor(line, col) },
                             initialCursorLine = uiState.activeTab?.cursorLine ?: 0,
                             initialCursorColumn = uiState.activeTab?.cursorColumn ?: 0,
                             resetCounter = uiState.sessionVersion,
+                            activeTabIds = uiState.tabs.map { it.id },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .fillMaxHeight()
