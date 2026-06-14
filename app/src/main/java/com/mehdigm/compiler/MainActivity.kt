@@ -78,6 +78,7 @@ fun GSCompilerApp() {
         contract = ActivityResultContracts.OpenDocument()
     ) { uri: Uri? ->
         if (uri != null) {
+            viewModel.updateCursorPosition(uiState.activeTabIndex, editorHandle.getCursorLine(), editorHandle.getCursorColumn())
             viewModel.loadFromUri(context, uri)
         }
     }
