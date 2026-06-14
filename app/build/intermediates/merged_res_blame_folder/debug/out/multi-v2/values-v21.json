@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.mehdigm.compiler.app-mergeDebugResources-44:/values-v21/values-v21.xml",
+            "outputFile": "com.mehdigm.compiler.app-mergeDebugResources-46:/values-v21/values-v21.xml",
             "map": [
                 {
-                    "source": "/home/runner/.gradle/caches/transforms-3/440a64c1659b3784956be1ef27019da1/transformed/core-1.12.0/res/values-v21/values-v21.xml",
+                    "source": "/home/runner/.gradle/caches/transforms-3/a8d19365b6d65089ee91b5d4836b0be2/transformed/core-1.13.1/res/values-v21/values-v21.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,13",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4",
