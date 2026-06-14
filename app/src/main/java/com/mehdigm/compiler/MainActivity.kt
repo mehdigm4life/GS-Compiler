@@ -1,5 +1,6 @@
 package com.mehdigm.compiler
 
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -8,11 +9,15 @@ import android.os.Environment
 import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Redo
@@ -22,14 +27,17 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mehdigm.compiler.storage.FileManager
+import com.mehdigm.compiler.ui.console.CompilerUiState
 import com.mehdigm.compiler.ui.console.CompilerViewModel
 import com.mehdigm.compiler.ui.console.ConsoleView
 import com.mehdigm.compiler.ui.editor.CodeEditor
@@ -53,6 +61,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun GSCompilerApp() {
     val context = LocalContext.current
+    val activity = context as? Activity
     val viewModel: CompilerViewModel = viewModel()
     val uiState by viewModel.uiState.collectAsState()
     val editorHandle = remember { SoraEditorHandle() }
@@ -102,6 +111,67 @@ fun GSCompilerApp() {
             Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
             viewModel.clearSavedToast()
         }
+    }
+
+    BackHandler(enabled = uiState.isDirty) {
+        viewModel.requestExit()
+    }
+
+    /* ===== Unsaved Changes Dialog ===== */
+    if (uiState.showUnsavedDialog) {
+        AlertDialog(
+            onDismissRequest = { viewModel.handleUnsavedCancel() },
+            containerColor = GSColors.DarkSurface,
+            titleContentColor = GSColors.White,
+            textContentColor = GSColors.TextGray,
+            title = {
+                Text(
+                    "Unsaved Changes",
+                    fontWeight = FontWeight.Bold,
+                    color = GSColors.White
+                )
+            },
+            text = {
+                Text(
+                    "You have unsaved changes. What would you like to do?",
+                    color = GSColors.TextGray
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        if (uiState.unsavedDialogTabIndex == null) {
+                            viewModel.saveCurrentTab()
+                        }
+                        viewModel.handleUnsavedSave()
+                        if (uiState.unsavedDialogTabIndex == null) {
+                            activity?.finish()
+                        }
+                    }
+                ) {
+                    Text("Save", color = GSColors.AccentGold, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                Row {
+                    TextButton(
+                        onClick = {
+                            viewModel.handleUnsavedDismiss()
+                            if (uiState.unsavedDialogTabIndex == null) {
+                                activity?.finish()
+                            }
+                        }
+                    ) {
+                        Text("Discard", color = GSColors.ErrorRed)
+                    }
+                    TextButton(
+                        onClick = { viewModel.handleUnsavedCancel() }
+                    ) {
+                        Text("Cancel", color = GSColors.TextGray)
+                    }
+                }
+            }
+        )
     }
 
     if (showStorageDialog) {
@@ -175,10 +245,20 @@ fun GSCompilerApp() {
         ) {
             ToolbarRow(
                 isCompiling = uiState.isCompiling,
+                isDirty = uiState.isDirty,
                 editorHandle = editorHandle,
-                onSave = { viewModel.saveFile() },
+                onSave = { viewModel.saveCurrentTab() },
                 onCompile = { viewModel.compile() },
                 onOpenFile = { openFileTrigger.value = true }
+            )
+
+            /* ===== Tab Bar ===== */
+            TabBar(
+                tabs = uiState.tabs,
+                activeIndex = uiState.activeTabIndex,
+                onTabClick = { viewModel.switchTab(it) },
+                onTabClose = { viewModel.requestCloseTab(it) },
+                onNewFile = { viewModel.newFile() }
             )
 
             Box(
@@ -251,8 +331,95 @@ fun GSCompilerApp() {
 }
 
 @Composable
+fun TabBar(
+    tabs: List<com.mehdigm.compiler.ui.console.EditorTab>,
+    activeIndex: Int,
+    onTabClick: (Int) -> Unit,
+    onTabClose: (Int) -> Unit,
+    onNewFile: () -> Unit
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = GSColors.DarkBackground,
+        shadowElevation = 1.dp
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState())
+                .padding(horizontal = 4.dp, vertical = 2.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            tabs.forEachIndexed { index, tab ->
+                val isActive = index == activeIndex
+                val bgColor = if (isActive) GSColors.DarkSurface else Color.Transparent
+                val textColor = if (isActive) GSColors.White else GSColors.TextGray
+
+                Surface(
+                    modifier = Modifier
+                        .padding(horizontal = 1.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .clickable { onTabClick(index) },
+                    color = bgColor,
+                    shape = RoundedCornerShape(4.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(start = 8.dp, end = 2.dp, top = 2.dp, bottom = 2.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        if (tab.isDirty) {
+                            Box(
+                                modifier = Modifier
+                                    .size(6.dp)
+                                    .background(GSColors.AccentGold, RoundedCornerShape(3.dp))
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                        }
+                        Text(
+                            text = tab.displayName,
+                            color = textColor,
+                            fontSize = 12.sp,
+                            fontFamily = FontFamily.Monospace,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.widthIn(max = 100.dp)
+                        )
+                        Spacer(modifier = Modifier.width(2.dp))
+                        IconButton(
+                            onClick = { onTabClose(index) },
+                            modifier = Modifier.size(18.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Close ${tab.displayName}",
+                                tint = GSColors.TextGray,
+                                modifier = Modifier.size(12.dp)
+                            )
+                        }
+                    }
+                }
+            }
+
+            /* New file button */
+            IconButton(
+                onClick = onNewFile,
+                modifier = Modifier.size(24.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "New File",
+                    tint = GSColors.TextGray,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
 fun ToolbarRow(
     isCompiling: Boolean,
+    isDirty: Boolean,
     editorHandle: SoraEditorHandle,
     onSave: () -> Unit,
     onCompile: () -> Unit,
@@ -308,6 +475,7 @@ fun ToolbarRow(
                     )
                 }
 
+                val saveTint = if (isDirty) GSColors.White else GSColors.White.copy(alpha = 0.4f)
                 IconButton(
                     onClick = onSave,
                     enabled = !isCompiling,
@@ -316,7 +484,7 @@ fun ToolbarRow(
                     Icon(
                         imageVector = Icons.Default.Save,
                         contentDescription = "Save",
-                        tint = GSColors.White
+                        tint = saveTint
                     )
                 }
 
