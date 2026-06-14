@@ -12,6 +12,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -36,6 +37,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mehdigm.compiler.storage.FileManager
 import com.mehdigm.compiler.ui.console.CompilerViewModel
@@ -55,12 +59,18 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         intent.data?.let { pendingIntentUri.value = it }
         setContent {
             GSCompilerTheme {
                 GSCompilerApp()
             }
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        // Session is saved via LifecycleObserver in GSCompilerApp
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -86,6 +96,7 @@ fun GSCompilerApp() {
         contract = ActivityResultContracts.OpenDocument()
     ) { uri: Uri? ->
         if (uri != null) {
+            viewModel.updateCursorPosition(uiState.activeTabIndex, editorHandle.getCursorLine(), editorHandle.getCursorColumn())
             viewModel.loadFromUri(context, uri)
         }
     }
@@ -120,6 +131,28 @@ fun GSCompilerApp() {
         }
     }
 
+    // Restore session on startup
+    LaunchedEffect(Unit) {
+        viewModel.restoreSession(context)
+    }
+
+    // Save session when app goes to background
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_PAUSE) {
+                viewModel.updateCursorPosition(
+                    uiState.activeTabIndex,
+                    editorHandle.getCursorLine(),
+                    editorHandle.getCursorColumn()
+                )
+                viewModel.saveSession(context)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
     LaunchedEffect(openFileTrigger.value) {
         if (openFileTrigger.value) {
             filePickerLauncher.launch(arrayOf("text/plain", "*/*"))
@@ -131,6 +164,7 @@ fun GSCompilerApp() {
     val pendingUri = mainActivity?.pendingIntentUri?.value
     LaunchedEffect(pendingUri) {
         pendingUri?.let { uri ->
+            viewModel.updateCursorPosition(uiState.activeTabIndex, editorHandle.getCursorLine(), editorHandle.getCursorColumn())
             viewModel.loadFromUri(context, uri)
             if (mainActivity != null) {
                 mainActivity.pendingIntentUri.value = null
@@ -396,7 +430,9 @@ fun GSCompilerApp() {
                         tabs = uiState.tabs,
                         activeIndex = uiState.activeTabIndex,
                         onTabClick = { index ->
-                            if (uiState.activeTabIndex != index) {
+                            val curIdx = uiState.activeTabIndex
+                            if (curIdx != index) {
+                                viewModel.updateCursorPosition(curIdx, editorHandle.getCursorLine(), editorHandle.getCursorColumn())
                                 viewModel.switchTab(index)
                             }
                         },
@@ -413,6 +449,7 @@ fun GSCompilerApp() {
                             onTextChange = { viewModel.setEditorText(it) },
                             editorHandle = editorHandle,
                             tabIndex = uiState.activeTabIndex,
+                            onCursorChange = { line, col -> viewModel.updateActiveCursor(line, col) },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .fillMaxHeight()
