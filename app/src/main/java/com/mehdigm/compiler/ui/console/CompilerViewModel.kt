@@ -78,7 +78,7 @@ class CompilerViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 addConsoleEntry("Failed to open file: ${e.message}", isError = true)
-                AppLogger.e("GSCompiler", "Error reading URI: $uri", e)
+                AppLogger.e("GSCompiler", "Error reading URI: $uri - ${e.message}")
             }
         }
     }
