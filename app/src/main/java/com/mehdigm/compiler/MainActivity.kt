@@ -115,6 +115,12 @@ fun GSCompilerApp() {
         }
     }
 
+    LaunchedEffect(uiState.requestSaveAs) {
+        if (uiState.requestSaveAs) {
+            saveAsLauncher.launch("untitled.pwn")
+        }
+    }
+
     LaunchedEffect(uiState.showFileSavedToast) {
         if (uiState.showFileSavedToast) {
             val msg = if (uiState.fileSavedSuccess) "File Saved" else "Save failed"
@@ -150,18 +156,22 @@ fun GSCompilerApp() {
             confirmButton = {
                 TextButton(
                     onClick = {
-                        val isExit = uiState.unsavedDialogTabIndex == null
-                        val idx = uiState.unsavedDialogTabIndex ?: uiState.activeTabIndex
-                        val tab = uiState.tabs.getOrNull(idx)
-                        if (tab != null && tab.file != null) {
-                            runBlocking(Dispatchers.IO) {
-                                FileManager.writeFileContent(tab.file, tab.content)
+                            val isExit = uiState.unsavedDialogTabIndex == null
+                            val idx = uiState.unsavedDialogTabIndex ?: uiState.activeTabIndex
+                            val tab = uiState.tabs.getOrNull(idx)
+                            if (tab != null) {
+                                runBlocking(Dispatchers.IO) {
+                                    if (tab.file != null) {
+                                        FileManager.writeFileContent(tab.file, tab.content)
+                                    } else if (tab.uri != null) {
+                                        FileManager.writeToUri(context, tab.uri, tab.content)
+                                    }
+                                }
                             }
-                        }
-                        viewModel.handleUnsavedSave()
-                        if (isExit) {
-                            activity?.finish()
-                        }
+                            viewModel.handleUnsavedSave()
+                            if (isExit) {
+                                activity?.finish()
+                            }
                     }
                 ) {
                     Text("Save", color = GSColors.AccentGold, fontWeight = FontWeight.Bold)
@@ -266,8 +276,8 @@ fun GSCompilerApp() {
                 isCompiling = uiState.isCompiling,
                 isDirty = uiState.isDirty,
                 editorHandle = editorHandle,
-                onSave = { viewModel.saveCurrentTab() },
-                onCompile = { viewModel.compile() },
+                onSave = { viewModel.saveCurrentTab(context) },
+                onCompile = { viewModel.compile(context) },
                 onOpenFile = { openFileTrigger.value = true }
             )
 
@@ -276,8 +286,7 @@ fun GSCompilerApp() {
                 tabs = uiState.tabs,
                 activeIndex = uiState.activeTabIndex,
                 onTabClick = { viewModel.switchTab(it) },
-                onTabClose = { viewModel.requestCloseTab(it) },
-                onNewFile = { viewModel.newFile() }
+                onTabClose = { viewModel.requestCloseTab(it) }
             )
 
             Box(
@@ -354,8 +363,7 @@ fun TabBar(
     tabs: List<com.mehdigm.compiler.ui.console.EditorTab>,
     activeIndex: Int,
     onTabClick: (Int) -> Unit,
-    onTabClose: (Int) -> Unit,
-    onNewFile: () -> Unit
+    onTabClose: (Int) -> Unit
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -419,17 +427,6 @@ fun TabBar(
                 }
             }
 
-            IconButton(
-                onClick = onNewFile,
-                modifier = Modifier.size(24.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "New File",
-                    tint = GSColors.TextGray,
-                    modifier = Modifier.size(16.dp)
-                )
-            }
         }
     }
 }
