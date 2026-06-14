@@ -58,9 +58,9 @@ class CompilerViewModel : ViewModel() {
 
     fun loadFromUri(context: Context, uri: Uri) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isReadingFile = true)
-            addConsoleEntry("Reading file...", isError = false)
             try {
+                _uiState.value = _uiState.value.copy(isReadingFile = true)
+                addConsoleEntry("Reading file...", isError = false)
                 val content = withContext(Dispatchers.IO) {
                     FileManager.readFromDocument(context, uri)
                 }
@@ -80,7 +80,7 @@ class CompilerViewModel : ViewModel() {
                     _uiState.value = _uiState.value.copy(isReadingFile = false)
                     addConsoleEntry("Failed to read file: content resolver returned null", isError = true)
                 }
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 _uiState.value = _uiState.value.copy(isReadingFile = false)
                 addConsoleEntry("Failed to open file: ${e.message}", isError = true)
                 AppLogger.e("GSCompiler", "Error reading URI: $uri - ${e.message}")
