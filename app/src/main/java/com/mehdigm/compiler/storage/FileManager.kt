@@ -6,13 +6,15 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.Settings
-import java.io.BufferedInputStream
+import java.io.BufferedReader
 import java.io.File
-import java.io.FileOutputStream
+import java.io.FileInputStream
+import java.io.InputStreamReader
 
 object FileManager {
 
-    private const val MAX_FILE_SIZE = 5 * 1024 * 1024
+    private const val MAX_FILE_SIZE = 512 * 1024
+    private const val BUFFER_SIZE = 8192
 
     fun hasManageStoragePermission(context: Context): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -54,31 +56,38 @@ object FileManager {
         file.writeText(content, Charsets.UTF_8)
     }
 
-    fun readFromDocument(context: Context, uri: Uri): String? {
-        return try {
-            val stream = context.contentResolver.openInputStream(uri) ?: return null
-            val bytes = stream.use { input ->
-                val bis = BufferedInputStream(input)
-                val buffer = ByteArray(8192)
-                val output = java.io.ByteArrayOutputStream()
-                var read: Int
-                var total = 0
-                while (bis.read(buffer).also { read = it } != -1) {
-                    total += read
-                    if (total > MAX_FILE_SIZE) {
-                        throw SecurityException(
-                            "File too large (over ${MAX_FILE_SIZE / 1024 / 1024}MB)"
-                        )
-                    }
-                    output.write(buffer, 0, read)
+    fun readFromUri(context: Context, uri: Uri): String? {
+        try {
+            val pfd = context.contentResolver.openFileDescriptor(uri, "r") ?: return null
+            return pfd.use { fd ->
+                val fileSize = fd.statSize
+                if (fileSize > MAX_FILE_SIZE) {
+                    throw SecurityException(
+                        "File too large (${fileSize / 1024}KB, max ${MAX_FILE_SIZE / 1024}KB)"
+                    )
                 }
-                output.toByteArray()
+                FileInputStream(fd.fileDescriptor).use { input ->
+                    val reader = BufferedReader(InputStreamReader(input, Charsets.UTF_8), BUFFER_SIZE)
+                    val sb = StringBuilder(fileSize.coerceAtMost(MAX_FILE_SIZE).toInt())
+                    val buffer = CharArray(BUFFER_SIZE)
+                    var read: Int
+                    var total = 0
+                    while (reader.read(buffer).also { read = it } != -1) {
+                        total += read
+                        if (total > MAX_FILE_SIZE) {
+                            throw SecurityException(
+                                "File too large (over ${MAX_FILE_SIZE / 1024}KB)"
+                            )
+                        }
+                        sb.append(buffer, 0, read)
+                    }
+                    sb.toString()
+                }
             }
-            String(bytes, Charsets.UTF_8)
         } catch (e: SecurityException) {
             throw e
         } catch (e: Exception) {
-            null
+            return null
         }
     }
 
