@@ -52,8 +52,31 @@ object AppLogger {
         startFreezeDetector()
 
         logJob = scope.launch {
-            for (entry in channel) {
-                writeEntry(entry)
+            var lastEntry: LogEntry? = null
+            var repeatCount = 0
+            try {
+                for (entry in channel) {
+                    if (lastEntry != null
+                        && entry.level == lastEntry.level
+                        && entry.tag == lastEntry.tag
+                        && entry.msg == lastEntry.msg
+                    ) {
+                        repeatCount++
+                        continue
+                    }
+                    if (repeatCount > 0 && lastEntry != null) {
+                        val summary = "${lastEntry.msg} (repeated ${repeatCount + 1} times)"
+                        writeEntry(lastEntry.copy(msg = summary))
+                    }
+                    writeEntry(entry)
+                    lastEntry = entry
+                    repeatCount = 0
+                }
+            } finally {
+                if (repeatCount > 0 && lastEntry != null) {
+                    val summary = "${lastEntry.msg} (repeated ${repeatCount + 1} times)"
+                    writeEntry(lastEntry.copy(msg = summary))
+                }
             }
         }
 
