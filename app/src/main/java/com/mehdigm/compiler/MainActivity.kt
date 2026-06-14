@@ -132,8 +132,16 @@ fun GSCompilerApp() {
         }
     }
 
-    BackHandler(enabled = uiState.isDirty) {
-        viewModel.requestExit()
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+    var showConsoleView by remember { mutableStateOf(false) }
+
+    BackHandler(enabled = uiState.isDirty || showConsoleView) {
+        if (showConsoleView) {
+            showConsoleView = false
+        } else {
+            viewModel.requestExit()
+        }
     }
 
     /* ===== Unsaved Changes Dialog ===== */
@@ -236,136 +244,240 @@ fun GSCompilerApp() {
         )
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet(
+                modifier = Modifier.width(280.dp),
+                drawerContainerColor = Color.Black
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(GSColors.DarkSurface)
+                        .padding(20.dp)
+                ) {
+                    Column {
                         Text(
-                            text = "GS",
+                            "GS",
                             fontWeight = FontWeight.Bold,
-                            color = GSColors.AccentGold
+                            color = GSColors.AccentGold,
+                            fontSize = 22.sp
                         )
                         Text(
-                            text = " Compiler",
-                            color = GSColors.White
+                            "Compiler",
+                            color = GSColors.White,
+                            fontSize = 18.sp
                         )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = GSColors.ToolbarBackground
-                ),
-                actions = {
-                    if (uiState.currentFile != null) {
+                        Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = uiState.currentFile!!.name,
-                            color = Color.Gray,
-                            fontSize = 11.sp,
-                            fontFamily = FontFamily.Monospace,
-                            modifier = Modifier.padding(end = 8.dp)
+                            "Navigation",
+                            color = GSColors.TextGray,
+                            fontSize = 11.sp
                         )
                     }
                 }
-            )
-        }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .background(GSColors.DarkBackground)
-        ) {
-            ToolbarRow(
-                isCompiling = uiState.isCompiling,
-                isDirty = uiState.isDirty,
-                editorHandle = editorHandle,
-                onSave = { viewModel.saveCurrentTab(context) },
-                onCompile = { viewModel.compile(context) },
-                onOpenFile = { openFileTrigger.value = true },
-                onFind = { showFindOverlay = !showFindOverlay }
-            )
 
-            /* ===== Tab Bar ===== */
-            TabBar(
-                tabs = uiState.tabs,
-                activeIndex = uiState.activeTabIndex,
-                onTabClick = { viewModel.switchTab(it) },
-                onTabClose = { viewModel.requestCloseTab(it) }
-            )
+                Spacer(modifier = Modifier.height(12.dp))
 
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-            ) {
-                CodeEditor(
-                    text = uiState.editorText,
-                    onTextChange = { viewModel.setEditorText(it) },
-                    editorHandle = editorHandle,
+                Surface(
+                    color = Color.Black,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .fillMaxHeight()
-                )
-
-                if (showFindOverlay) {
-                    FindOverlay(
-                        editorHandle = editorHandle,
-                        onDismiss = { showFindOverlay = false },
-                        modifier = Modifier.align(Alignment.BottomCenter)
+                        .clickable {
+                            showConsoleView = true
+                            scope.launch { drawerState.close() }
+                        }
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 14.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Terminal,
+                            contentDescription = "Console",
+                            tint = GSColors.AccentGold,
+                            modifier = Modifier.size(22.dp)
+                        )
+                        Spacer(modifier = Modifier.width(14.dp))
+                        Text(
+                            "Console",
+                            color = GSColors.AccentGold,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
+                        )
+                    }
+                }
+            }
+        }
+    ) {
+        if (showConsoleView) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(GSColors.TerminalBackground)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(GSColors.DarkSurface)
+                        .padding(horizontal = 4.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = { showConsoleView = false }) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Back to editor",
+                            tint = GSColors.White
+                        )
+                    }
+                    Text(
+                        text = "[Console]",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = GSColors.TerminalGreen,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(start = 4.dp)
                     )
                 }
 
-                if (uiState.isReadingFile || uiState.isCompiling) {
+                ConsoleView(
+                    entries = uiState.consoleEntries,
+                    expanded = true,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+        } else {
+            Scaffold(
+                topBar = {
+                    TopAppBar(
+                        navigationIcon = {
+                            IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                                Icon(
+                                    imageVector = Icons.Default.Menu,
+                                    contentDescription = "Open navigation",
+                                    tint = GSColors.White
+                                )
+                            }
+                        },
+                        title = {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = "GS",
+                                    fontWeight = FontWeight.Bold,
+                                    color = GSColors.AccentGold
+                                )
+                                Text(
+                                    text = " Compiler",
+                                    color = GSColors.White
+                                )
+                            }
+                        },
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = GSColors.ToolbarBackground
+                        ),
+                        actions = {
+                            if (uiState.currentFile != null) {
+                                Text(
+                                    text = uiState.currentFile!!.name,
+                                    color = Color.Gray,
+                                    fontSize = 11.sp,
+                                    fontFamily = FontFamily.Monospace,
+                                    modifier = Modifier.padding(end = 8.dp)
+                                )
+                            }
+                        }
+                    )
+                }
+            ) { padding ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                        .background(GSColors.DarkBackground)
+                ) {
+                    ToolbarRow(
+                        isCompiling = uiState.isCompiling,
+                        isDirty = uiState.isDirty,
+                        editorHandle = editorHandle,
+                        onSave = { viewModel.saveCurrentTab(context) },
+                        onCompile = { viewModel.compile(context) },
+                        onOpenFile = { openFileTrigger.value = true },
+                        onFind = { showFindOverlay = !showFindOverlay }
+                    )
+
+                    TabBar(
+                        tabs = uiState.tabs,
+                        activeIndex = uiState.activeTabIndex,
+                        onTabClick = { viewModel.switchTab(it) },
+                        onTabClose = { viewModel.requestCloseTab(it) }
+                    )
+
                     Box(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color.Black.copy(alpha = 0.3f)),
-                        contentAlignment = Alignment.Center
+                            .fillMaxWidth()
+                            .weight(1f)
                     ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            CircularProgressIndicator(color = GSColors.AccentGold)
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                if (uiState.isReadingFile) "Opening file..." else "Compiling...",
-                                color = GSColors.White,
-                                fontSize = 14.sp
+                        CodeEditor(
+                            text = uiState.editorText,
+                            onTextChange = { viewModel.setEditorText(it) },
+                            editorHandle = editorHandle,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .fillMaxHeight()
+                        )
+
+                        if (showFindOverlay) {
+                            FindOverlay(
+                                editorHandle = editorHandle,
+                                onDismiss = { showFindOverlay = false },
+                                modifier = Modifier.align(Alignment.BottomCenter)
                             )
                         }
-                    }
-                }
-            }
 
-            if (uiState.errorMessage != null) {
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    color = GSColors.ErrorRed.copy(alpha = 0.15f)
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = uiState.errorMessage ?: "",
-                            color = GSColors.ErrorRed,
-                            fontSize = 13.sp,
-                            fontFamily = FontFamily.Monospace,
-                            modifier = Modifier.weight(1f)
-                        )
-                        TextButton(onClick = { viewModel.clearError() }) {
-                            Text("Dismiss", color = GSColors.ErrorRed, fontSize = 12.sp)
+                        if (uiState.isReadingFile || uiState.isCompiling) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(Color.Black.copy(alpha = 0.3f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    CircularProgressIndicator(color = GSColors.AccentGold)
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Text(
+                                        if (uiState.isReadingFile) "Opening file..." else "Compiling...",
+                                        color = GSColors.White,
+                                        fontSize = 14.sp
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    if (uiState.errorMessage != null) {
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            color = GSColors.ErrorRed.copy(alpha = 0.15f)
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = uiState.errorMessage ?: "",
+                                    color = GSColors.ErrorRed,
+                                    fontSize = 13.sp,
+                                    fontFamily = FontFamily.Monospace,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                TextButton(onClick = { viewModel.clearError() }) {
+                                    Text("Dismiss", color = GSColors.ErrorRed, fontSize = 12.sp)
+                                }
+                            }
                         }
                     }
                 }
             }
-
-            ConsoleView(
-                entries = uiState.consoleEntries,
-                expanded = uiState.consoleExpanded,
-                onToggleExpanded = { viewModel.toggleConsole() },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = if (uiState.consoleExpanded) 300.dp else 48.dp)
-            )
         }
     }
 }
