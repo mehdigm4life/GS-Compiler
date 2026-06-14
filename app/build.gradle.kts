@@ -91,6 +91,11 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
+    // Sora Editor (Rosemoe) — powerful code editor for large files
+    implementation(platform("io.github.rosemoe:editor-bom:0.24.4"))
+    implementation("io.github.rosemoe:editor")
+    implementation("io.github.rosemoe:language-textmate")
+
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
