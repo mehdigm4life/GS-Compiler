@@ -12,3 +12,4 @@ app/.cxx
 *.o
 *.log
 .DS_Store
+release.keystore
