@@ -6,18 +6,18 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.Settings
-import androidx.documentfile.provider.DocumentFile
-import com.mehdigm.compiler.utils.AppLogger
+import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileOutputStream
 
 object FileManager {
 
+    private const val MAX_FILE_SIZE = 5 * 1024 * 1024
+
     fun hasManageStoragePermission(context: Context): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             Environment.isExternalStorageManager()
         } else {
-            val readGranted = android.Manifest.permission.READ_EXTERNAL_STORAGE
             true
         }
     }
@@ -32,7 +32,6 @@ object FileManager {
     fun findPwnFiles(directory: File): List<File> {
         val result = mutableListOf<File>()
         if (!directory.exists() || !directory.isDirectory) return result
-
         val files = directory.listFiles() ?: return result
         for (file in files) {
             if (file.isDirectory) {
@@ -47,40 +46,38 @@ object FileManager {
     }
 
     fun readFileContent(file: File): String {
-        return file.readText()
+        return file.readText(Charsets.UTF_8)
     }
 
     fun writeFileContent(file: File, content: String) {
         file.parentFile?.mkdirs()
-        file.writeText(content)
+        file.writeText(content, Charsets.UTF_8)
     }
-
-    fun saveToDocument(context: Context, uri: Uri, content: String): Boolean {
-        return try {
-            context.contentResolver.openOutputStream(uri)?.use { os ->
-                os.write(content.toByteArray())
-            }
-            true
-        } catch (e: Exception) {
-            false
-        }
-    }
-
-    private const val MAX_FILE_SIZE = 5 * 1024 * 1024
 
     fun readFromDocument(context: Context, uri: Uri): String? {
         return try {
-            val stream = context.contentResolver.openInputStream(uri)
-            if (stream == null) return null
-            val bytes = stream.use { it.readBytes() }
-            if (bytes.size > MAX_FILE_SIZE) {
-                throw SecurityException("File too large (${bytes.size} bytes, max $MAX_FILE_SIZE)")
+            val stream = context.contentResolver.openInputStream(uri) ?: return null
+            val bytes = stream.use { input ->
+                val bis = BufferedInputStream(input)
+                val buffer = ByteArray(8192)
+                val output = java.io.ByteArrayOutputStream()
+                var read: Int
+                var total = 0
+                while (bis.read(buffer).also { read = it } != -1) {
+                    total += read
+                    if (total > MAX_FILE_SIZE) {
+                        throw SecurityException(
+                            "File too large (over ${MAX_FILE_SIZE / 1024 / 1024}MB)"
+                        )
+                    }
+                    output.write(buffer, 0, read)
+                }
+                output.toByteArray()
             }
             String(bytes, Charsets.UTF_8)
         } catch (e: SecurityException) {
             throw e
         } catch (e: Exception) {
-            AppLogger.e("FileManager", "readFromDocument error: ${e.message}")
             null
         }
     }
@@ -89,28 +86,5 @@ object FileManager {
         val parent = inputFile.parentFile ?: File(".")
         val name = inputFile.nameWithoutExtension
         return File(parent, "$name.amx")
-    }
-
-    fun getCommonPawnDirectories(): List<File> {
-        val dirs = mutableListOf<File>()
-        val base = Environment.getExternalStorageDirectory()
-
-        val candidates = listOf(
-            base,
-            File(base, "gamemodes"),
-            File(base, "filterscripts"),
-            File(base, "pawno"),
-            File(base, "pawno/include"),
-            File(base, "SA-MP"),
-            File(base, "samp"),
-        )
-
-        for (dir in candidates) {
-            if (dir.exists() && dir.isDirectory) {
-                dirs.add(dir)
-            }
-        }
-
-        return dirs
     }
 }
