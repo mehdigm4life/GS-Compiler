@@ -163,35 +163,30 @@ fun CodeEditor(
                 setLineInfoTextSize(10f)
 
                 try {
-                    val scheme = TextMateColorScheme.create(ThemeRegistry.getInstance())
-                    scheme.setColor(EditorColorScheme.LINE_NUMBER, 0xFF555555.toInt())
-                    scheme.setColor(EditorColorScheme.LINE_NUMBER_BACKGROUND, 0xFF1E1E2E.toInt())
-                    scheme.setColor(EditorColorScheme.LINE_DIVIDER, 0x4D555555.toInt())
-                    scheme.setColor(EditorColorScheme.SELECTION_INSERT, 0xFF555555.toInt())
-                    scheme.setColor(EditorColorScheme.SELECTION_HANDLE, 0xFFD4AF37.toInt())
-                    scheme.setColor(EditorColorScheme.BLOCK_LINE, 0x33D4AF37.toInt())
-                    scheme.setColor(EditorColorScheme.BLOCK_LINE_CURRENT, 0x4DD4AF37.toInt())
-                    colorScheme = scheme
+                    val useTextMate = text.length < 500_000
+                    if (useTextMate) {
+                        val scheme = TextMateColorScheme.create(ThemeRegistry.getInstance())
+                        scheme.setColor(EditorColorScheme.LINE_NUMBER, 0xFF555555.toInt())
+                        scheme.setColor(EditorColorScheme.LINE_NUMBER_BACKGROUND, 0xFF1E1E2E.toInt())
+                        scheme.setColor(EditorColorScheme.LINE_DIVIDER, 0x4D555555.toInt())
+                        scheme.setColor(EditorColorScheme.SELECTION_INSERT, 0xFF555555.toInt())
+                        scheme.setColor(EditorColorScheme.SELECTION_HANDLE, 0xFFD4AF37.toInt())
+                        scheme.setColor(EditorColorScheme.BLOCK_LINE, 0x33D4AF37.toInt())
+                        scheme.setColor(EditorColorScheme.BLOCK_LINE_CURRENT, 0x4DD4AF37.toInt())
+                        colorScheme = scheme
 
-                    val language = TextMateLanguage.create(
-                        "source.pawn",
-                        GrammarRegistry.getInstance(),
-                        ThemeRegistry.getInstance(),
-                        true
-                    )
-                    setEditorLanguage(language)
-                } catch (_: Exception) {
-                    colorScheme = EditorColorScheme().apply {
-                        setColor(EditorColorScheme.WHOLE_BACKGROUND, 0xFF1E1E2E.toInt())
-                        setColor(EditorColorScheme.TEXT_NORMAL, 0xFFA9B7C6.toInt())
-                        setColor(EditorColorScheme.LINE_NUMBER, 0xFF555555.toInt())
-                        setColor(EditorColorScheme.LINE_NUMBER_BACKGROUND, 0xFF1E1E2E.toInt())
-                        setColor(EditorColorScheme.LINE_DIVIDER, 0x4D555555.toInt())
-                        setColor(EditorColorScheme.SELECTION_INSERT, 0xFF555555.toInt())
-                        setColor(EditorColorScheme.SELECTION_HANDLE, 0xFFD4AF37.toInt())
-                        setColor(EditorColorScheme.BLOCK_LINE, 0x33D4AF37.toInt())
-                        setColor(EditorColorScheme.BLOCK_LINE_CURRENT, 0x4DD4AF37.toInt())
+                        val language = TextMateLanguage.create(
+                            "source.pawn",
+                            GrammarRegistry.getInstance(),
+                            ThemeRegistry.getInstance(),
+                            true
+                        )
+                        setEditorLanguage(language)
+                    } else {
+                        setThemeColors()
                     }
+                } catch (_: Exception) {
+                    setThemeColors()
                 }
 
                 subscribeEvent(ContentChangeEvent::class.java) { _, _ ->
@@ -263,5 +258,19 @@ private fun initTextMate(context: Context) {
         )
     } catch (_: Exception) {
         // TextMate init failed — editor will use plain text
+    }
+}
+
+private fun SoraCodeEditor.setThemeColors() {
+    colorScheme = EditorColorScheme().apply {
+        setColor(EditorColorScheme.WHOLE_BACKGROUND, 0xFF1E1E2E.toInt())
+        setColor(EditorColorScheme.TEXT_NORMAL, 0xFFA9B7C6.toInt())
+        setColor(EditorColorScheme.LINE_NUMBER, 0xFF555555.toInt())
+        setColor(EditorColorScheme.LINE_NUMBER_BACKGROUND, 0xFF1E1E2E.toInt())
+        setColor(EditorColorScheme.LINE_DIVIDER, 0x4D555555.toInt())
+        setColor(EditorColorScheme.SELECTION_INSERT, 0xFF555555.toInt())
+        setColor(EditorColorScheme.SELECTION_HANDLE, 0xFFD4AF37.toInt())
+        setColor(EditorColorScheme.BLOCK_LINE, 0x33D4AF37.toInt())
+        setColor(EditorColorScheme.BLOCK_LINE_CURRENT, 0x4DD4AF37.toInt())
     }
 }
