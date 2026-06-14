@@ -29,8 +29,6 @@ data class EditorTab(
     val content: String = "",
     val savedContent: String = "",
     val displayName: String = "untitled.pwn",
-    val cursorLine: Int = 0,
-    val cursorColumn: Int = 0
 ) {
     val isDirty: Boolean get() = content != savedContent
 }
@@ -109,14 +107,6 @@ class CompilerViewModel : ViewModel() {
 
     fun switchTab(index: Int) {
         _uiState.value = _uiState.value.copy(activeTabIndex = index)
-    }
-
-    fun updateCursorPosition(index: Int, line: Int, column: Int) {
-        val tabs = _uiState.value.tabs.toMutableList()
-        if (index in tabs.indices) {
-            tabs[index] = tabs[index].copy(cursorLine = line, cursorColumn = column)
-            _uiState.value = _uiState.value.copy(tabs = tabs)
-        }
     }
 
     fun loadFromUri(context: Context, uri: Uri) {

@@ -86,7 +86,6 @@ fun GSCompilerApp() {
         contract = ActivityResultContracts.OpenDocument()
     ) { uri: Uri? ->
         if (uri != null) {
-            viewModel.updateCursorPosition(uiState.activeTabIndex, editorHandle.getCursorLine(), editorHandle.getCursorColumn())
             viewModel.loadFromUri(context, uri)
         }
     }
@@ -132,7 +131,6 @@ fun GSCompilerApp() {
     val pendingUri = mainActivity?.pendingIntentUri?.value
     LaunchedEffect(pendingUri) {
         pendingUri?.let { uri ->
-            viewModel.updateCursorPosition(uiState.activeTabIndex, editorHandle.getCursorLine(), editorHandle.getCursorColumn())
             viewModel.loadFromUri(context, uri)
             if (mainActivity != null) {
                 mainActivity.pendingIntentUri.value = null
@@ -398,9 +396,7 @@ fun GSCompilerApp() {
                         tabs = uiState.tabs,
                         activeIndex = uiState.activeTabIndex,
                         onTabClick = { index ->
-                            val curIdx = uiState.activeTabIndex
-                            if (curIdx != index) {
-                                viewModel.updateCursorPosition(curIdx, editorHandle.getCursorLine(), editorHandle.getCursorColumn())
+                            if (uiState.activeTabIndex != index) {
                                 viewModel.switchTab(index)
                             }
                         },
@@ -416,8 +412,7 @@ fun GSCompilerApp() {
                             text = uiState.editorText,
                             onTextChange = { viewModel.setEditorText(it) },
                             editorHandle = editorHandle,
-                            cursorLine = uiState.activeTab?.cursorLine ?: 0,
-                            cursorColumn = uiState.activeTab?.cursorColumn ?: 0,
+                            tabIndex = uiState.activeTabIndex,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .fillMaxHeight()
