@@ -53,6 +53,7 @@ fun CodeEditor(
         initTextMate(context)
         SoraCodeEditor(context).apply {
             isLineNumberEnabled = true
+            setPinLineNumber(true)
             isWordwrap = false
 
             try {
