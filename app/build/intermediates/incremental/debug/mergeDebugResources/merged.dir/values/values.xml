@@ -217,7 +217,6 @@
     <string name="sora_editor_editor_search_busy">Editor is still preparing…</string>
     <string name="sora_editor_editor_search_replacing">Replacing texts…</string>
     <string name="sora_editor_last">Last</string>
-    <string name="sora_editor_long_select">Long Select</string>
     <string name="sora_editor_more">More</string>
     <string name="sora_editor_next">Next</string>
     <string name="sora_editor_replace">Replace</string>
@@ -291,10 +290,10 @@
         <attr format="boolean" name="shortcutMatchRequired"/>
     </declare-styleable>
     <declare-styleable name="CodeEditor">
-        <attr format="reference" name="scrollbarTrackHorizontal"/>
-        <attr format="reference" name="scrollbarThumbHorizontal"/>
-        <attr format="reference" name="scrollbarTrackVertical"/>
-        <attr format="reference" name="scrollbarThumbVertical"/>
+        <attr name="android:scrollbarTrackHorizontal"/>
+        <attr name="android:scrollbarThumbHorizontal"/>
+        <attr name="android:scrollbarTrackVertical"/>
+        <attr name="android:scrollbarThumbVertical"/>
 
         <attr name="lnPanelPositionMode">
             <enum name="fixed" value="0"/>

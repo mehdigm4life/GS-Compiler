@@ -39,6 +39,7 @@ android {
     }
 
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
@@ -75,13 +76,6 @@ android {
     }
 }
 
-configurations.all {
-    resolutionStrategy {
-        force("org.jetbrains.kotlin:kotlin-stdlib:1.9.24")
-        force("org.jetbrains.kotlin:kotlin-stdlib-common:1.9.24")
-    }
-}
-
 dependencies {
     // Align all Kotlin stdlib versions to the project's Kotlin version
     implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.9.24"))
@@ -101,10 +95,14 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
+    // Desugaring (required by Sora Editor language-textmate)
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+
     // Sora Editor (Rosemoe) — powerful code editor for large files
-    implementation(platform("io.github.rosemoe:editor-bom:0.24.4"))
-    implementation("io.github.rosemoe:editor")
-    implementation("io.github.rosemoe:language-textmate")
+    // Using old group (io.github.Rosemoe.sora-editor) with version 0.23.0
+    // which was compiled with Kotlin 1.9.22 (compatible with our project's Kotlin 1.9.24)
+    implementation("io.github.Rosemoe.sora-editor:editor:0.23.0")
+    implementation("io.github.Rosemoe.sora-editor:language-textmate:0.23.0")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
