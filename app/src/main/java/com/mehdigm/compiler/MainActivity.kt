@@ -135,6 +135,7 @@ fun GSCompilerApp() {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var showConsoleView by remember { mutableStateOf(false) }
+    val drawerGesturesEnabled by remember { derivedStateOf { drawerState.isOpen } }
 
     BackHandler(enabled = uiState.isDirty || showConsoleView) {
         if (showConsoleView) {
@@ -246,7 +247,7 @@ fun GSCompilerApp() {
 
     ModalNavigationDrawer(
         drawerState = drawerState,
-        gesturesEnabled = false,
+        gesturesEnabled = drawerGesturesEnabled,
         drawerContent = {
             ModalDrawerSheet(
                 modifier = Modifier.width(280.dp),
