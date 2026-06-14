@@ -6,12 +6,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import io.github.rosemoe.sora.event.ContentChangeEvent
+import io.github.rosemoe.sora.event.PublishSearchResultEvent
 import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
 import io.github.rosemoe.sora.langs.textmate.registry.GrammarRegistry
 import io.github.rosemoe.sora.langs.textmate.registry.ThemeRegistry
 import io.github.rosemoe.sora.langs.textmate.registry.model.DefaultGrammarDefinition
 import io.github.rosemoe.sora.widget.CodeEditor as SoraCodeEditor
+import io.github.rosemoe.sora.widget.EditorSearcher
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import org.eclipse.tm4e.core.registry.IGrammarSource
 import org.eclipse.tm4e.core.registry.IThemeSource
@@ -22,6 +24,10 @@ class SoraEditorHandle {
         private set
     var canRedo by mutableStateOf(false)
         private set
+    var searchMatchCount by mutableStateOf(0)
+        private set
+    var searchCurrentIndex by mutableStateOf(0)
+        private set
 
     fun undo() {
         editor?.undo()
@@ -31,6 +37,58 @@ class SoraEditorHandle {
     fun redo() {
         editor?.redo()
         syncState()
+    }
+
+    fun search(query: String) {
+        val searcher = editor?.getSearcher() ?: return
+        if (query.isEmpty()) {
+            searcher.stopSearch()
+            searchMatchCount = 0
+            searchCurrentIndex = 0
+            return
+        }
+        searcher.stopSearch()
+        searcher.setCyclicJumping(true)
+        searcher.search(query, EditorSearcher.SearchOptions(true, false))
+        syncSearchState()
+    }
+
+    fun searchNext() {
+        val searcher = editor?.getSearcher() ?: return
+        searcher.gotoNext()
+        syncSearchState()
+    }
+
+    fun searchPrevious() {
+        val searcher = editor?.getSearcher() ?: return
+        searcher.gotoPrevious()
+        syncSearchState()
+    }
+
+    fun clearSearch() {
+        editor?.getSearcher()?.stopSearch()
+        searchMatchCount = 0
+        searchCurrentIndex = 0
+    }
+
+    fun gotoLine(line: Int) {
+        val e = editor ?: return
+        val lineCount = e.getLineCount()
+        if (line in 0 until lineCount) {
+            e.gotoLine(line)
+        }
+    }
+
+    fun getLineCount(): Int = editor?.getLineCount() ?: 0
+
+    private fun syncSearchState() {
+        val searcher = editor?.getSearcher() ?: return
+        searchMatchCount = searcher.matchedPositionCount
+        searchCurrentIndex = if (searcher.hasQuery() && searcher.isMatchedPositionSelected()) {
+            searcher.currentMatchedPositionIndex + 1
+        } else {
+            0
+        }
     }
 
     internal fun syncState() {
