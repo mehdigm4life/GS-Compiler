@@ -51,13 +51,21 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 class MainActivity : ComponentActivity() {
+    val pendingIntentUri = mutableStateOf<Uri?>(null)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        intent?.data?.let { pendingIntentUri.value = it }
         setContent {
             GSCompilerTheme {
                 GSCompilerApp()
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        intent?.data?.let { pendingIntentUri.value = it }
     }
 }
 
@@ -117,6 +125,16 @@ fun GSCompilerApp() {
         if (openFileTrigger.value) {
             filePickerLauncher.launch(arrayOf("text/plain", "*/*"))
             openFileTrigger.value = false
+        }
+    }
+
+    val mainActivity = context as? MainActivity
+    val pendingUri = mainActivity?.pendingIntentUri?.value
+    LaunchedEffect(pendingUri) {
+        pendingUri?.let { uri ->
+            viewModel.updateCursorPosition(uiState.activeTabIndex, editorHandle.getCursorLine(), editorHandle.getCursorColumn())
+            viewModel.loadFromUri(context, uri)
+            mainActivity?.pendingIntentUri?.value = null
         }
     }
 
