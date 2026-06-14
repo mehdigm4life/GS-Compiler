@@ -14,8 +14,7 @@ import android.text.style.StyleSpan
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.Gravity
-import android.view.View
-import androidx.appcompat.widget.AppCompatEditText
+import android.widget.EditText
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
@@ -30,7 +29,7 @@ private const val MAX_HIGHLIGHT_SIZE = 500_000
 // ── Custom EditText with line-number gutter ────────────────────
 
 class LineNumberEditText(context: Context, attrs: AttributeSet? = null)
-    : AppCompatEditText(context, attrs) {
+    : EditText(context, attrs) {
 
     private val gutterPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
         color = 0xFF555555.toInt()
