@@ -105,8 +105,7 @@ fun ConsoleView(
             SelectionContainer(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f, fill = false)
-                    .heightIn(min = 100.dp, max = 300.dp)
+                    .weight(1f)
                     .verticalScroll(scrollState)
                     .horizontalScroll(rememberScrollState())
                     .padding(8.dp)

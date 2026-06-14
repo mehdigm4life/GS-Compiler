@@ -46,6 +46,7 @@ import com.mehdigm.compiler.ui.theme.GSColors
 import com.mehdigm.compiler.ui.theme.GSCompilerTheme
 import com.mehdigm.compiler.utils.AppLogger
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 class MainActivity : ComponentActivity() {

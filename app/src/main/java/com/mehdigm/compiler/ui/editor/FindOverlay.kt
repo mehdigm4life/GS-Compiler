@@ -28,6 +28,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.sp
 import com.mehdigm.compiler.ui.theme.GSColors
 
@@ -40,6 +41,7 @@ fun FindOverlay(
     var searchQuery by remember { mutableStateOf("") }
     var gotoLineText by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
@@ -238,6 +240,7 @@ fun FindOverlay(
                         ),
                         keyboardActions = KeyboardActions(
                             onGo = {
+                                keyboardController?.hide()
                                 val line = gotoLineText.toIntOrNull()
                                 if (line != null && line > 0) {
                                     editorHandle.gotoLine(line - 1)
@@ -251,6 +254,7 @@ fun FindOverlay(
 
                 TextButton(
                     onClick = {
+                        keyboardController?.hide()
                         val line = gotoLineText.toIntOrNull()
                         if (line != null && line > 0) {
                             editorHandle.gotoLine(line - 1)
