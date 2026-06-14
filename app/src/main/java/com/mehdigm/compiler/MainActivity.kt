@@ -37,10 +37,6 @@ import com.mehdigm.compiler.ui.editor.PawnEditor
 import com.mehdigm.compiler.ui.theme.GSColors
 import com.mehdigm.compiler.ui.theme.GSCompilerTheme
 import com.mehdigm.compiler.utils.AppLogger
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.File
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,7 +55,6 @@ fun GSCompilerApp() {
     val context = LocalContext.current
     val viewModel: CompilerViewModel = viewModel()
     val uiState by viewModel.uiState.collectAsState()
-    val scope = rememberCoroutineScope()
 
     var showStorageDialog by remember { mutableStateOf(false) }
     val openFileTrigger = remember { mutableStateOf(false) }
@@ -68,16 +63,8 @@ fun GSCompilerApp() {
     val filePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri: Uri? ->
-        if (uri == null) return@rememberLauncherForActivityResult
-        scope.launch {
-            val content = withContext(Dispatchers.IO) {
-                FileManager.readFromDocument(context, uri)
-            }
-            if (content != null) {
-                viewModel.setEditorValue(
-                    androidx.compose.ui.text.input.TextFieldValue(content)
-                )
-            }
+        if (uri != null) {
+            viewModel.loadFromUri(context, uri)
         }
     }
 
