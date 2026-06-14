@@ -137,14 +137,16 @@ private val KEY_TABS = "tabs"
 private val KEY_ACTIVE_INDEX = "active_index"
 private val KEY_SESSION_DIR = "session_tabs"
 
+private val isSaving = java.util.concurrent.atomic.AtomicBoolean(false)
+
 fun saveSession(context: Context) {
+    if (!isSaving.compareAndSet(false, true)) return
     val tabs = _uiState.value.tabs
     val activeIndex = _uiState.value.activeTabIndex
     viewModelScope.launch(Dispatchers.IO) {
         try {
             val sessionDir = File(context.filesDir, KEY_SESSION_DIR)
             sessionDir.mkdirs()
-            // Delete old session files from previous save
             sessionDir.listFiles()?.forEach { it.delete() }
 
             val arr = JSONArray()
@@ -174,6 +176,8 @@ fun saveSession(context: Context) {
             AppLogger.i("GSCompiler", "Session saved: ${tabs.size} tabs")
         } catch (e: Exception) {
             AppLogger.e("GSCompiler", "Failed to save session: ${e.message}")
+        } finally {
+            isSaving.set(false)
         }
     }
 }
