@@ -6,6 +6,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -32,6 +33,7 @@ import com.mehdigm.compiler.storage.FileManager
 import com.mehdigm.compiler.ui.console.CompilerViewModel
 import com.mehdigm.compiler.ui.console.ConsoleView
 import com.mehdigm.compiler.ui.editor.CodeEditor
+import com.mehdigm.compiler.ui.editor.SoraEditorHandle
 import com.mehdigm.compiler.ui.theme.GSColors
 import com.mehdigm.compiler.ui.theme.GSCompilerTheme
 import com.mehdigm.compiler.utils.AppLogger
@@ -53,6 +55,7 @@ fun GSCompilerApp() {
     val context = LocalContext.current
     val viewModel: CompilerViewModel = viewModel()
     val uiState by viewModel.uiState.collectAsState()
+    val editorHandle = remember { SoraEditorHandle() }
 
     var showStorageDialog by remember { mutableStateOf(false) }
     val openFileTrigger = remember { mutableStateOf(false) }
@@ -90,6 +93,14 @@ fun GSCompilerApp() {
         if (openFileTrigger.value) {
             filePickerLauncher.launch(arrayOf("text/plain", "*/*"))
             openFileTrigger.value = false
+        }
+    }
+
+    LaunchedEffect(uiState.showFileSavedToast) {
+        if (uiState.showFileSavedToast) {
+            val msg = if (uiState.fileSavedSuccess) "File Saved" else "Save failed"
+            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+            viewModel.clearSavedToast()
         }
     }
 
@@ -163,11 +174,8 @@ fun GSCompilerApp() {
                 .background(GSColors.DarkBackground)
         ) {
             ToolbarRow(
-                canUndo = uiState.editorText.isNotEmpty(),
-                canRedo = false,
                 isCompiling = uiState.isCompiling,
-                onUndo = { },
-                onRedo = { },
+                editorHandle = editorHandle,
                 onSave = { viewModel.saveFile() },
                 onCompile = { viewModel.compile() },
                 onOpenFile = { openFileTrigger.value = true }
@@ -181,6 +189,7 @@ fun GSCompilerApp() {
                 CodeEditor(
                     text = uiState.editorText,
                     onTextChange = { viewModel.setEditorText(it) },
+                    editorHandle = editorHandle,
                     modifier = Modifier
                         .fillMaxWidth()
                         .fillMaxHeight()
@@ -206,7 +215,6 @@ fun GSCompilerApp() {
                 }
             }
 
-            /* Error message */
             if (uiState.errorMessage != null) {
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
@@ -244,11 +252,8 @@ fun GSCompilerApp() {
 
 @Composable
 fun ToolbarRow(
-    canUndo: Boolean,
-    canRedo: Boolean,
     isCompiling: Boolean,
-    onUndo: () -> Unit,
-    onRedo: () -> Unit,
+    editorHandle: SoraEditorHandle,
     onSave: () -> Unit,
     onCompile: () -> Unit,
     onOpenFile: () -> Unit
@@ -267,8 +272,8 @@ fun ToolbarRow(
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 IconButton(
-                    onClick = onUndo,
-                    enabled = canUndo && !isCompiling,
+                    onClick = { editorHandle.undo() },
+                    enabled = editorHandle.canUndo && !isCompiling,
                     modifier = Modifier.size(36.dp)
                 ) {
                     Icon(
@@ -278,8 +283,8 @@ fun ToolbarRow(
                     )
                 }
                 IconButton(
-                    onClick = onRedo,
-                    enabled = canRedo && !isCompiling,
+                    onClick = { editorHandle.redo() },
+                    enabled = editorHandle.canRedo && !isCompiling,
                     modifier = Modifier.size(36.dp)
                 ) {
                     Icon(
