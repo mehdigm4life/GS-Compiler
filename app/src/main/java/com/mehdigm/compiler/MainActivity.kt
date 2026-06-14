@@ -40,6 +40,7 @@ import com.mehdigm.compiler.storage.FileManager
 import com.mehdigm.compiler.ui.console.CompilerViewModel
 import com.mehdigm.compiler.ui.console.ConsoleView
 import com.mehdigm.compiler.ui.editor.CodeEditor
+import com.mehdigm.compiler.ui.editor.FindOverlay
 import com.mehdigm.compiler.ui.editor.SoraEditorHandle
 import com.mehdigm.compiler.ui.theme.GSColors
 import com.mehdigm.compiler.ui.theme.GSCompilerTheme
@@ -67,6 +68,7 @@ fun GSCompilerApp() {
     val uiState by viewModel.uiState.collectAsState()
     val editorHandle = remember { SoraEditorHandle() }
 
+    var showFindOverlay by remember { mutableStateOf(false) }
     var showStorageDialog by remember { mutableStateOf(false) }
     val openFileTrigger = remember { mutableStateOf(false) }
 
