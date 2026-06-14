@@ -146,7 +146,7 @@ fun GSCompilerApp() {
                         val tab = uiState.tabs.getOrNull(idx)
                         if (tab != null && tab.file != null) {
                             runBlocking(Dispatchers.IO) {
-                                FileManager.writeFileContent(tab.file!!, tab.content)
+                                FileManager.writeFileContent(tab.file, tab.content)
                             }
                         }
                         viewModel.handleUnsavedSave()
