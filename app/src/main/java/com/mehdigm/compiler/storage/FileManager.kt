@@ -65,13 +65,22 @@ object FileManager {
         }
     }
 
+    private const val MAX_FILE_SIZE = 5 * 1024 * 1024
+
     fun readFromDocument(context: Context, uri: Uri): String? {
-        val stream = context.contentResolver.openInputStream(uri)
-        if (stream == null) {
-            throw java.io.IOException("Content resolver returned null for URI: $uri")
-        }
-        return stream.use { ins ->
-            ins.reader().readText()
+        return try {
+            val stream = context.contentResolver.openInputStream(uri)
+            if (stream == null) return null
+            val bytes = stream.use { it.readBytes() }
+            if (bytes.size > MAX_FILE_SIZE) {
+                throw SecurityException("File too large (${bytes.size} bytes, max $MAX_FILE_SIZE)")
+            }
+            String(bytes, Charsets.UTF_8)
+        } catch (e: SecurityException) {
+            throw e
+        } catch (e: Exception) {
+            AppLogger.e("FileManager", "readFromDocument error: ${e.message}")
+            null
         }
     }
 
