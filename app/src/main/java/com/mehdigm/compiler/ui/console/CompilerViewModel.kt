@@ -370,13 +370,21 @@ fun restoreSession(context: Context) {
     }
 
     private fun addTab(content: String, uri: Uri? = null, file: File? = null, displayName: String? = null) {
+        val s = _uiState.value
+        val oldIdx = s.activeTabIndex
+        val oldTab = s.tabs.getOrNull(oldIdx)
+
         val existing = when {
-            uri != null -> _uiState.value.tabs.indexOfFirst { uri == it.uri }
-            file != null -> _uiState.value.tabs.indexOfFirst { file.absolutePath == it.file?.absolutePath }
+            uri != null -> s.tabs.indexOfFirst { uri == it.uri }
+            file != null -> s.tabs.indexOfFirst { file.absolutePath == it.file?.absolutePath }
             else -> -1
         }
         if (existing >= 0) {
-            val tabs = _uiState.value.tabs.toMutableList()
+            val tabs = s.tabs.toMutableList()
+            // Clear old active tab's content if different from the one being opened
+            if (oldIdx in tabs.indices && oldIdx != existing) {
+                tabs[oldIdx] = tabs[oldIdx].copy(content = "", savedContent = "")
+            }
             tabs[existing] = tabs[existing].copy(
                 content = content,
                 savedContent = content,
@@ -384,7 +392,7 @@ fun restoreSession(context: Context) {
                 file = file ?: tabs[existing].file,
                 displayName = displayName ?: tabs[existing].displayName
             )
-            _uiState.value = _uiState.value.copy(
+            _uiState.value = s.copy(
                 tabs = tabs,
                 activeTabIndex = existing,
                 isReadingFile = false
@@ -393,7 +401,11 @@ fun restoreSession(context: Context) {
         }
     val name = displayName ?: file?.name ?: "untitled.pwn"
     val tab = EditorTab(uri = uri, file = file, content = content, savedContent = content, displayName = name)
-    val s = _uiState.value
+    val tabs = s.tabs.toMutableList()
+    if (oldIdx in tabs.indices) {
+        tabs[oldIdx] = tabs[oldIdx].copy(content = "", savedContent = "")
+    }
+    tabs.add(tab)
     val newEntries = s.consoleEntries + listOf(
         ConsoleEntry("=== File loaded ===", isError = false),
         ConsoleEntry("Size: ${content.length} chars", isError = false)
@@ -402,8 +414,8 @@ fun restoreSession(context: Context) {
         newEntries.drop(newEntries.size - MAX_CONSOLE_ENTRIES)
     } else newEntries
     _uiState.value = s.copy(
-        tabs = s.tabs + tab,
-        activeTabIndex = s.tabs.size,
+        tabs = tabs,
+        activeTabIndex = tabs.lastIndex,
         consoleEntries = trimmedEntries,
         isReadingFile = false
     )
