@@ -82,7 +82,7 @@ class SoraEditorHandle {
 
     fun getLineCount(): Int = editor?.lineCount ?: 0
 
-    private fun syncSearchState() {
+    internal fun syncSearchState() {
         val searcher = editor?.getSearcher() ?: return
         searchMatchCount = searcher.matchedPositionCount
         searchCurrentIndex = if (searcher.hasQuery() && searcher.isMatchedPositionSelected()) {
