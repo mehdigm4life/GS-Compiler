@@ -25,6 +25,7 @@ import org.json.JSONObject
 
 private const val MAX_CONSOLE_ENTRIES = 500
 private const val FILE_READ_TIMEOUT_MS = 15_000L
+private const val CONTENT_CACHE_DIR = "content_cache"
 
 data class EditorTab(
     val id: Long = idCounter++,
@@ -116,8 +117,53 @@ class CompilerViewModel : ViewModel() {
         )
     }
 
-    fun switchTab(index: Int) {
-        _uiState.value = _uiState.value.copy(activeTabIndex = index)
+    fun switchTab(index: Int, context: Context) {
+        val s = _uiState.value
+        if (s.activeTabIndex == index) return
+        val oldIdx = s.activeTabIndex
+
+        // Capture old content synchronously (on Main thread)
+        val oldContent = s.tabs.getOrNull(oldIdx)?.content ?: ""
+        val oldSaved = s.tabs.getOrNull(oldIdx)?.savedContent ?: ""
+        val oldId = s.tabs.getOrNull(oldIdx)?.id ?: return
+
+        viewModelScope.launch(Dispatchers.Default) {
+            // Flush old tab to cache
+            val cache = cacheDir(context)
+            if (oldContent.isNotEmpty()) {
+                contentFile(cache, oldId).writeText(oldContent, Charsets.UTF_8)
+            }
+            if (oldSaved.isNotEmpty()) {
+                savedFile(cache, oldId).writeText(oldSaved, Charsets.UTF_8)
+            }
+
+            // Load new tab from cache
+            val newTab = s.tabs.getOrNull(index)
+            val loadedContent = if (newTab != null && newTab.content.isEmpty()) {
+                val cf = contentFile(cache, newTab.id)
+                if (cf.exists()) cf.readText(Charsets.UTF_8) else ""
+            } else {
+                newTab?.content ?: ""
+            }
+            val loadedSaved = if (newTab != null && newTab.savedContent.isEmpty()) {
+                val sf = savedFile(cache, newTab.id)
+                if (sf.exists()) sf.readText(Charsets.UTF_8) else ""
+            } else {
+                newTab?.savedContent ?: ""
+            }
+
+            withContext(Dispatchers.Main) {
+                val current = _uiState.value
+                val tabs = current.tabs.toMutableList()
+                if (oldIdx in tabs.indices) {
+                    tabs[oldIdx] = tabs[oldIdx].copy(content = "", savedContent = "")
+                }
+                if (index in tabs.indices) {
+                    tabs[index] = tabs[index].copy(content = loadedContent, savedContent = loadedSaved)
+                }
+                _uiState.value = current.copy(tabs = tabs, activeTabIndex = index)
+            }
+        }
     }
 
     fun updateCursorPosition(index: Int, line: Int, column: Int) {
@@ -151,11 +197,26 @@ fun saveSession(context: Context) {
 
             val arr = JSONArray()
             for ((i, tab) in tabs.withIndex()) {
+                // Get content from memory (active tab) or from cache (inactive tabs)
+                var tabContent = tab.content
+                var tabSaved = tab.savedContent
+                if (tabContent.isEmpty() || tabSaved.isEmpty()) {
+                    val cache = cacheDir(context)
+                    if (tabContent.isEmpty()) {
+                        val cf = contentFile(cache, tab.id)
+                        if (cf.exists()) tabContent = cf.readText(Charsets.UTF_8)
+                    }
+                    if (tabSaved.isEmpty()) {
+                        val sf = savedFile(cache, tab.id)
+                        if (sf.exists()) tabSaved = sf.readText(Charsets.UTF_8)
+                    }
+                }
+
                 val contentFile = File(sessionDir, "tab_${i}_content.pwn")
-                contentFile.writeText(tab.content, Charsets.UTF_8)
+                contentFile.writeText(tabContent, Charsets.UTF_8)
 
                 val savedFile = File(sessionDir, "tab_${i}_saved.pwn")
-                savedFile.writeText(tab.savedContent, Charsets.UTF_8)
+                savedFile.writeText(tabSaved, Charsets.UTF_8)
 
                 val obj = JSONObject()
                 tab.uri?.toString()?.let { obj.put("uri", it) }
@@ -226,10 +287,24 @@ fun restoreSession(context: Context) {
                 tabs.add(tab)
             }
             if (tabs.isNotEmpty()) {
+                // Save all content to cache, then clear inactive tabs from memory
+                val cache = cacheDir(context)
+                cache.listFiles()?.forEach { it.delete() }
+                for (tab in tabs) {
+                    contentFile(cache, tab.id).writeText(tab.content, Charsets.UTF_8)
+                    savedFile(cache, tab.id).writeText(tab.savedContent, Charsets.UTF_8)
+                }
+                val activeIdx = activeIndex.coerceIn(0, tabs.lastIndex)
+                for (i in tabs.indices) {
+                    if (i != activeIdx) {
+                        tabs[i] = tabs[i].copy(content = "", savedContent = "")
+                    }
+                }
+
                 val s = _uiState.value
                 _uiState.value = s.copy(
                     tabs = tabs,
-                    activeTabIndex = activeIndex.coerceIn(0, tabs.lastIndex),
+                    activeTabIndex = activeIdx,
                     sessionVersion = s.sessionVersion + 1,
                 )
                 AppLogger.i("GSCompiler", "Session restored: ${tabs.size} tabs")
