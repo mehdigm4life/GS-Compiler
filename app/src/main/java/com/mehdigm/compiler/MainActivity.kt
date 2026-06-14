@@ -132,12 +132,9 @@ fun GSCompilerApp() {
     }
 
     // Restore session on startup
-    var sessionRestored by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         viewModel.restoreSession(context)
-        sessionRestored = true
     }
-    val resetCounter = if (sessionRestored) 1 else 0
 
     // Save session when app goes to background
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -455,7 +452,7 @@ fun GSCompilerApp() {
                             onCursorChange = { line, col -> viewModel.updateActiveCursor(line, col) },
                             initialCursorLine = uiState.activeTab?.cursorLine ?: 0,
                             initialCursorColumn = uiState.activeTab?.cursorColumn ?: 0,
-                            resetCounter = resetCounter,
+                            resetCounter = uiState.sessionVersion,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .fillMaxHeight()
