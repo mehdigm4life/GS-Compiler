@@ -39,7 +39,7 @@ data class EditorTab(
     val isDirty: Boolean get() = content != savedContent
 
     companion object {
-        private var idCounter = 1L
+        var idCounter = System.nanoTime()
     }
 }
 
@@ -147,21 +147,13 @@ fun saveSession(context: Context) {
             // Delete old session files from previous save
             sessionDir.listFiles()?.forEach { it.delete() }
 
-            // Truncate content to avoid OOM — files larger than 1MB won't be saved
-            // and will re-open as new files. The user must use the file-system file
-            // for truly large scripts.
-            val MAX_SAVED_SIZE = 1_048_576 // 1MB
-
             val arr = JSONArray()
             for ((i, tab) in tabs.withIndex()) {
-                val content = if (tab.content.length <= MAX_SAVED_SIZE) tab.content else ""
-                val savedContent = if (tab.savedContent.length <= MAX_SAVED_SIZE) tab.savedContent else ""
-
                 val contentFile = File(sessionDir, "tab_${i}_content.pwn")
-                contentFile.writeText(content, Charsets.UTF_8)
+                contentFile.writeText(tab.content, Charsets.UTF_8)
 
                 val savedFile = File(sessionDir, "tab_${i}_saved.pwn")
-                savedFile.writeText(savedContent, Charsets.UTF_8)
+                savedFile.writeText(tab.savedContent, Charsets.UTF_8)
 
                 val obj = JSONObject()
                 tab.uri?.toString()?.let { obj.put("uri", it) }
@@ -172,9 +164,6 @@ fun saveSession(context: Context) {
                 obj.put("contentFile", contentFile.absolutePath)
                 obj.put("savedFile", savedFile.absolutePath)
                 obj.put("tabId", tab.id)
-                if (tab.content.length > MAX_SAVED_SIZE) {
-                    obj.put("truncated", true)
-                }
                 arr.put(obj)
             }
 
