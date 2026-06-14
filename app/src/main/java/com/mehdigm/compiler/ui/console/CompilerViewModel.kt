@@ -279,23 +279,23 @@ fun restoreSession(context: Context) {
                     if (inline.length > 1_048_576) "" else inline
                 }
 
-                // Write to cache immediately (one tab at a time), keep in RAM only for active tab
-                val tabId = EditorTab().id // placeholder; actual id set below
-                contentFile(cache, tabId).writeText(content, Charsets.UTF_8)
-                savedFile(cache, tabId).writeText(savedContent, Charsets.UTF_8)
-
-                val keep = (i == activeIndex)
+                // Create tab (content in memory briefly), write to cache, then clear if inactive
                 val tab = EditorTab(
-                    id = tabId,
                     uri = uri,
                     file = file,
-                    content = if (keep) content else "",
-                    savedContent = if (keep) savedContent else "",
+                    content = content,
+                    savedContent = savedContent,
                     displayName = displayName,
                     cursorLine = obj.optInt("cursorLine", 0),
                     cursorColumn = obj.optInt("cursorColumn", 0),
                 )
-                tabs.add(tab)
+                contentFile(cache, tab.id).writeText(tab.content, Charsets.UTF_8)
+                savedFile(cache, tab.id).writeText(tab.savedContent, Charsets.UTF_8)
+
+                tabs.add(
+                    if (i == activeIndex) tab
+                    else tab.copy(content = "", savedContent = "")
+                )
             }
             if (tabs.isNotEmpty()) {
                 val activeIdx = activeIndex.coerceIn(0, tabs.lastIndex)
