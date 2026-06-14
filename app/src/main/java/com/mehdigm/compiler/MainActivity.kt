@@ -37,7 +37,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mehdigm.compiler.storage.FileManager
-import com.mehdigm.compiler.ui.console.CompilerUiState
 import com.mehdigm.compiler.ui.console.CompilerViewModel
 import com.mehdigm.compiler.ui.console.ConsoleView
 import com.mehdigm.compiler.ui.editor.CodeEditor
@@ -45,6 +44,8 @@ import com.mehdigm.compiler.ui.editor.SoraEditorHandle
 import com.mehdigm.compiler.ui.theme.GSColors
 import com.mehdigm.compiler.ui.theme.GSCompilerTheme
 import com.mehdigm.compiler.utils.AppLogger
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -140,11 +141,16 @@ fun GSCompilerApp() {
             confirmButton = {
                 TextButton(
                     onClick = {
-                        if (uiState.unsavedDialogTabIndex == null) {
-                            viewModel.saveCurrentTab()
+                        val isExit = uiState.unsavedDialogTabIndex == null
+                        val idx = uiState.unsavedDialogTabIndex ?: uiState.activeTabIndex
+                        val tab = uiState.tabs.getOrNull(idx)
+                        if (tab != null && tab.file != null) {
+                            runBlocking(Dispatchers.IO) {
+                                FileManager.writeFileContent(tab.file!!, tab.content)
+                            }
                         }
                         viewModel.handleUnsavedSave()
-                        if (uiState.unsavedDialogTabIndex == null) {
+                        if (isExit) {
                             activity?.finish()
                         }
                     }
@@ -156,8 +162,9 @@ fun GSCompilerApp() {
                 Row {
                     TextButton(
                         onClick = {
+                            val isExit = uiState.unsavedDialogTabIndex == null
                             viewModel.handleUnsavedDismiss()
-                            if (uiState.unsavedDialogTabIndex == null) {
+                            if (isExit) {
                                 activity?.finish()
                             }
                         }
@@ -177,7 +184,10 @@ fun GSCompilerApp() {
     if (showStorageDialog) {
         AlertDialog(
             onDismissRequest = { showStorageDialog = false },
-            title = { Text("Storage Access Required") },
+            containerColor = GSColors.DarkSurface,
+            titleContentColor = GSColors.White,
+            textContentColor = GSColors.TextGray,
+            title = { Text("Storage Access Required", fontWeight = FontWeight.Bold) },
             text = {
                 Text(
                     "GS Compiler needs access to all files to read .pwn scripts " +
@@ -193,12 +203,12 @@ fun GSCompilerApp() {
                         )
                     }
                 }) {
-                    Text("Grant Access")
+                    Text("Grant Access", color = GSColors.AccentGold)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showStorageDialog = false }) {
-                    Text("Later")
+                    Text("Later", color = GSColors.TextGray)
                 }
             }
         )
@@ -400,7 +410,6 @@ fun TabBar(
                 }
             }
 
-            /* New file button */
             IconButton(
                 onClick = onNewFile,
                 modifier = Modifier.size(24.dp)

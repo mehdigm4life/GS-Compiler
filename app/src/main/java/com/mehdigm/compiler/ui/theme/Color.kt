@@ -16,6 +16,7 @@ object GSColors {
     val ErrorRed = Color(0xFFFF4444)
     val SuccessGreen = Color(0xFF4CAF50)
     val ToolbarBackground = Color(0xFF16213E)
+    val TextGray = Color(0xFF888888)
 
     /* Syntax colors */
     val SyntaxKeyword = Color(0xFFCC7832)
