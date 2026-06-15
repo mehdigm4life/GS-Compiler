@@ -106,6 +106,69 @@ class SoraEditorHandle {
     }
 }
 
+private val editors = mutableMapOf<Long, SoraCodeEditor>()
+private val editorLRU = mutableListOf<Long>()
+private const val MAX_EDITORS = 10
+
+private fun getOrCreateEditor(context: Context, tabId: Long): SoraCodeEditor {
+    editorLRU.remove(tabId)
+    editorLRU.add(tabId)
+    if (tabId !in editors && editors.size >= MAX_EDITORS) {
+        val lruId = editorLRU.firstOrNull()
+        if (lruId != null) {
+            editorLRU.remove(lruId)
+            editors.remove(lruId)?.release()
+        }
+    }
+    return editors.getOrPut(tabId) {
+        initTextMate(context)
+        createSoraEditor(context)
+    }
+}
+
+private fun createSoraEditor(context: Context): SoraCodeEditor {
+    return SoraCodeEditor(context).apply {
+        isLineNumberEnabled = true
+        setPinLineNumber(true)
+        isWordwrap = false
+        setTextSize(12f)
+        setLineInfoTextSize(10f)
+
+        try {
+            val scheme = TextMateColorScheme.create(ThemeRegistry.getInstance())
+            scheme.setColor(EditorColorScheme.LINE_NUMBER, 0xFF555555.toInt())
+            scheme.setColor(EditorColorScheme.LINE_NUMBER_BACKGROUND, 0xFF1E1E2E.toInt())
+            scheme.setColor(EditorColorScheme.LINE_DIVIDER, 0x4D555555.toInt())
+            scheme.setColor(EditorColorScheme.SELECTION_INSERT, 0xFF555555.toInt())
+            scheme.setColor(EditorColorScheme.SELECTION_HANDLE, 0xFFD4AF37.toInt())
+            scheme.setColor(EditorColorScheme.BLOCK_LINE, 0x33D4AF37.toInt())
+            scheme.setColor(EditorColorScheme.BLOCK_LINE_CURRENT, 0x4DD4AF37.toInt())
+            colorScheme = scheme
+
+            val language = TextMateLanguage.create(
+                "source.pawn",
+                GrammarRegistry.getInstance(),
+                ThemeRegistry.getInstance(),
+                true
+            )
+            setEditorLanguage(language)
+        } catch (_: Exception) {
+            setThemeColors()
+        }
+    }
+}
+
+fun clearAllEditors() {
+    editors.values.forEach { it.release() }
+    editors.clear()
+    editorLRU.clear()
+}
+
+fun removeEditor(tabId: Long) {
+    editors.remove(tabId)?.release()
+    editorLRU.remove(tabId)
+}
+
 @Composable
 fun CodeEditor(
     text: String,
@@ -120,111 +183,63 @@ fun CodeEditor(
     activeTabIds: List<Long> = emptyList(),
 ) {
     val context = LocalContext.current
-    val editors = remember { mutableMapOf<Long, SoraCodeEditor>() }
-    val editorLRU = remember { mutableListOf<Long>() }
-    val MAX_EDITORS = 5
 
     val prevReset = remember { mutableStateOf(resetCounter) }
     if (resetCounter != prevReset.value) {
-        editors.values.forEach { it.release() }
-        editors.clear()
-        editorLRU.clear()
+        clearAllEditors()
         prevReset.value = resetCounter
     }
 
-    // Clean up editors for tabs that no longer exist
     val staleIds = remember(activeTabIds) {
         editors.keys.filter { it !in activeTabIds && it != tabId }
     }
     staleIds.forEach { id ->
-        editors.remove(id)?.release()
-        editorLRU.remove(id)
+        removeEditor(id)
     }
 
     val editor = remember(tabId, resetCounter) {
-        // Update LRU: evict least recently used if at capacity
-        editorLRU.remove(tabId)
-        if (tabId !in editors && editors.size >= MAX_EDITORS) {
-            val lruId = editorLRU.firstOrNull()
-            if (lruId != null) {
-                editorLRU.remove(lruId)
-                editors.remove(lruId)?.release()
-            }
-        }
-        editorLRU.add(tabId)
-
-        editors.getOrPut(tabId) {
-            initTextMate(context)
-            SoraCodeEditor(context).apply {
-                isLineNumberEnabled = true
-                setPinLineNumber(true)
-                isWordwrap = false
-                setTextSize(12f)
-                setLineInfoTextSize(10f)
-
-                try {
-                    val useTextMate = text.length < 5_000_000
-                    if (useTextMate) {
-                        val scheme = TextMateColorScheme.create(ThemeRegistry.getInstance())
-                        scheme.setColor(EditorColorScheme.LINE_NUMBER, 0xFF555555.toInt())
-                        scheme.setColor(EditorColorScheme.LINE_NUMBER_BACKGROUND, 0xFF1E1E2E.toInt())
-                        scheme.setColor(EditorColorScheme.LINE_DIVIDER, 0x4D555555.toInt())
-                        scheme.setColor(EditorColorScheme.SELECTION_INSERT, 0xFF555555.toInt())
-                        scheme.setColor(EditorColorScheme.SELECTION_HANDLE, 0xFFD4AF37.toInt())
-                        scheme.setColor(EditorColorScheme.BLOCK_LINE, 0x33D4AF37.toInt())
-                        scheme.setColor(EditorColorScheme.BLOCK_LINE_CURRENT, 0x4DD4AF37.toInt())
-                        colorScheme = scheme
-
-                        val language = TextMateLanguage.create(
-                            "source.pawn",
-                            GrammarRegistry.getInstance(),
-                            ThemeRegistry.getInstance(),
-                            true
-                        )
-                        setEditorLanguage(language)
-                    } else {
-                        setThemeColors()
-                    }
-                } catch (_: Exception) {
-                    setThemeColors()
-                }
-
-                subscribeEvent(ContentChangeEvent::class.java) { _, _ ->
-                    onTextChange(getText().toString())
-                    onCursorChange?.invoke(cursor.leftLine, cursor.leftColumn)
-                    editorHandle.syncState()
-                }
-                subscribeEvent(PublishSearchResultEvent::class.java) { _, _ ->
-                    editorHandle.syncSearchState()
-                }
-
-                if (text.isNotEmpty()) {
-                    setText(text)
-                }
-                post {
-                    val currentText = getText().toString()
-                    if (currentText != text && text.isNotEmpty()) {
-                        setText(text)
-                    }
-                    val targetLine = initialCursorLine
-                    val targetCol = if (targetLine in 0 until lineCount) {
-                        initialCursorColumn.coerceIn(0, getText().getColumnCount(targetLine))
-                    } else {
-                        initialCursorColumn
-                    }
-                    if (targetLine in 0 until lineCount) {
-                        setSelection(targetLine, targetCol)
-                        ensurePositionVisible(targetLine, targetCol)
-                        onCursorChange?.invoke(targetLine, targetCol)
-                    }
-                }
-            }
-        }
+        getOrCreateEditor(context, tabId)
     }
 
     LaunchedEffect(editor) {
         editorHandle.editor = editor
         editorHandle.syncState()
+    }
+
+    DisposableEffect(tabId) {
+        val contentListener = ContentChangeEvent.Listener { _, _ ->
+            onTextChange(editor.getText().toString())
+            onCursorChange?.invoke(editor.cursor.leftLine, editor.cursor.leftColumn)
+            editorHandle.syncState()
+        }
+        editor.subscribeEvent(ContentChangeEvent::class.java, contentListener)
+
+        val searchListener = PublishSearchResultEvent.Listener { _, _ ->
+            editorHandle.syncSearchState()
+        }
+        editor.subscribeEvent(PublishSearchResultEvent::class.java, searchListener)
+
+        onDispose {
+            editor.unsubscribeEvent(ContentChangeEvent::class.java, contentListener)
+            editor.unsubscribeEvent(PublishSearchResultEvent::class.java, searchListener)
+        }
+    }
+
+    LaunchedEffect(tabId) {
+        editor.post {
+            val currentText = editor.getText().toString()
+            if (currentText != text) {
+                editor.setText(text)
+            }
+            val line = initialCursorLine
+            val col = initialCursorColumn
+            if (line in 0 until editor.lineCount) {
+                val maxCol = editor.getText().getColumnCount(line)
+                editor.setSelection(line, col.coerceIn(0, maxCol))
+                editor.ensurePositionVisible(line, col)
+            }
+            editorHandle.syncState()
+        }
     }
 
     key(tabId, resetCounter) {
@@ -257,7 +272,6 @@ private fun initTextMate(context: Context) {
             IThemeSource.fromInputStream(themeIs, "dark.tmTheme.json", Charsets.UTF_8)
         )
     } catch (_: Exception) {
-        // TextMate init failed — editor will use plain text
     }
 }
 
