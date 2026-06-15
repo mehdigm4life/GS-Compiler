@@ -7,6 +7,9 @@ import androidx.lifecycle.viewModelScope
 import com.mehdigm.compiler.compiler.CompilationCallback
 import com.mehdigm.compiler.compiler.NativeCompiler
 import com.mehdigm.compiler.storage.FileManager
+import com.mehdigm.compiler.ui.editor.getEditorText
+import com.mehdigm.compiler.ui.editor.removeEditor
+import com.mehdigm.compiler.ui.editor.setEditorText
 import com.mehdigm.compiler.utils.AppLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -24,19 +27,18 @@ import org.json.JSONObject
 
 private const val MAX_CONSOLE_ENTRIES = 500
 private const val FILE_READ_TIMEOUT_MS = 15_000L
+private const val MAX_CONTENT_SIZE_MB = 50
 
 data class EditorTab(
     val id: Long = idCounter++,
     val uri: Uri? = null,
     val file: File? = null,
-    val content: String = "",
-    val savedContent: String = "",
     val displayName: String = "untitled.pwn",
     val cursorLine: Int = 0,
     val cursorColumn: Int = 0,
+    val isDirty: Boolean = false,
+    val contentLoaded: Boolean = false,
 ) {
-    val isDirty: Boolean get() = content != savedContent
-
     companion object {
         private var idCounter = System.nanoTime()
     }
@@ -60,9 +62,7 @@ data class CompilerUiState(
     val sessionVersion: Int = 0,
 ) {
     val activeTab: EditorTab? get() = tabs.getOrNull(activeTabIndex)
-    val editorText: String get() = activeTab?.content ?: ""
     val currentFile: File? get() = activeTab?.file
-    val isDirty: Boolean get() = activeTab?.isDirty ?: false
 }
 
 class CompilerViewModel : ViewModel() {
@@ -98,8 +98,8 @@ class CompilerViewModel : ViewModel() {
         }
     }
 
-    fun setEditorText(text: String) {
-        withActiveTab { it.copy(content = text) }
+    fun onContentChanged() {
+        withActiveTab { it.copy(isDirty = true) }
     }
 
     fun newFile() {
@@ -116,8 +116,41 @@ class CompilerViewModel : ViewModel() {
     fun switchTab(index: Int) {
         val s = _uiState.value
         if (s.activeTabIndex == index) return
-        updateCursorPosition(s.activeTabIndex, s.tabs.getOrNull(s.activeTabIndex)?.cursorLine ?: 0, s.tabs.getOrNull(s.activeTabIndex)?.cursorColumn ?: 0)
+
+        val oldIdx = s.activeTabIndex
+        updateCursorPosition(oldIdx, s.tabs.getOrNull(oldIdx)?.cursorLine ?: 0, s.tabs.getOrNull(oldIdx)?.cursorColumn ?: 0)
+
+        val newTab = s.tabs.getOrNull(index) ?: return
+
         _uiState.value = s.copy(activeTabIndex = index)
+
+        viewModelScope.launch(Dispatchers.IO) {
+            if (!newTab.contentLoaded) {
+                var content = ""
+                if (newTab.file != null && newTab.file.exists()) {
+                    try {
+                        content = FileManager.readFileContent(newTab.file)
+                    } catch (e: Exception) {
+                        AppLogger.e("GSCompiler", "Failed to read ${newTab.file.path}: ${e.message}")
+                    }
+                } else if (newTab.uri != null) {
+                    try {
+                        val c = FileManager.readFromUri(_uiState.value.activeTab?.let { null } ?: return@launch, newTab.uri)
+                        if (c != null) content = c
+                    } catch (e: Exception) {
+                        AppLogger.e("GSCompiler", "Failed to read URI: ${e.message}")
+                    }
+                }
+                if (content.isNotEmpty()) {
+                    setEditorText(newTab.id, content)
+                    val tabs = _uiState.value.tabs.toMutableList()
+                    if (index in tabs.indices) {
+                        tabs[index] = tabs[index].copy(contentLoaded = true, isDirty = false)
+                    }
+                    _uiState.value = _uiState.value.copy(tabs = tabs)
+                }
+            }
+        }
     }
 
     fun updateCursorPosition(index: Int, line: Int, column: Int) {
@@ -187,30 +220,40 @@ class CompilerViewModel : ViewModel() {
                     val cursorLine = obj.optInt("cursorLine", 0)
                     val cursorColumn = obj.optInt("cursorColumn", 0)
 
-                    var content = ""
-                    if (file != null && file.exists()) {
+                    val isActive = i == activeIndex
+                    var contentLoaded = false
+
+                    if (isActive && file != null && file.exists()) {
                         try {
-                            content = FileManager.readFileContent(file)
+                            val content = FileManager.readFileContent(file)
+                            if (content.isNotEmpty()) {
+                                setEditorText(tabs.size.toLong(), content)
+                                contentLoaded = true
+                            }
                         } catch (e: Exception) {
                             AppLogger.e("GSCompiler", "Failed to read ${file.path}: ${e.message}")
                         }
-                    } else if (uri != null) {
+                    } else if (isActive && uri != null) {
                         try {
-                            val c = FileManager.readFromUri(context, uri)
-                            if (c != null) content = c
+                            val content = FileManager.readFromUri(context, uri)
+                            if (!content.isNullOrEmpty()) {
+                                setEditorText(tabs.size.toLong(), content)
+                                contentLoaded = true
+                            }
                         } catch (e: Exception) {
-                            AppLogger.e("GSCompiler", "Failed to read URI $uri: ${e.message}")
+                            AppLogger.e("GSCompiler", "Failed to read URI: ${e.message}")
                         }
                     }
 
                     val tab = EditorTab(
+                        id = tabs.size.toLong(),
                         uri = uri,
                         file = file,
-                        content = content,
-                        savedContent = content,
                         displayName = displayName,
                         cursorLine = cursorLine,
                         cursorColumn = cursorColumn,
+                        isDirty = false,
+                        contentLoaded = contentLoaded,
                     )
                     tabs.add(tab)
                 }
@@ -298,19 +341,20 @@ class CompilerViewModel : ViewModel() {
         if (existing >= 0) {
             val tabs = s.tabs.toMutableList()
             tabs[existing] = tabs[existing].copy(
-                content = content,
-                savedContent = content,
                 uri = uri ?: tabs[existing].uri,
                 file = file ?: tabs[existing].file,
-                displayName = displayName ?: tabs[existing].displayName
+                displayName = displayName ?: tabs[existing].displayName,
+                contentLoaded = false,
+                isDirty = false,
             )
             val newEntries = s.consoleEntries + listOf(
                 ConsoleEntry("=== File reloaded ===", isError = false),
-                ConsoleEntry("Size: ${content.length} chars", isError = false)
             )
             val trimmedEntries = if (newEntries.size > MAX_CONSOLE_ENTRIES) {
                 newEntries.drop(newEntries.size - MAX_CONSOLE_ENTRIES)
             } else newEntries
+            setEditorText(tabs[existing].id, content)
+            tabs[existing] = tabs[existing].copy(contentLoaded = true)
             _uiState.value = s.copy(
                 tabs = tabs,
                 activeTabIndex = existing,
@@ -321,12 +365,14 @@ class CompilerViewModel : ViewModel() {
         }
 
         val name = displayName ?: file?.name ?: "untitled.pwn"
-        val tab = EditorTab(uri = uri, file = file, content = content, savedContent = content, displayName = name)
+        val tabId = EditorTab.Companion.idCounter
+        val tab = EditorTab(id = tabId, uri = uri, file = file, displayName = name, isDirty = false, contentLoaded = false)
         val tabs = s.tabs.toMutableList()
         tabs.add(tab)
+        setEditorText(tabId, content)
+        tabs[tabs.lastIndex] = tabs.last().copy(contentLoaded = true)
         val newEntries = s.consoleEntries + listOf(
             ConsoleEntry("=== File loaded ===", isError = false),
-            ConsoleEntry("Size: ${content.length} chars", isError = false)
         )
         val trimmedEntries = if (newEntries.size > MAX_CONSOLE_ENTRIES) {
             newEntries.drop(newEntries.size - MAX_CONSOLE_ENTRIES)
@@ -337,7 +383,7 @@ class CompilerViewModel : ViewModel() {
             consoleEntries = trimmedEntries,
             isReadingFile = false
         )
-        AppLogger.i("GSCompiler", "Loaded file (${content.length} chars) from: ${uri ?: file}")
+        AppLogger.i("GSCompiler", "Loaded file from: ${uri ?: file}")
     }
 
     private fun fail(message: String) {
@@ -358,9 +404,15 @@ class CompilerViewModel : ViewModel() {
         }
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                FileManager.writeToUri(context, uri, tab.content)
-                withActiveTab { it.copy(savedContent = it.content) }
+                val content = getEditorText(tab.id) ?: return@launch
+                FileManager.writeToUri(context, uri, content)
+                val tabs = _uiState.value.tabs.toMutableList()
+                val idx = _uiState.value.activeTabIndex
+                if (idx in tabs.indices) {
+                    tabs[idx] = tabs[idx].copy(isDirty = false)
+                }
                 _uiState.value = _uiState.value.copy(
+                    tabs = tabs,
                     showFileSavedToast = true,
                     fileSavedSuccess = true
                 )
@@ -385,12 +437,15 @@ class CompilerViewModel : ViewModel() {
         val tab = s.tabs.getOrNull(idx) ?: return
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                FileManager.writeToUri(context, uri, tab.content)
+                val content = getEditorText(tab.id) ?: return@launch
+                FileManager.writeToUri(context, uri, content)
                 val displayName = FileManager.getFileNameFromUri(context, uri)
-                withActiveTab {
-                    it.copy(uri = uri, savedContent = it.content, displayName = displayName)
+                val tabs = _uiState.value.tabs.toMutableList()
+                if (idx in tabs.indices) {
+                    tabs[idx] = tabs[idx].copy(uri = uri, isDirty = false, displayName = displayName)
                 }
                 _uiState.value = _uiState.value.copy(
+                    tabs = tabs,
                     showFileSavedToast = true,
                     fileSavedSuccess = true
                 )
@@ -422,7 +477,7 @@ class CompilerViewModel : ViewModel() {
     }
 
     fun requestExit() {
-        if (_uiState.value.isDirty) {
+        if (_uiState.value.tabs.any { it.isDirty }) {
             _uiState.value = _uiState.value.copy(
                 showUnsavedDialog = true,
                 unsavedDialogTabIndex = null
@@ -441,13 +496,14 @@ class CompilerViewModel : ViewModel() {
         if (file != null) {
             viewModelScope.launch(Dispatchers.IO) {
                 try {
-                    FileManager.writeFileContent(file, tab.content)
+                    val content = getEditorText(tab.id) ?: return@launch
+                    FileManager.writeFileContent(file, content)
                 } catch (_: Exception) { }
             }
         }
         val tabs = _uiState.value.tabs.toMutableList()
         if (targetIdx in tabs.indices) {
-            tabs[targetIdx] = tabs[targetIdx].copy(savedContent = tabs[targetIdx].content)
+            tabs[targetIdx] = tabs[targetIdx].copy(isDirty = false)
         }
         if (tabIdx != null) {
             doCloseTab(tabIdx)
@@ -481,6 +537,7 @@ class CompilerViewModel : ViewModel() {
     private fun doCloseTab(index: Int) {
         val s = _uiState.value
         if (s.tabs.size <= 1) {
+            removeEditor(s.tabs.firstOrNull()?.id ?: return)
             val newTab = EditorTab()
             _uiState.value = s.copy(
                 tabs = listOf(newTab),
@@ -490,6 +547,7 @@ class CompilerViewModel : ViewModel() {
             return
         }
         val tabs = s.tabs.toMutableList()
+        removeEditor(tabs[index].id)
         tabs.removeAt(index)
         val newIdx = when {
             index < s.activeTabIndex -> s.activeTabIndex - 1
@@ -518,7 +576,15 @@ class CompilerViewModel : ViewModel() {
             addConsoleEntry("\n=== Compilation started ===", isError = false)
             addConsoleEntry("Input: ${tab.displayName}", isError = false)
 
-            val content = tab.content
+            val content = withContext(Dispatchers.IO) {
+                getEditorText(tab.id) ?: ""
+            }
+            if (content.isEmpty()) {
+                addConsoleEntry("Error: No content to compile", isError = true)
+                _uiState.value = _uiState.value.copy(isCompiling = false, isCompileSuccess = false)
+                return@launch
+            }
+
             val file = withContext(Dispatchers.IO) {
                 val f = tab.file ?: File(context.cacheDir, tab.displayName)
                 f.writeText(content, Charsets.UTF_8)

@@ -20,7 +20,7 @@ import org.eclipse.tm4e.core.registry.IThemeSource
 
 class SoraEditorHandle {
     internal var editor: SoraCodeEditor? = null
-    internal var onTextChange: ((String) -> Unit)? = null
+    internal var onContentChangedSignal: (() -> Unit)? = null
     internal var onCursorChange: ((Int, Int) -> Unit)? = null
 
     var canUndo by mutableStateOf(false)
@@ -88,6 +88,16 @@ class SoraEditorHandle {
 
     fun getLineCount(): Int = editor?.lineCount ?: 0
 
+    fun getText(): String {
+        val e = editor ?: return ""
+        return e.getText().toString()
+    }
+
+    fun contentLength(): Int {
+        val e = editor ?: return 0
+        return e.getText().length
+    }
+
     internal fun syncSearchState() {
         val searcher = editor?.getSearcher() ?: return
         if (!searcher.hasQuery()) {
@@ -110,10 +120,9 @@ class SoraEditorHandle {
 
     internal fun onContentChanged() {
         val e = editor ?: return
-        val text = e.getText().toString()
-        onTextChange?.invoke(text)
         onCursorChange?.invoke(e.cursor.leftLine, e.cursor.leftColumn)
         syncState()
+        onContentChangedSignal?.invoke()
     }
 
     internal fun onSearchResult() {
@@ -194,13 +203,21 @@ fun removeEditor(tabId: Long) {
     editorLRU.remove(tabId)
 }
 
+fun getEditorText(tabId: Long): String? {
+    return editors[tabId]?.editor?.getText()?.toString()
+}
+
+fun setEditorText(tabId: Long, text: String) {
+    editors[tabId]?.editor?.setText(text)
+}
+
 @Composable
 fun CodeEditor(
-    text: String,
-    onTextChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     editorHandle: SoraEditorHandle = remember { SoraEditorHandle() },
     tabId: Long = 0L,
+    initialText: String = "",
+    onContentChanged: () -> Unit = {},
     onCursorChange: ((Int, Int) -> Unit)? = null,
     initialCursorLine: Int = 0,
     initialCursorColumn: Int = 0,
@@ -230,21 +247,21 @@ fun CodeEditor(
 
     LaunchedEffect(editor) {
         editorHandle.editor = editor
-        editorHandle.onTextChange = onTextChange
+        editorHandle.onContentChangedSignal = onContentChanged
         editorHandle.onCursorChange = onCursorChange
         editorHandle.syncState()
     }
 
-    LaunchedEffect(onTextChange, onCursorChange) {
-        editorHandle.onTextChange = onTextChange
+    LaunchedEffect(onContentChanged, onCursorChange) {
+        editorHandle.onContentChangedSignal = onContentChanged
         editorHandle.onCursorChange = onCursorChange
     }
 
-    LaunchedEffect(tabId) {
+    LaunchedEffect(tabId, initialText) {
         editor.post {
             val currentText = editor.getText().toString()
-            if (currentText != text) {
-                editor.setText(text)
+            if (currentText != initialText) {
+                editor.setText(initialText)
             }
             val line = initialCursorLine
             val col = initialCursorColumn
