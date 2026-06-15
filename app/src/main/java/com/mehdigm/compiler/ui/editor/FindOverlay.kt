@@ -98,10 +98,7 @@ fun FindOverlay(
                 ) {
                     BasicTextField(
                         value = searchQuery,
-                        onValueChange = { newValue ->
-                            searchQuery = newValue
-                            editorHandle.search(newValue)
-                        },
+                        onValueChange = { searchQuery = it },
                         singleLine = true,
                         textStyle = TextStyle(
                             color = GSColors.White,
@@ -131,7 +128,11 @@ fun FindOverlay(
                             imeAction = ImeAction.Search
                         ),
                         keyboardActions = KeyboardActions(
-                            onSearch = { editorHandle.searchNext() }
+                            onSearch = {
+                                if (searchQuery.isNotEmpty()) {
+                                    editorHandle.search(searchQuery)
+                                }
+                            }
                         )
                     )
                 }
