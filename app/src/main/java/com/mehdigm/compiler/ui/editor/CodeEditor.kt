@@ -259,8 +259,7 @@ fun CodeEditor(
 
     LaunchedEffect(tabId, initialText) {
         editor.post {
-            val currentText = editor.getText().toString()
-            if (currentText != initialText) {
+            if (initialText.isNotEmpty() && editor.getText().length == 0) {
                 editor.setText(initialText)
             }
             val line = initialCursorLine

@@ -113,7 +113,7 @@ class CompilerViewModel : ViewModel() {
         )
     }
 
-    fun switchTab(index: Int) {
+    fun switchTab(context: Context, index: Int) {
         val s = _uiState.value
         if (s.activeTabIndex == index) return
 
@@ -124,8 +124,11 @@ class CompilerViewModel : ViewModel() {
 
         _uiState.value = s.copy(activeTabIndex = index)
 
+        val editorExists = getEditorText(newTab.id) != null
+        val needsLoad = !newTab.contentLoaded || !editorExists
+
         viewModelScope.launch(Dispatchers.IO) {
-            if (!newTab.contentLoaded) {
+            if (needsLoad) {
                 var content = ""
                 if (newTab.file != null && newTab.file.exists()) {
                     try {
@@ -135,7 +138,7 @@ class CompilerViewModel : ViewModel() {
                     }
                 } else if (newTab.uri != null) {
                     try {
-                        val c = FileManager.readFromUri(_uiState.value.activeTab?.let { null } ?: return@launch, newTab.uri)
+                        val c = FileManager.readFromUri(context, newTab.uri)
                         if (c != null) content = c
                     } catch (e: Exception) {
                         AppLogger.e("GSCompiler", "Failed to read URI: ${e.message}")

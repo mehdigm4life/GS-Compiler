@@ -188,7 +188,7 @@ fun GSCompilerApp() {
     var showConsoleView by remember { mutableStateOf(false) }
     val drawerGesturesEnabled by remember { derivedStateOf { drawerState.isOpen } }
 
-    BackHandler(enabled = uiState.isDirty || showConsoleView) {
+    BackHandler(enabled = (uiState.activeTab?.isDirty ?: false) || showConsoleView) {
         if (showConsoleView) {
             showConsoleView = false
         } else {
@@ -404,7 +404,7 @@ fun GSCompilerApp() {
                 ) {
                     ToolbarRow(
                         isCompiling = uiState.isCompiling,
-                        isDirty = uiState.isDirty,
+                        isDirty = uiState.activeTab?.isDirty ?: false,
                         editorHandle = editorHandle,
                         onSave = { viewModel.saveCurrentTab(context) },
                         onCompile = { viewModel.compile(context) },
@@ -418,7 +418,7 @@ fun GSCompilerApp() {
                         onTabClick = { index ->
                             if (uiState.activeTabIndex != index) {
                                 viewModel.updateCursorPosition(uiState.activeTabIndex, editorHandle.getCursorLine(), editorHandle.getCursorColumn())
-                                viewModel.switchTab(index)
+                                viewModel.switchTab(context, index)
                             }
                         },
                         onTabClose = { viewModel.requestCloseTab(it) }
@@ -430,10 +430,9 @@ fun GSCompilerApp() {
                             .weight(1f)
                     ) {
                         CodeEditor(
-                            text = uiState.editorText,
-                            onTextChange = { viewModel.setEditorText(it) },
                             editorHandle = editorHandle,
                             tabId = uiState.activeTab?.id ?: 0L,
+                            onContentChanged = { viewModel.onContentChanged() },
                             onCursorChange = { line, col -> viewModel.updateActiveCursor(line, col) },
                             initialCursorLine = uiState.activeTab?.cursorLine ?: 0,
                             initialCursorColumn = uiState.activeTab?.cursorColumn ?: 0,
