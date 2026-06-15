@@ -20,6 +20,9 @@ import org.eclipse.tm4e.core.registry.IThemeSource
 
 class SoraEditorHandle {
     internal var editor: SoraCodeEditor? = null
+    internal var onTextChange: ((String) -> Unit)? = null
+    internal var onCursorChange: ((Int, Int) -> Unit)? = null
+
     var canUndo by mutableStateOf(false)
         private set
     var canRedo by mutableStateOf(false)
@@ -103,6 +106,18 @@ class SoraEditorHandle {
     internal fun syncState() {
         canUndo = editor?.canUndo() ?: false
         canRedo = editor?.canRedo() ?: false
+    }
+
+    internal fun onContentChanged() {
+        val e = editor ?: return
+        val text = e.getText().toString()
+        onTextChange?.invoke(text)
+        onCursorChange?.invoke(e.cursor.leftLine, e.cursor.leftColumn)
+        syncState()
+    }
+
+    internal fun onSearchResult() {
+        syncSearchState()
     }
 }
 
@@ -203,26 +218,24 @@ fun CodeEditor(
 
     LaunchedEffect(editor) {
         editorHandle.editor = editor
+        editorHandle.onTextChange = onTextChange
+        editorHandle.onCursorChange = onCursorChange
         editorHandle.syncState()
     }
 
+    LaunchedEffect(onTextChange, onCursorChange) {
+        editorHandle.onTextChange = onTextChange
+        editorHandle.onCursorChange = onCursorChange
+    }
+
     DisposableEffect(tabId) {
-        val contentListener = ContentChangeEvent.Listener { _, _ ->
-            onTextChange(editor.getText().toString())
-            onCursorChange?.invoke(editor.cursor.leftLine, editor.cursor.leftColumn)
-            editorHandle.syncState()
+        editor.subscribeEvent(ContentChangeEvent::class.java) { _, _ ->
+            editorHandle.onContentChanged()
         }
-        editor.subscribeEvent(ContentChangeEvent::class.java, contentListener)
-
-        val searchListener = PublishSearchResultEvent.Listener { _, _ ->
-            editorHandle.syncSearchState()
+        editor.subscribeEvent(PublishSearchResultEvent::class.java) { _, _ ->
+            editorHandle.onSearchResult()
         }
-        editor.subscribeEvent(PublishSearchResultEvent::class.java, searchListener)
-
-        onDispose {
-            editor.unsubscribeEvent(ContentChangeEvent::class.java, contentListener)
-            editor.unsubscribeEvent(PublishSearchResultEvent::class.java, searchListener)
-        }
+        onDispose { }
     }
 
     LaunchedEffect(tabId) {
