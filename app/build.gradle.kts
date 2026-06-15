@@ -11,8 +11,8 @@ android {
         applicationId = "com.mehdigm.compiler"
         minSdk = 26
         targetSdk = 34
-        versionCode = 18
-        versionName = "3.2.9"
+        versionCode = 19
+        versionName = "3.3.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
