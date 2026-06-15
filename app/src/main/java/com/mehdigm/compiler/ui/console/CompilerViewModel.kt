@@ -113,15 +113,10 @@ class CompilerViewModel : ViewModel() {
         )
     }
 
-    fun switchTab(index: Int, context: Context) {
+    fun switchTab(index: Int) {
         val s = _uiState.value
         if (s.activeTabIndex == index) return
-
-        val curTab = s.activeTab
-        if (curTab != null) {
-            updateCursorPosition(s.activeTabIndex, curTab.cursorLine, curTab.cursorColumn)
-        }
-
+        updateCursorPosition(s.activeTabIndex, s.tabs.getOrNull(s.activeTabIndex)?.cursorLine ?: 0, s.tabs.getOrNull(s.activeTabIndex)?.cursorColumn ?: 0)
         _uiState.value = s.copy(activeTabIndex = index)
     }
 
@@ -440,7 +435,8 @@ class CompilerViewModel : ViewModel() {
     fun handleUnsavedSave() {
         val s = _uiState.value
         val tabIdx = s.unsavedDialogTabIndex
-        val tab = s.tabs.getOrNull(tabIdx ?: s.activeTabIndex) ?: return
+        val targetIdx = tabIdx ?: s.activeTabIndex
+        val tab = s.tabs.getOrNull(targetIdx) ?: return
         val file = tab.file
         if (file != null) {
             viewModelScope.launch(Dispatchers.IO) {
@@ -449,25 +445,18 @@ class CompilerViewModel : ViewModel() {
                 } catch (_: Exception) { }
             }
         }
-        val s2 = _uiState.value
-        val tabs2 = s2.tabs.toMutableList()
-        if (tabIdx != null) {
-            val idx = tabIdx
-            if (idx in tabs2.indices) {
-                tabs2[idx] = tabs2[idx].copy(savedContent = tabs2[idx].content)
-            }
-            doCloseTab(idx)
-        } else {
-            val idx = s2.activeTabIndex
-            if (idx in tabs2.indices) {
-                tabs2[idx] = tabs2[idx].copy(savedContent = tabs2[idx].content)
-            }
-            _uiState.value = s2.copy(
-                tabs = tabs2,
-                showUnsavedDialog = false,
-                unsavedDialogTabIndex = null
-            )
+        val tabs = _uiState.value.tabs.toMutableList()
+        if (targetIdx in tabs.indices) {
+            tabs[targetIdx] = tabs[targetIdx].copy(savedContent = tabs[targetIdx].content)
         }
+        if (tabIdx != null) {
+            doCloseTab(tabIdx)
+        }
+        _uiState.value = _uiState.value.copy(
+            tabs = tabs,
+            showUnsavedDialog = false,
+            unsavedDialogTabIndex = null
+        )
     }
 
     fun handleUnsavedDismiss() {
