@@ -428,6 +428,7 @@ fun GSCompilerApp() {
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f)
+                            .imePadding()
                     ) {
                         CodeEditor(
                             text = uiState.editorText,
