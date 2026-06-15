@@ -31,6 +31,7 @@ class SoraEditorHandle {
         private set
     var searchCurrentIndex by mutableStateOf(0)
         private set
+    private var searchJustStarted = false
 
     fun undo() {
         editor?.undo()
@@ -52,6 +53,7 @@ class SoraEditorHandle {
         }
         searcher.stopSearch()
         searcher.setCyclicJumping(true)
+        searchJustStarted = true
         searcher.search(query, EditorSearcher.SearchOptions(true, false))
         syncSearchState()
     }
@@ -129,6 +131,10 @@ class SoraEditorHandle {
     }
 
     internal fun onSearchResult() {
+        if (searchJustStarted) {
+            searchJustStarted = false
+            editor?.getSearcher()?.gotoNext()
+        }
         syncSearchState()
     }
 }
