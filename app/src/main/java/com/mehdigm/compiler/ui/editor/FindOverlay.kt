@@ -192,7 +192,7 @@ fun FindOverlay(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    imageVector = Icons.Default.Edit,
+                    imageVector = Icons.Default.FindReplace,
                     contentDescription = null,
                     tint = GSColors.ErrorRed,
                     modifier = Modifier.size(16.dp)

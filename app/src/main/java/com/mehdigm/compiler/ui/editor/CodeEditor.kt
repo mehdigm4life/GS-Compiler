@@ -75,15 +75,14 @@ class SoraEditorHandle {
     }
 
     fun replaceCurrent(newText: String) {
-        editor?.getSearcher()?.replaceCurrent(newText)
+        editor?.getSearcher()?.replaceThis(newText)
         syncSearchState()
     }
 
     fun replaceAll(newText: String) {
         val searcher = editor?.getSearcher() ?: return
         if (!searcher.hasQuery()) return
-        val query = searcher.query ?: return
-        searcher.replaceAll(newText, query, EditorSearcher.SearchOptions(true, false))
+        searcher.replaceAll(newText)
         syncSearchState()
     }
 
