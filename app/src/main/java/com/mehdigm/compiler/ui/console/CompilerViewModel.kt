@@ -1,7 +1,6 @@
 package com.mehdigm.compiler.ui.console
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -25,7 +24,6 @@ import org.json.JSONObject
 
 private const val MAX_CONSOLE_ENTRIES = 500
 private const val FILE_READ_TIMEOUT_MS = 15_000L
-private const val CONTENT_CACHE_DIR = "content_cache"
 
 data class EditorTab(
     val id: Long = idCounter++,
@@ -90,8 +88,6 @@ class CompilerViewModel : ViewModel() {
         }
     }
 
-    private fun getActiveContent(): String = _uiState.value.activeTab?.content ?: ""
-
     private fun withActiveTab(block: (EditorTab) -> EditorTab) {
         val s = _uiState.value
         val tabs = s.tabs.toMutableList()
@@ -120,51 +116,13 @@ class CompilerViewModel : ViewModel() {
     fun switchTab(index: Int, context: Context) {
         val s = _uiState.value
         if (s.activeTabIndex == index) return
-        val oldIdx = s.activeTabIndex
-        val oldTab = s.tabs.getOrNull(oldIdx) ?: return
-        val newTab = s.tabs.getOrNull(index) ?: return
 
-        // Switch immediately to prevent further edits on old tab
-        _uiState.value = s.copy(activeTabIndex = index)
-
-        viewModelScope.launch(Dispatchers.IO) {
-            val cache = cacheDir(context)
-
-            // Save old tab to cache
-            if (oldTab.content.isNotEmpty()) {
-                contentFile(cache, oldTab.id).writeText(oldTab.content, Charsets.UTF_8)
-                savedFile(cache, oldTab.id).writeText(oldTab.savedContent, Charsets.UTF_8)
-            }
-
-            // Load new tab from cache (only if not already in memory)
-            var loadedContent = ""
-            var loadedSaved = ""
-            if (newTab.content.isEmpty()) {
-                val cf = contentFile(cache, newTab.id)
-                if (cf.exists()) loadedContent = cf.readText(Charsets.UTF_8)
-                val sf = savedFile(cache, newTab.id)
-                if (sf.exists()) loadedSaved = sf.readText(Charsets.UTF_8)
-            } else {
-                loadedContent = newTab.content
-                loadedSaved = newTab.savedContent
-            }
-
-            withContext(Dispatchers.Main) {
-                val cur = _uiState.value
-                val tabs = cur.tabs.toMutableList()
-                if (oldIdx in tabs.indices) {
-                    tabs[oldIdx] = tabs[oldIdx].copy(content = "", savedContent = "")
-                }
-                if (index in tabs.indices) {
-                    val nt = tabs[index]
-                    tabs[index] = nt.copy(
-                        content = if (nt.content.isEmpty()) loadedContent else nt.content,
-                        savedContent = if (nt.savedContent.isEmpty()) loadedSaved else nt.savedContent
-                    )
-                }
-                _uiState.value = cur.copy(tabs = tabs)
-            }
+        val curTab = s.activeTab
+        if (curTab != null) {
+            updateCursorPosition(s.activeTabIndex, curTab.cursorLine, curTab.cursorColumn)
         }
+
+        _uiState.value = s.copy(activeTabIndex = index)
     }
 
     fun updateCursorPosition(index: Int, line: Int, column: Int) {
@@ -179,141 +137,105 @@ class CompilerViewModel : ViewModel() {
         updateCursorPosition(_uiState.value.activeTabIndex, line, column)
     }
 
-private val SESSION_PREFS = "session_prefs"
-private val KEY_TABS = "tabs"
-private val KEY_ACTIVE_INDEX = "active_index"
-private val KEY_SESSION_DIR = "session_tabs"
+    private val SESSION_PREFS = "session_prefs"
+    private val KEY_TABS = "tabs"
+    private val KEY_ACTIVE_INDEX = "active_index"
 
-private val isSaving = java.util.concurrent.atomic.AtomicBoolean(false)
+    private val isSaving = java.util.concurrent.atomic.AtomicBoolean(false)
 
-fun saveSession(context: Context) {
-    if (!isSaving.compareAndSet(false, true)) return
-    val tabs = _uiState.value.tabs
-    val activeIndex = _uiState.value.activeTabIndex
-    viewModelScope.launch(Dispatchers.IO) {
-        try {
-            val sessionDir = File(context.filesDir, KEY_SESSION_DIR)
-            sessionDir.mkdirs()
-            sessionDir.listFiles()?.forEach { it.delete() }
-
-            val arr = JSONArray()
-            for ((i, tab) in tabs.withIndex()) {
-                // Get content from memory (active tab) or from cache (inactive tabs)
-                var tabContent = tab.content
-                var tabSaved = tab.savedContent
-                if (tabContent.isEmpty() || tabSaved.isEmpty()) {
-                    val cache = cacheDir(context)
-                    if (tabContent.isEmpty()) {
-                        val cf = contentFile(cache, tab.id)
-                        if (cf.exists()) tabContent = cf.readText(Charsets.UTF_8)
-                    }
-                    if (tabSaved.isEmpty()) {
-                        val sf = savedFile(cache, tab.id)
-                        if (sf.exists()) tabSaved = sf.readText(Charsets.UTF_8)
-                    }
+    fun saveSession(context: Context) {
+        if (!isSaving.compareAndSet(false, true)) return
+        val tabs = _uiState.value.tabs
+        val activeIndex = _uiState.value.activeTabIndex
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val arr = JSONArray()
+                for (tab in tabs) {
+                    val obj = JSONObject()
+                    tab.uri?.toString()?.let { obj.put("uri", it) }
+                    tab.file?.absolutePath?.let { obj.put("filePath", it) }
+                    obj.put("displayName", tab.displayName)
+                    obj.put("cursorLine", tab.cursorLine)
+                    obj.put("cursorColumn", tab.cursorColumn)
+                    arr.put(obj)
                 }
 
-                val contentFile = File(sessionDir, "tab_${i}_content.pwn")
-                contentFile.writeText(tabContent, Charsets.UTF_8)
-
-                val savedFile = File(sessionDir, "tab_${i}_saved.pwn")
-                savedFile.writeText(tabSaved, Charsets.UTF_8)
-
-                val obj = JSONObject()
-                tab.uri?.toString()?.let { obj.put("uri", it) }
-                tab.file?.absolutePath?.let { obj.put("filePath", it) }
-                obj.put("displayName", tab.displayName)
-                obj.put("cursorLine", tab.cursorLine)
-                obj.put("cursorColumn", tab.cursorColumn)
-                obj.put("contentFile", contentFile.absolutePath)
-                obj.put("savedFile", savedFile.absolutePath)
-                arr.put(obj)
+                context.getSharedPreferences(SESSION_PREFS, Context.MODE_PRIVATE)
+                    .edit()
+                    .putString(KEY_TABS, arr.toString())
+                    .putInt(KEY_ACTIVE_INDEX, activeIndex)
+                    .apply()
+                AppLogger.i("GSCompiler", "Session saved: ${tabs.size} tabs")
+            } catch (e: Exception) {
+                AppLogger.e("GSCompiler", "Failed to save session: ${e.message}")
+            } finally {
+                isSaving.set(false)
             }
-
-            context.getSharedPreferences(SESSION_PREFS, Context.MODE_PRIVATE)
-                .edit()
-                .putString(KEY_TABS, arr.toString())
-                .putInt(KEY_ACTIVE_INDEX, activeIndex)
-                .apply()
-            AppLogger.i("GSCompiler", "Session saved: ${tabs.size} tabs")
-        } catch (e: Exception) {
-            AppLogger.e("GSCompiler", "Failed to save session: ${e.message}")
-        } finally {
-            isSaving.set(false)
         }
     }
-}
 
-fun restoreSession(context: Context) {
-    viewModelScope.launch(Dispatchers.IO) {
-        try {
-            val prefs = context.getSharedPreferences(SESSION_PREFS, Context.MODE_PRIVATE)
-            val tabsJson = prefs.getString(KEY_TABS, null) ?: return@launch
-            val activeIndex = prefs.getInt(KEY_ACTIVE_INDEX, 0)
-            val arr = JSONArray(tabsJson)
+    fun restoreSession(context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val prefs = context.getSharedPreferences(SESSION_PREFS, Context.MODE_PRIVATE)
+                val tabsJson = prefs.getString(KEY_TABS, null) ?: return@launch
+                val activeIndex = prefs.getInt(KEY_ACTIVE_INDEX, 0)
+                val arr = JSONArray(tabsJson)
 
-            val cache = cacheDir(context)
-            cache.listFiles()?.forEach { it.delete() }
+                val tabs = mutableListOf<EditorTab>()
+                for (i in 0 until arr.length()) {
+                    val obj = arr.getJSONObject(i)
+                    val uri = if (obj.has("uri")) Uri.parse(obj.getString("uri")) else null
+                    val filePath = if (obj.has("filePath")) obj.getString("filePath") else null
+                    val file = if (filePath != null) File(filePath) else null
+                    val displayName = obj.optString("displayName", "untitled.pwn")
+                    val cursorLine = obj.optInt("cursorLine", 0)
+                    val cursorColumn = obj.optInt("cursorColumn", 0)
 
-            val tabs = mutableListOf<EditorTab>()
-            for (i in 0 until arr.length()) {
-                val obj = arr.getJSONObject(i)
-                val uri = if (obj.has("uri")) Uri.parse(obj.getString("uri")) else null
-                val filePath = if (obj.has("filePath")) obj.getString("filePath") else null
-                val file = if (filePath != null) File(filePath) else null
-                val displayName = obj.optString("displayName", "untitled.pwn")
+                    var content = ""
+                    if (file != null && file.exists()) {
+                        try {
+                            content = FileManager.readFileContent(file)
+                        } catch (e: Exception) {
+                            AppLogger.e("GSCompiler", "Failed to read ${file.path}: ${e.message}")
+                        }
+                    } else if (uri != null) {
+                        try {
+                            val c = FileManager.readFromUri(context, uri)
+                            if (c != null) content = c
+                        } catch (e: Exception) {
+                            AppLogger.e("GSCompiler", "Failed to read URI $uri: ${e.message}")
+                        }
+                    }
 
-                val contentFile = if (obj.has("contentFile")) obj.getString("contentFile") else null
-                val content = if (contentFile != null) {
-                    File(contentFile).takeIf { it.exists() }?.readText(Charsets.UTF_8) ?: ""
-                } else {
-                    val inline = obj.optString("content", "")
-                    if (inline.length > 1_048_576) "" else inline
+                    val tab = EditorTab(
+                        uri = uri,
+                        file = file,
+                        content = content,
+                        savedContent = content,
+                        displayName = displayName,
+                        cursorLine = cursorLine,
+                        cursorColumn = cursorColumn,
+                    )
+                    tabs.add(tab)
                 }
 
-                val savedFile = if (obj.has("savedFile")) obj.getString("savedFile") else null
-                val savedContent = if (savedFile != null) {
-                    File(savedFile).takeIf { it.exists() }?.readText(Charsets.UTF_8) ?: ""
-                } else {
-                    val inline = obj.optString("savedContent", "")
-                    if (inline.length > 1_048_576) "" else inline
+                if (tabs.isNotEmpty()) {
+                    val s = _uiState.value
+                    val activeIdx = activeIndex.coerceIn(0, tabs.lastIndex)
+                    _uiState.value = s.copy(
+                        tabs = tabs,
+                        activeTabIndex = activeIdx,
+                        sessionVersion = s.sessionVersion + 1,
+                    )
+                    AppLogger.i("GSCompiler", "Session restored: ${tabs.size} tabs")
                 }
-
-                // Create tab (content in memory briefly), write to cache, then clear if inactive
-                val tab = EditorTab(
-                    uri = uri,
-                    file = file,
-                    content = content,
-                    savedContent = savedContent,
-                    displayName = displayName,
-                    cursorLine = obj.optInt("cursorLine", 0),
-                    cursorColumn = obj.optInt("cursorColumn", 0),
-                )
-                contentFile(cache, tab.id).writeText(tab.content, Charsets.UTF_8)
-                savedFile(cache, tab.id).writeText(tab.savedContent, Charsets.UTF_8)
-
-                tabs.add(
-                    if (i == activeIndex) tab
-                    else tab.copy(content = "", savedContent = "")
-                )
+            } catch (e: Exception) {
+                AppLogger.e("GSCompiler", "Failed to restore session: ${e.message}")
+                context.getSharedPreferences(SESSION_PREFS, Context.MODE_PRIVATE).edit().clear().apply()
             }
-            if (tabs.isNotEmpty()) {
-                val activeIdx = activeIndex.coerceIn(0, tabs.lastIndex)
-                val s = _uiState.value
-                _uiState.value = s.copy(
-                    tabs = tabs,
-                    activeTabIndex = activeIdx,
-                    sessionVersion = s.sessionVersion + 1,
-                )
-                AppLogger.i("GSCompiler", "Session restored: ${tabs.size} tabs")
-            }
-        } catch (e: Exception) {
-            AppLogger.e("GSCompiler", "Failed to restore session: ${e.message}")
-            // Clear corrupted session data so the app can start fresh
-            context.getSharedPreferences(SESSION_PREFS, Context.MODE_PRIVATE).edit().clear().apply()
         }
     }
-}
 
     fun loadFromUri(context: Context, uri: Uri) {
         _uiState.value = _uiState.value.copy(
@@ -333,7 +255,7 @@ fun restoreSession(context: Context) {
                 if (content != null) {
                     val displayName = FileManager.getFileNameFromUri(context, uri)
                     val file = if (uri.scheme == "file") File(uri.path!!) else null
-                    addTab(content, uri = uri, file = file, displayName = displayName, context = context)
+                    addTab(content, uri = uri, file = file, displayName = displayName)
                 } else {
                     fail("Failed to read file from URI")
                 }
@@ -369,32 +291,17 @@ fun restoreSession(context: Context) {
         }
     }
 
-    private fun addTab(content: String, uri: Uri? = null, file: File? = null, displayName: String? = null, context: Context? = null) {
+    private fun addTab(content: String, uri: Uri? = null, file: File? = null, displayName: String? = null) {
         val s = _uiState.value
-        val oldIdx = s.activeTabIndex
-        val oldTab = s.tabs.getOrNull(oldIdx)
-
-        // Save old tab content to cache before clearing (if context available)
-        if (context != null && oldTab != null && oldTab.content.isNotEmpty()) {
-            val oldContent = oldTab.content
-            val oldSaved = oldTab.savedContent
-            viewModelScope.launch(Dispatchers.IO) {
-                val cache = cacheDir(context)
-                contentFile(cache, oldTab.id).writeText(oldContent, Charsets.UTF_8)
-                savedFile(cache, oldTab.id).writeText(oldSaved, Charsets.UTF_8)
-            }
-        }
 
         val existing = when {
             uri != null -> s.tabs.indexOfFirst { uri == it.uri }
             file != null -> s.tabs.indexOfFirst { file.absolutePath == it.file?.absolutePath }
             else -> -1
         }
+
         if (existing >= 0) {
             val tabs = s.tabs.toMutableList()
-            if (oldIdx in tabs.indices && oldIdx != existing) {
-                tabs[oldIdx] = tabs[oldIdx].copy(content = "", savedContent = "")
-            }
             tabs[existing] = tabs[existing].copy(
                 content = content,
                 savedContent = content,
@@ -402,33 +309,39 @@ fun restoreSession(context: Context) {
                 file = file ?: tabs[existing].file,
                 displayName = displayName ?: tabs[existing].displayName
             )
+            val newEntries = s.consoleEntries + listOf(
+                ConsoleEntry("=== File reloaded ===", isError = false),
+                ConsoleEntry("Size: ${content.length} chars", isError = false)
+            )
+            val trimmedEntries = if (newEntries.size > MAX_CONSOLE_ENTRIES) {
+                newEntries.drop(newEntries.size - MAX_CONSOLE_ENTRIES)
+            } else newEntries
             _uiState.value = s.copy(
                 tabs = tabs,
                 activeTabIndex = existing,
+                consoleEntries = trimmedEntries,
                 isReadingFile = false
             )
             return
         }
-    val name = displayName ?: file?.name ?: "untitled.pwn"
-    val tab = EditorTab(uri = uri, file = file, content = content, savedContent = content, displayName = name)
-    val tabs = s.tabs.toMutableList()
-    if (oldIdx in tabs.indices) {
-        tabs[oldIdx] = tabs[oldIdx].copy(content = "", savedContent = "")
-    }
-    tabs.add(tab)
-    val newEntries = s.consoleEntries + listOf(
-        ConsoleEntry("=== File loaded ===", isError = false),
-        ConsoleEntry("Size: ${content.length} chars", isError = false)
-    )
-    val trimmedEntries = if (newEntries.size > MAX_CONSOLE_ENTRIES) {
-        newEntries.drop(newEntries.size - MAX_CONSOLE_ENTRIES)
-    } else newEntries
-    _uiState.value = s.copy(
-        tabs = tabs,
-        activeTabIndex = tabs.lastIndex,
-        consoleEntries = trimmedEntries,
-        isReadingFile = false
-    )
+
+        val name = displayName ?: file?.name ?: "untitled.pwn"
+        val tab = EditorTab(uri = uri, file = file, content = content, savedContent = content, displayName = name)
+        val tabs = s.tabs.toMutableList()
+        tabs.add(tab)
+        val newEntries = s.consoleEntries + listOf(
+            ConsoleEntry("=== File loaded ===", isError = false),
+            ConsoleEntry("Size: ${content.length} chars", isError = false)
+        )
+        val trimmedEntries = if (newEntries.size > MAX_CONSOLE_ENTRIES) {
+            newEntries.drop(newEntries.size - MAX_CONSOLE_ENTRIES)
+        } else newEntries
+        _uiState.value = s.copy(
+            tabs = tabs,
+            activeTabIndex = tabs.lastIndex,
+            consoleEntries = trimmedEntries,
+            isReadingFile = false
+        )
         AppLogger.i("GSCompiler", "Loaded file (${content.length} chars) from: ${uri ?: file}")
     }
 
@@ -536,25 +449,37 @@ fun restoreSession(context: Context) {
                 } catch (_: Exception) { }
             }
         }
+        val s2 = _uiState.value
+        val tabs2 = s2.tabs.toMutableList()
         if (tabIdx != null) {
-            withActiveTab { it.copy(savedContent = it.content) }
-            doCloseTab(tabIdx)
+            val idx = tabIdx
+            if (idx in tabs2.indices) {
+                tabs2[idx] = tabs2[idx].copy(savedContent = tabs2[idx].content)
+            }
+            doCloseTab(idx)
+        } else {
+            val idx = s2.activeTabIndex
+            if (idx in tabs2.indices) {
+                tabs2[idx] = tabs2[idx].copy(savedContent = tabs2[idx].content)
+            }
+            _uiState.value = s2.copy(
+                tabs = tabs2,
+                showUnsavedDialog = false,
+                unsavedDialogTabIndex = null
+            )
         }
-        _uiState.value = _uiState.value.copy(
-            showUnsavedDialog = false,
-            unsavedDialogTabIndex = null
-        )
     }
 
     fun handleUnsavedDismiss() {
         val tabIdx = _uiState.value.unsavedDialogTabIndex
         if (tabIdx != null) {
             doCloseTab(tabIdx)
+        } else {
+            _uiState.value = _uiState.value.copy(
+                showUnsavedDialog = false,
+                unsavedDialogTabIndex = null
+            )
         }
-        _uiState.value = _uiState.value.copy(
-            showUnsavedDialog = false,
-            unsavedDialogTabIndex = null
-        )
     }
 
     fun handleUnsavedCancel() {
@@ -604,7 +529,7 @@ fun restoreSession(context: Context) {
             addConsoleEntry("\n=== Compilation started ===", isError = false)
             addConsoleEntry("Input: ${tab.displayName}", isError = false)
 
-            val content = getActiveContent()
+            val content = tab.content
             val file = withContext(Dispatchers.IO) {
                 val f = tab.file ?: File(context.cacheDir, tab.displayName)
                 f.writeText(content, Charsets.UTF_8)
@@ -667,13 +592,4 @@ fun restoreSession(context: Context) {
     private fun addConsoleEntry(text: String, isError: Boolean) {
         _consoleChannel.trySend(ConsoleEntry(text = text, isError = isError))
     }
-
-    // -- Content cache for lazy loading (QuickEdit-style) --
-
-    private fun cacheDir(context: Context): File =
-        File(context.filesDir, CONTENT_CACHE_DIR).also { it.mkdirs() }
-
-    private fun contentFile(cache: File, tabId: Long): File = File(cache, "${tabId}_c.pwn")
-
-    private fun savedFile(cache: File, tabId: Long): File = File(cache, "${tabId}_s.pwn")
 }
