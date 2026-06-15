@@ -133,7 +133,10 @@ class SoraEditorHandle {
     internal fun onSearchResult() {
         if (searchJustStarted) {
             searchJustStarted = false
-            editor?.getSearcher()?.gotoNext()
+            val searcher = editor?.getSearcher()
+            if (searcher != null && searcher.hasQuery()) {
+                searcher.gotoNext()
+            }
         }
         syncSearchState()
     }
