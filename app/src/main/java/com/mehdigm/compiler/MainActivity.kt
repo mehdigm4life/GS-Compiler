@@ -499,9 +499,10 @@ fun GSCompilerApp() {
 
             if (showConsoleView) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(GSColors.TerminalBackground)
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(GSColors.TerminalBackground)
+                            .statusBarsPadding()
                 ) {
                     Row(
                         modifier = Modifier
@@ -517,13 +518,6 @@ fun GSCompilerApp() {
                                 tint = GSColors.White
                             )
                         }
-                        Text(
-                            text = "[Console]",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = GSColors.TerminalGreen,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(start = 4.dp)
-                        )
                     }
 
                     ConsoleView(
