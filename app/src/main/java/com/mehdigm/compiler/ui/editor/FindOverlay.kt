@@ -191,11 +191,12 @@ fun FindOverlay(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = Icons.Default.FindReplace,
-                    contentDescription = null,
-                    tint = GSColors.ErrorRed,
-                    modifier = Modifier.size(16.dp)
+                Text(
+                    text = "Replace:",
+                    color = GSColors.ErrorRed,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = FontFamily.Monospace
                 )
 
                 Spacer(modifier = Modifier.width(8.dp))
