@@ -6,7 +6,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
-import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
@@ -50,9 +49,7 @@ import com.mehdigm.compiler.ui.editor.SoraEditorHandle
 import com.mehdigm.compiler.ui.theme.GSColors
 import com.mehdigm.compiler.ui.theme.GSCompilerTheme
 import com.mehdigm.compiler.utils.AppLogger
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 class MainActivity : ComponentActivity() {
     val pendingIntentUri = mutableStateOf<Uri?>(null)
@@ -222,22 +219,11 @@ fun GSCompilerApp() {
             confirmButton = {
                 TextButton(
                     onClick = {
-                            val isExit = uiState.unsavedDialogTabIndex == null
-                            val idx = uiState.unsavedDialogTabIndex ?: uiState.activeTabIndex
-                            val tab = uiState.tabs.getOrNull(idx)
-                            if (tab != null) {
-                                runBlocking(Dispatchers.IO) {
-                                    if (tab.file != null) {
-                                        FileManager.writeFileContent(tab.file, tab.content)
-                                    } else if (tab.uri != null) {
-                                        FileManager.writeToUri(context, tab.uri, tab.content)
-                                    }
-                                }
-                            }
-                            viewModel.handleUnsavedSave()
-                            if (isExit) {
-                                activity?.finish()
-                            }
+                        val isExit = uiState.unsavedDialogTabIndex == null
+                        viewModel.handleUnsavedSave()
+                        if (isExit) {
+                            activity?.finish()
+                        }
                     }
                 ) {
                     Text("Save", color = GSColors.AccentGold, fontWeight = FontWeight.Bold)
@@ -430,10 +416,9 @@ fun GSCompilerApp() {
                         tabs = uiState.tabs,
                         activeIndex = uiState.activeTabIndex,
                         onTabClick = { index ->
-                            val curIdx = uiState.activeTabIndex
-                            if (curIdx != index) {
-                                viewModel.updateCursorPosition(curIdx, editorHandle.getCursorLine(), editorHandle.getCursorColumn())
-                                viewModel.switchTab(index, context)
+                            if (uiState.activeTabIndex != index) {
+                                viewModel.updateCursorPosition(uiState.activeTabIndex, editorHandle.getCursorLine(), editorHandle.getCursorColumn())
+                                viewModel.switchTab(index)
                             }
                         },
                         onTabClose = { viewModel.requestCloseTab(it) }
