@@ -163,9 +163,7 @@ fun GSCompilerApp() {
         pendingUri?.let { uri ->
             viewModel.updateCursorPosition(uiState.activeTabIndex, editorHandle.getCursorLine(), editorHandle.getCursorColumn())
             viewModel.loadFromUri(context, uri)
-            if (mainActivity != null) {
-                mainActivity.pendingIntentUri.value = null
-            }
+            mainActivity.pendingIntentUri.value = null
         }
     }
 

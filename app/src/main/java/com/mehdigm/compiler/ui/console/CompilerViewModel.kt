@@ -368,8 +368,8 @@ class CompilerViewModel : ViewModel() {
         }
 
         val name = displayName ?: file?.name ?: "untitled.pwn"
-        val tabId = EditorTab.Companion.idCounter
-        val tab = EditorTab(id = tabId, uri = uri, file = file, displayName = name, isDirty = false, contentLoaded = false)
+        val tab = EditorTab(uri = uri, file = file, displayName = name, isDirty = false, contentLoaded = false)
+        val tabId = tab.id
         val tabs = s.tabs.toMutableList()
         tabs.add(tab)
         setEditorText(tabId, content)

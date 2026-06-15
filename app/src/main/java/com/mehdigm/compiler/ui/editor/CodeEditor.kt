@@ -139,7 +139,7 @@ private val editors = mutableMapOf<Long, EditorHolder>()
 private val editorLRU = mutableListOf<Long>()
 private const val MAX_EDITORS = 10
 
-private fun getOrCreateEditor(context: Context, tabId: Long, handle: SoraEditorHandle): SoraCodeEditor {
+private fun getOrCreateEditor(context: Context, tabId: Long, @Suppress("UNUSED_PARAMETER") handle: SoraEditorHandle): SoraCodeEditor {
     editorLRU.remove(tabId)
     editorLRU.add(tabId)
     if (tabId !in editors && editors.size >= MAX_EDITORS) {
@@ -240,7 +240,7 @@ fun CodeEditor(
     }
 
     val editor = remember(tabId, resetCounter) {
-        getOrCreateEditor(context, tabId, editorHandle).also { e ->
+        getOrCreateEditor(context, tabId, editorHandle).also {
             editors[tabId]?.handle = editorHandle
         }
     }
