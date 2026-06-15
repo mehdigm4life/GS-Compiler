@@ -39,6 +39,7 @@ fun FindOverlay(
     modifier: Modifier = Modifier
 ) {
     var searchQuery by remember { mutableStateOf("") }
+    var replaceText by remember { mutableStateOf("") }
     var gotoLineText by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -184,7 +185,100 @@ fun FindOverlay(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(6.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = null,
+                    tint = GSColors.ErrorRed,
+                    modifier = Modifier.size(16.dp)
+                )
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(34.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(GSColors.DarkBackground)
+                        .border(1.dp, GSColors.ErrorRed.copy(alpha = 0.3f), RoundedCornerShape(6.dp))
+                ) {
+                    BasicTextField(
+                        value = replaceText,
+                        onValueChange = { replaceText = it },
+                        singleLine = true,
+                        textStyle = TextStyle(
+                            color = GSColors.White,
+                            fontSize = 14.sp,
+                            fontFamily = FontFamily.Monospace
+                        ),
+                        cursorBrush = SolidColor(GSColors.ErrorRed),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 10.dp),
+                        decorationBox = { innerTextField ->
+                            Box(contentAlignment = Alignment.CenterStart) {
+                                if (replaceText.isEmpty()) {
+                                    Text(
+                                        text = "Replace with...",
+                                        color = GSColors.TextGray,
+                                        fontSize = 13.sp,
+                                        fontFamily = FontFamily.Monospace
+                                    )
+                                }
+                                innerTextField()
+                            }
+                        }
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(4.dp))
+
+                TextButton(
+                    onClick = {
+                        if (searchQuery.isNotEmpty() && replaceText.isNotEmpty() && editorHandle.searchMatchCount > 0) {
+                            editorHandle.replaceCurrent(replaceText)
+                        }
+                    },
+                    enabled = searchQuery.isNotEmpty() && editorHandle.searchMatchCount > 0,
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = GSColors.ErrorRed
+                    ),
+                    modifier = Modifier.height(32.dp)
+                ) {
+                    Text(
+                        "Replace",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                TextButton(
+                    onClick = {
+                        if (searchQuery.isNotEmpty()) {
+                            editorHandle.replaceAll(replaceText)
+                        }
+                    },
+                    enabled = searchQuery.isNotEmpty() && editorHandle.searchMatchCount > 0,
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = GSColors.ErrorRed
+                    ),
+                    modifier = Modifier.height(32.dp)
+                ) {
+                    Text(
+                        "Replace All",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
