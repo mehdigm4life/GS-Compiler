@@ -1968,6 +1968,9 @@ int pc_compile(const char *infile, const char *outfile, const char *includes[], 
     current_indent = 0;
     current_tag = 0;
     func_sp = -1;
+    g_cond_depth = 0;
+    g_num_included_files = 0;
+    memset(g_included_files, 0, sizeof(g_included_files));
 
     /* Initialize include list */
     g_numincludes = 0;
