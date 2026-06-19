@@ -7,15 +7,6 @@ android {
     namespace = "com.mehdigm.compiler"
     compileSdk = 34
 
-    signingConfigs {
-        create("release") {
-            storeFile = file("/tmp/release.keystore")
-            storePassword = "android"
-            keyAlias = "release"
-            keyPassword = "android"
-        }
-    }
-
     defaultConfig {
         applicationId = "com.mehdigm.compiler"
         minSdk = 26
@@ -37,7 +28,6 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = true
-            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
