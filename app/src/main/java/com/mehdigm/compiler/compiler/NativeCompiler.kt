@@ -4,6 +4,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 
+enum class CompilerVersion(val id: Int, val displayName: String, val description: String) {
+    SAMP(0, "Pawn 3.10.7", "Recommended for SA-MP gamemodes"),
+    OMP(1, "Pawn 3.10.11", "Recommended for open.mp gamemodes");
+
+    companion object {
+        fun fromId(id: Int): CompilerVersion =
+            entries.firstOrNull { it.id == id } ?: SAMP
+    }
+}
+
 class NativeCompiler {
 
     companion object {
@@ -25,6 +35,7 @@ class NativeCompiler {
         inputPath: String,
         outputPath: String,
         includePaths: Array<String>?,
+        compilerVersion: Int,
         callback: CompilationCallback?
     ): Boolean
 
@@ -32,6 +43,7 @@ class NativeCompiler {
         inputFile: File,
         outputFile: File,
         includePaths: List<String> = emptyList(),
+        compilerVersion: CompilerVersion = CompilerVersion.SAMP,
         callback: CompilationCallback? = null
     ): CompilationResult = withContext(Dispatchers.IO) {
         ensureLoaded()
@@ -48,6 +60,7 @@ class NativeCompiler {
                 inputFile.absolutePath,
                 outputFile.absolutePath,
                 if (includePaths.isEmpty()) null else includePaths.toTypedArray(),
+                compilerVersion.id,
                 outputCallback
             )
         } catch (e: Exception) {

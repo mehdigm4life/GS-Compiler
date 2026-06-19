@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mehdigm.compiler.compiler.CompilationCallback
+import com.mehdigm.compiler.compiler.CompilerVersion
 import com.mehdigm.compiler.compiler.NativeCompiler
 import com.mehdigm.compiler.storage.FileManager
 import com.mehdigm.compiler.utils.AppLogger
@@ -58,6 +59,9 @@ data class CompilerUiState(
     val unsavedDialogTabIndex: Int? = null,
     val requestSaveAs: Boolean = false,
     val sessionVersion: Int = 0,
+    val showCompilerPicker: Boolean = false,
+    val selectedCompilerVersion: CompilerVersion = CompilerVersion.SAMP,
+    val navigateToConsole: Boolean = false,
 ) {
     val activeTab: EditorTab? get() = tabs.getOrNull(activeTabIndex)
     val editorText: String get() = activeTab?.content ?: ""
@@ -503,7 +507,7 @@ class CompilerViewModel : ViewModel() {
         )
     }
 
-    fun compile(context: Context) {
+    fun requestCompile() {
         val s = _uiState.value
         val tab = s.activeTab ?: return
 
@@ -512,15 +516,45 @@ class CompilerViewModel : ViewModel() {
             return
         }
 
-        viewModelScope.launch(Dispatchers.Main) {
-            _uiState.value = _uiState.value.copy(isCompiling = true, isCompileSuccess = null)
+        _uiState.value = s.copy(showCompilerPicker = true)
+    }
 
-            addConsoleEntry("\n=== Compilation started ===", isError = false)
+    fun selectCompilerVersion(version: CompilerVersion) {
+        _uiState.value = _uiState.value.copy(
+            selectedCompilerVersion = version,
+            showCompilerPicker = false
+        )
+        compileWithVersion(version)
+    }
+
+    fun dismissCompilerPicker() {
+        _uiState.value = _uiState.value.copy(showCompilerPicker = false)
+    }
+
+    fun resetNavigateToConsole() {
+        _uiState.value = _uiState.value.copy(navigateToConsole = false)
+    }
+
+    private fun compileWithVersion(version: CompilerVersion) {
+        val s = _uiState.value
+        val tab = s.activeTab ?: return
+
+        viewModelScope.launch(Dispatchers.Main) {
+            /* Clear console first */
+            _uiState.value = _uiState.value.copy(
+                consoleEntries = emptyList(),
+                isCompiling = true,
+                isCompileSuccess = null,
+                navigateToConsole = true
+            )
+
+            addConsoleEntry("=== Compilation started ===", isError = false)
+            addConsoleEntry("Compiler: ${version.displayName}", isError = false)
             addConsoleEntry("Input: ${tab.displayName}", isError = false)
 
             val content = tab.content
             val file = withContext(Dispatchers.IO) {
-                val f = tab.file ?: File(context.cacheDir, tab.displayName)
+                val f = tab.file ?: File(contextCache, tab.displayName)
                 f.writeText(content, Charsets.UTF_8)
                 f
             }
@@ -546,6 +580,7 @@ class CompilerViewModel : ViewModel() {
                     inputFile = file,
                     outputFile = outputFile,
                     includePaths = includePaths,
+                    compilerVersion = version,
                     callback = callback
                 )
             }
@@ -562,6 +597,22 @@ class CompilerViewModel : ViewModel() {
                 isCompileSuccess = result.success
             )
         }
+    }
+
+    /* Store context reference for compilation */
+    private var contextCache: Context? = null
+
+    fun compile(context: Context) {
+        contextCache = context
+        val s = _uiState.value
+        val tab = s.activeTab ?: return
+
+        if (!tab.displayName.endsWith(".pwn", ignoreCase = true)) {
+            addConsoleEntry("Not a .pwn file: ${tab.displayName}", isError = true)
+            return
+        }
+
+        _uiState.value = s.copy(showCompilerPicker = true)
     }
 
     fun toggleConsole() {
