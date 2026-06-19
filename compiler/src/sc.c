@@ -777,16 +777,44 @@ static int pc_handle_preproc(void) {
         return pc_handle_include(incname);
     }
 
+    /*****************************************************************
+     * #define — actually define the macro symbol so include guards work
+     *****************************************************************/
     if (strcmp(directive, "define") == 0) {
-        /* Skip the rest of the line */
         int c;
-        do {
-            c = lex_getc();
-        } while (c != EOF && c != '\n');
-        if (c == '\n') g_lex.line--;
+        do { c = lex_getc(); } while (c == ' ' || c == '\t');
+        if (c != EOF && c != '\n') {
+            char macroname[64];
+            int idx = 0;
+            while (idx < 63 && (isalnum(c) || c == '_')) {
+                macroname[idx++] = (char)c;
+                c = lex_getc();
+            }
+            macroname[idx] = '\0';
+            /* Skip the rest of the line */
+            while (c != EOF && c != '\n') c = lex_getc();
+            if (c == '\n') g_lex.line--;
+            /* Register the macro as a symbol (include-guard use) */
+            if (idx > 0 && pc_find_symbol(macroname) == NULL) {
+                symbol *sym = (symbol *)calloc(1, sizeof(symbol));
+                if (sym) {
+                    strncpy(sym->name, macroname, sNAMEMAX);
+                    sym->name[sNAMEMAX] = '\0';
+                    sym->kind = KIND_CONSTANT;
+                    sym->tag = 0;
+                    sym->vclass = 0;
+                    unsigned int h = hash_str(macroname);
+                    sym->next = sym_table_hash[h];
+                    sym_table_hash[h] = sym;
+                }
+            }
+        }
         return 1;
     }
 
+    /*****************************************************************
+     * #endinput — return to parent file
+     *****************************************************************/
     if (strcmp(directive, "endinput") == 0) {
         /* Pop back to parent file if inside an include */
         if (lex_stack_ptr >= 0) {
@@ -798,13 +826,284 @@ static int pc_handle_preproc(void) {
         return 1;
     }
 
+    /*****************************************************************
+     * #if / #ifdef / #ifndef — conditional compilation
+     * Keep a stack so we can handle nesting.
+     *****************************************************************/
     if (strcmp(directive, "if") == 0 ||
-        strcmp(directive, "else") == 0 ||
-        strcmp(directive, "elseif") == 0 ||
-        strcmp(directive, "endif") == 0 ||
         strcmp(directive, "ifdef") == 0 ||
-        strcmp(directive, "ifndef") == 0 ||
-        strcmp(directive, "pragma") == 0 ||
+        strcmp(directive, "ifndef") == 0) {
+
+        int expect_true = 1;
+        if (strcmp(directive, "ifndef") == 0)
+            expect_true = 0;
+
+        /* Read the condition: "defined X", "defined(X)", or bare symbol */
+        int c;
+        do { c = lex_getc(); } while (c == ' ' || c == '\t');
+
+        /* Skip 'defined' keyword + optional '(' + optional whitespace */
+        if (c == 'd') {
+            char buf[16];
+            int bi = 0;
+            while (bi < 15 && isalpha(c)) { buf[bi++] = (char)c; c = lex_getc(); }
+            buf[bi] = '\0';
+            if (strcmp(buf, "defined") == 0) {
+                while (c == ' ' || c == '\t') c = lex_getc();
+                if (c == '(') { c = lex_getc(); while (c == ' ' || c == '\t') c = lex_getc(); }
+            }
+        }
+
+        /* Read the symbol name */
+        char condsym[64];
+        int si = 0;
+        while (si < 63 && (isalnum(c) || c == '_')) {
+            condsym[si++] = (char)c;
+            c = lex_getc();
+        }
+        condsym[si] = '\0';
+
+        /* Skip the rest of the line (closing paren etc.) */
+        while (c != EOF && c != '\n') c = lex_getc();
+        if (c == '\n') g_lex.line--;
+
+        /* Evaluate: is the symbol defined? */
+        int sym_found = (pc_find_symbol(condsym) != NULL);
+        int condition = expect_true ? sym_found : !sym_found;
+        int should_skip = condition ? 0 : 1;
+
+        /* Also skip if we are already inside a skipped conditional */
+        if (g_cond_depth > 0 && g_cond_stack[g_cond_depth - 1])
+            should_skip = 1;
+
+        if (g_cond_depth < MAX_COND_DEPTH) {
+            g_cond_stack[g_cond_depth++] = should_skip ? 1 : 0;
+        }
+
+        /* If we should skip, we must consume lines until #else/#endif */
+        if (should_skip) {
+            int nest = 0;
+            for (;;) {
+                c = lex_getc();
+                if (c == EOF) break;
+                if (c == '\n') { g_lex.line++; continue; }
+                if (c == '#') {
+                    char dir[64]; int di = 0;
+                    /* read directive name */
+                    c = lex_getc();
+                    while (di < 63 && (isalpha(c) || c == '_')) {
+                        dir[di++] = (char)c;
+                        c = lex_getc();
+                    }
+                    dir[di] = '\0';
+                    if (strcmp(dir, "if") == 0 || strcmp(dir, "ifdef") == 0 || strcmp(dir, "ifndef") == 0) {
+                        nest++;
+                        /* skip rest of line */
+                        while (c != EOF && c != '\n') c = lex_getc();
+                    } else if (strcmp(dir, "else") == 0 || strcmp(dir, "elseif") == 0) {
+                        if (nest == 0) {
+                            /* We hit #else while skipping — switch to active */
+                            /* But only if the original #if was false (not nested skip) */
+                            if (g_cond_depth > 0 && !(g_cond_depth > 1 && g_cond_stack[g_cond_depth - 2]))
+                                g_cond_stack[g_cond_depth - 1] = 0;
+                            /* skip rest of #else line */
+                            while (c != EOF && c != '\n') c = lex_getc();
+                            /* Someone else has to process the #else body next time */
+                            break;
+                        }
+                        while (c != EOF && c != '\n') c = lex_getc();
+                    } else if (strcmp(dir, "endif") == 0) {
+                        if (nest == 0) {
+                            if (g_cond_depth > 0) g_cond_depth--;
+                            /* skip rest of line */
+                            while (c != EOF && c != '\n') c = lex_getc();
+                            break;
+                        }
+                        nest--;
+                        while (c != EOF && c != '\n') c = lex_getc();
+                    } else {
+                        /* skip the rest of the line */
+                        while (c != EOF && c != '\n') c = lex_getc();
+                    }
+                }
+            }
+        }
+
+        return 1;
+    }
+
+    /*****************************************************************
+     * #else — toggle between skip/active within current level
+     *****************************************************************/
+    if (strcmp(directive, "else") == 0) {
+        int c;
+        do { c = lex_getc(); } while (c != EOF && c != '\n');
+        if (c == '\n') g_lex.line--;
+
+        if (g_cond_depth > 0) {
+            /* Check if we hit #else while skipping */
+            if (g_cond_stack[g_cond_depth - 1]) {
+                /* Only switch to active if the parent #if/#ifdef/#ifndef was false
+                 * and we haven't already found a true branch.
+                 * Since we track simple skip/not-skip, just toggle. */
+                g_cond_stack[g_cond_depth - 1] = 0;
+            } else {
+                /* We were active — now start skipping until #endif */
+                g_cond_stack[g_cond_depth - 1] = 1;
+            }
+        }
+
+        /* If we are now skipping, consume lines until #endif */
+        if (g_cond_depth > 0 && g_cond_stack[g_cond_depth - 1]) {
+            int nest = 0;
+            for (;;) {
+                c = lex_getc();
+                if (c == EOF) break;
+                if (c == '\n') { g_lex.line++; continue; }
+                if (c == '#') {
+                    char dir[64]; int di = 0;
+                    c = lex_getc();
+                    while (di < 63 && (isalpha(c) || c == '_')) {
+                        dir[di++] = (char)c;
+                        c = lex_getc();
+                    }
+                    dir[di] = '\0';
+                    if (strcmp(dir, "if") == 0 || strcmp(dir, "ifdef") == 0 || strcmp(dir, "ifndef") == 0) {
+                        nest++;
+                        while (c != EOF && c != '\n') c = lex_getc();
+                    } else if (strcmp(dir, "else") == 0 || strcmp(dir, "elseif") == 0) {
+                        if (nest == 0) {
+                            /* This should not happen in well-formed code after #else,
+                             * but handle it by stopping. */
+                            while (c != EOF && c != '\n') c = lex_getc();
+                            break;
+                        }
+                        while (c != EOF && c != '\n') c = lex_getc();
+                    } else if (strcmp(dir, "endif") == 0) {
+                        if (nest == 0) {
+                            if (g_cond_depth > 0) g_cond_depth--;
+                            while (c != EOF && c != '\n') c = lex_getc();
+                            break;
+                        }
+                        nest--;
+                        while (c != EOF && c != '\n') c = lex_getc();
+                    } else {
+                        while (c != EOF && c != '\n') c = lex_getc();
+                    }
+                }
+            }
+        }
+
+        return 1;
+    }
+
+    /*****************************************************************
+     * #elseif — evaluate condition like #if but as alternative branch
+     *****************************************************************/
+    if (strcmp(directive, "elseif") == 0) {
+        if (g_cond_depth > 0) {
+            /* If previous #if was true (we are active), this branch is irrelevant — skip */
+            if (!g_cond_stack[g_cond_depth - 1]) {
+                /* The first branch was already active; mark as skip and consume until #endif */
+                g_cond_stack[g_cond_depth - 1] = 1;
+                /* skip rest of #elseif line */
+                int c;
+                do { c = lex_getc(); } while (c != EOF && c != '\n');
+                if (c == '\n') g_lex.line--;
+                /* consume until #endif */
+                int nest = 0;
+                for (;;) {
+                    c = lex_getc();
+                    if (c == EOF) break;
+                    if (c == '\n') { g_lex.line++; continue; }
+                    if (c == '#') {
+                        char dir[64]; int di = 0;
+                        c = lex_getc();
+                        while (di < 63 && (isalpha(c) || c == '_')) {
+                            dir[di++] = (char)c;
+                            c = lex_getc();
+                        }
+                        dir[di] = '\0';
+                        if (strcmp(dir, "if") == 0 || strcmp(dir, "ifdef") == 0 || strcmp(dir, "ifndef") == 0) { nest++; while (c != EOF && c != '\n') c = lex_getc(); }
+                        else if (strcmp(dir, "else") == 0 || strcmp(dir, "elseif") == 0) { if (nest == 0) { while (c != EOF && c != '\n') c = lex_getc(); break; } while (c != EOF && c != '\n') c = lex_getc(); }
+                        else if (strcmp(dir, "endif") == 0) { if (nest == 0) { if (g_cond_depth > 0) g_cond_depth--; while (c != EOF && c != '\n') c = lex_getc(); break; } nest--; while (c != EOF && c != '\n') c = lex_getc(); }
+                        else { while (c != EOF && c != '\n') c = lex_getc(); }
+                    }
+                }
+                return 1;
+            }
+
+            /* Previous #if was false — we are in a skipped branch */
+            /* Try to evaluate this #elseif condition */
+            int c;
+            do { c = lex_getc(); } while (c == ' ' || c == '\t');
+
+            if (c == 'd') {
+                char buf[16]; int bi = 0;
+                while (bi < 15 && isalpha(c)) { buf[bi++] = (char)c; c = lex_getc(); }
+                buf[bi] = '\0';
+                if (strcmp(buf, "defined") == 0) {
+                    while (c == ' ' || c == '\t') c = lex_getc();
+                    if (c == '(') { c = lex_getc(); while (c == ' ' || c == '\t') c = lex_getc(); }
+                }
+            }
+            char condsym[64]; int si = 0;
+            while (si < 63 && (isalnum(c) || c == '_')) { condsym[si++] = (char)c; c = lex_getc(); }
+            condsym[si] = '\0';
+            while (c != EOF && c != '\n') c = lex_getc();
+            if (c == '\n') g_lex.line--;
+
+            int condition = (pc_find_symbol(condsym) != NULL);
+            if (condition) {
+                g_cond_stack[g_cond_depth - 1] = 0;  /* activate this branch */
+            } else {
+                /* Still skipping — consume until #else/#endif */
+                int nest = 0;
+                for (;;) {
+                    c = lex_getc();
+                    if (c == EOF) break;
+                    if (c == '\n') { g_lex.line++; continue; }
+                    if (c == '#') {
+                        char dir[64]; int di = 0;
+                        c = lex_getc();
+                        while (di < 63 && (isalpha(c) || c == '_')) {
+                            dir[di++] = (char)c;
+                            c = lex_getc();
+                        }
+                        dir[di] = '\0';
+                        if (strcmp(dir, "if") == 0 || strcmp(dir, "ifdef") == 0 || strcmp(dir, "ifndef") == 0) { nest++; while (c != EOF && c != '\n') c = lex_getc(); }
+                        else if (strcmp(dir, "else") == 0 || strcmp(dir, "elseif") == 0) { if (nest == 0) { while (c != EOF && c != '\n') c = lex_getc(); break; } while (c != EOF && c != '\n') c = lex_getc(); }
+                        else if (strcmp(dir, "endif") == 0) { if (nest == 0) { if (g_cond_depth > 0) g_cond_depth--; while (c != EOF && c != '\n') c = lex_getc(); break; } nest--; while (c != EOF && c != '\n') c = lex_getc(); }
+                        else { while (c != EOF && c != '\n') c = lex_getc(); }
+                    }
+                }
+            }
+        } else {
+            /* No #if to pair with — skip line */
+            int c;
+            do { c = lex_getc(); } while (c != EOF && c != '\n');
+            if (c == '\n') g_lex.line--;
+        }
+        return 1;
+    }
+
+    /*****************************************************************
+     * #endif — pop one level of the condition stack
+     *****************************************************************/
+    if (strcmp(directive, "endif") == 0) {
+        int c;
+        do { c = lex_getc(); } while (c != EOF && c != '\n');
+        if (c == '\n') g_lex.line--;
+
+        if (g_cond_depth > 0)
+            g_cond_depth--;
+
+        return 1;
+    }
+
+    /* Other conditional-relevant directives are now properly handled above.
+     * The remaining ones are skipped with a single-line skip. */
+    if (strcmp(directive, "pragma") == 0 ||
         strcmp(directive, "tryinclude") == 0 ||
         strcmp(directive, "assert") == 0 ||
         strcmp(directive, "error") == 0 ||
