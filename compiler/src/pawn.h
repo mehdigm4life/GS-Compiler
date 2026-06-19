@@ -17,8 +17,17 @@
 #define MAX_ENUMS 512
 #define MAX_DEFINES 4096
 
-#define PAWN_COMPILER_VERSION "3.10.10"
+/* Compiler version identifiers */
+#define COMPILER_VERSION_SAMP  0  /* Pawn 3.10.7  - SA-MP compatible */
+#define COMPILER_VERSION_OMP   1  /* Pawn 3.10.11 - open.mp compatible */
+
+#define PAWN_COMPILER_VERSION_307 "3.10.7"
+#define PAWN_COMPILER_VERSION_31011 "3.10.11"
 #define PAWN_COMPILER_NAME "GS Pawn Compiler"
+
+#ifndef PAWN_COMPILER_VERSION
+#define PAWN_COMPILER_VERSION PAWN_COMPILER_VERSION_307
+#endif
 
 /* Token types */
 enum {

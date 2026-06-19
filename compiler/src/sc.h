@@ -143,7 +143,7 @@ extern FILE *g_input_file;
 extern char g_input_filename[sFNAME + 1];
 
 /* Function prototypes */
-int pc_compile(const char *infile, const char *outfile, const char *includes[], int num_includes, char *error_buf, int error_buf_size);
+int pc_compile(const char *infile, const char *outfile, const char *includes[], int num_includes, char *error_buf, int error_buf_size, int compiler_version);
 void pc_error(int severity, const char *fmt, ...);
 void pc_warning(const char *fmt, ...);
 void pc_printf(const char *fmt, ...);

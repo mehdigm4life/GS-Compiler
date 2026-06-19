@@ -90,7 +90,15 @@ int main(int argc, char *argv[]) {
     }
 
     char error_buf[4096] = {0};
-    int result = pc_compile(infile, outfile, includes, num_includes, error_buf, sizeof(error_buf));
+    int compiler_version = COMPILER_VERSION_SAMP;
+    for (i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--version-samp") == 0) {
+            compiler_version = COMPILER_VERSION_SAMP;
+        } else if (strcmp(argv[i], "--version-omp") == 0) {
+            compiler_version = COMPILER_VERSION_OMP;
+        }
+    }
+    int result = pc_compile(infile, outfile, includes, num_includes, error_buf, sizeof(error_buf), compiler_version);
 
     if (!g_quiet) {
         fprintf(stdout, "\nCompilation %s\n", result ? "successful" : "failed");

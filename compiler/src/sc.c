@@ -1573,7 +1573,7 @@ void pc_write_amx(const char *filename) {
 }
 
 /* Main compile function */
-int pc_compile(const char *infile, const char *outfile, const char *includes[], int num_includes, char *error_buf, int error_buf_size) {
+int pc_compile(const char *infile, const char *outfile, const char *includes[], int num_includes, char *error_buf, int error_buf_size, int compiler_version) {
     int result;
 
     /* Reset state */
@@ -1613,6 +1613,22 @@ int pc_compile(const char *infile, const char *outfile, const char *includes[], 
     if (fp == NULL) {
         snprintf(error_buf, error_buf_size, "Cannot open file: %s", infile);
         return 0;
+    }
+
+    /* Print version banner */
+    {
+        const char *ver_str;
+        const char *ver_label;
+        if (compiler_version == COMPILER_VERSION_OMP) {
+            ver_str = PAWN_COMPILER_VERSION_31011;
+            ver_label = "open.mp";
+        } else {
+            ver_str = PAWN_COMPILER_VERSION_307;
+            ver_label = "SA-MP";
+        }
+        pc_printf("%s v%s (%s compatible)\n", PAWN_COMPILER_NAME, ver_str, ver_label);
+        pc_printf("Compiling: %s\n", infile);
+        pc_printf("Output:    %s\n", outfile);
     }
 
     /* Initialize lexer */
