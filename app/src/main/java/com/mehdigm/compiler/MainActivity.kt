@@ -40,6 +40,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.mehdigm.compiler.compiler.CompilerVersion
 import com.mehdigm.compiler.storage.FileManager
 import com.mehdigm.compiler.ui.console.CompilerViewModel
 import com.mehdigm.compiler.ui.console.ConsoleView
@@ -250,6 +251,81 @@ fun GSCompilerApp() {
                 }
             }
         )
+    }
+
+    /* ===== Compiler Version Picker Dialog ===== */
+    if (uiState.showCompilerPicker) {
+        AlertDialog(
+            onDismissRequest = { viewModel.dismissCompilerPicker() },
+            containerColor = GSColors.DarkSurface,
+            titleContentColor = GSColors.White,
+            textContentColor = GSColors.TextGray,
+            title = {
+                Text(
+                    "Select Compiler Version",
+                    fontWeight = FontWeight.Bold,
+                    color = GSColors.White
+                )
+            },
+            text = {
+                Column {
+                    CompilerVersion.entries.forEach { version ->
+                        val isSelected = uiState.selectedCompilerVersion == version
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp)
+                                .clickable { viewModel.selectCompilerVersion(version) },
+                            color = if (isSelected) GSColors.AccentGold.copy(alpha = 0.15f)
+                                   else Color.Transparent,
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                RadioButton(
+                                    selected = isSelected,
+                                    onClick = { viewModel.selectCompilerVersion(version) },
+                                    colors = RadioButtonDefaults.colors(
+                                        selectedColor = GSColors.AccentGold,
+                                        unselectedColor = GSColors.TextGray
+                                    )
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Column {
+                                    Text(
+                                        text = version.displayName,
+                                        color = GSColors.White,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 15.sp
+                                    )
+                                    Text(
+                                        text = version.description,
+                                        color = GSColors.TextGray,
+                                        fontSize = 12.sp
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { viewModel.dismissCompilerPicker() }) {
+                    Text("Cancel", color = GSColors.TextGray)
+                }
+            }
+        )
+    }
+
+    /* Auto-navigate to console when compilation starts */
+    LaunchedEffect(uiState.navigateToConsole) {
+        if (uiState.navigateToConsole) {
+            showConsoleView = true
+            viewModel.resetNavigateToConsole()
+        }
     }
 
     if (showStorageDialog) {

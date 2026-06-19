@@ -180,6 +180,7 @@ Java_com_mehdigm_compiler_compiler_NativeCompiler_nativeCompile(
     jstring inputPath,
     jstring outputPath,
     jobjectArray includePaths,
+    jint compilerVersion,
     jobject callback)
 {
     (void)thiz;
@@ -193,7 +194,7 @@ Java_com_mehdigm_compiler_compiler_NativeCompiler_nativeCompile(
         return JNI_FALSE;
     }
 
-    LOGI("Compiling: %s -> %s", infile, outfile);
+    LOGI("Compiling: %s -> %s (version=%d)", infile, outfile, compilerVersion);
 
     if (callback != NULL) {
         g_callback_obj = env->NewGlobalRef(callback);
@@ -234,7 +235,7 @@ Java_com_mehdigm_compiler_compiler_NativeCompiler_nativeCompile(
     pthread_create(&reader_thread, NULL, output_reader_thread, NULL);
 
     char error_buf[4096] = {0};
-    int result = pc_compile(infile, outfile, includes, num_includes, error_buf, sizeof(error_buf));
+    int result = pc_compile(infile, outfile, includes, num_includes, error_buf, sizeof(error_buf), compilerVersion);
 
     restore_stdout();
     pthread_join(reader_thread, NULL);
