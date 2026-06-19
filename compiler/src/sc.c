@@ -652,16 +652,16 @@ int pc_lexpeek(void) {
 static FILE *pc_open_include(const char *name, char *fullpath, int maxpath) {
     FILE *fp;
     int i;
-    int has_dot = (strchr(name, '.') != NULL);
+
+    /* Helper: try opening with a given path format */
+    /* Try name.inc first, then name */
+    const char *suffixes[] = {".inc", ""};
+    int num_suffixes = sizeof(suffixes) / sizeof(suffixes[0]);
 
     /* Try the include paths */
     for (i = 0; i < g_numincludes; i++) {
-        snprintf(fullpath, maxpath, "%s/%s", g_inclist[i], name);
-        fp = fopen(fullpath, "r");
-        if (fp != NULL)
-            return fp;
-        if (!has_dot) {
-            snprintf(fullpath, maxpath, "%s/%s.inc", g_inclist[i], name);
+        for (int s = 0; s < num_suffixes; s++) {
+            snprintf(fullpath, maxpath, "%s/%s%s", g_inclist[i], name, suffixes[s]);
             fp = fopen(fullpath, "r");
             if (fp != NULL)
                 return fp;
@@ -669,18 +669,16 @@ static FILE *pc_open_include(const char *name, char *fullpath, int maxpath) {
     }
 
     /* Try the current directory */
-    snprintf(fullpath, maxpath, "%s", name);
-    fp = fopen(fullpath, "r");
-    if (fp != NULL)
-        return fp;
+    for (int s = 0; s < num_suffixes; s++) {
+        snprintf(fullpath, maxpath, "%s%s", name, suffixes[s]);
+        fp = fopen(fullpath, "r");
+        if (fp != NULL)
+            return fp;
+    }
 
     /* Try the default pawno/include */
-    snprintf(fullpath, maxpath, "pawno/include/%s", name);
-    fp = fopen(fullpath, "r");
-    if (fp != NULL)
-        return fp;
-    if (!has_dot) {
-        snprintf(fullpath, maxpath, "pawno/include/%s.inc", name);
+    for (int s = 0; s < num_suffixes; s++) {
+        snprintf(fullpath, maxpath, "pawno/include/%s%s", name, suffixes[s]);
         fp = fopen(fullpath, "r");
         if (fp != NULL)
             return fp;
