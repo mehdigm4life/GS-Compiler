@@ -36,6 +36,16 @@ static lex_state g_lex;
 /* Token string buffer */
 static char g_token[MAX_LEXRET + 1];
 
+/* Duplicate include tracking — files already included (by full path) */
+#define MAX_INCLUDED_FILES 128
+static char g_included_files[MAX_INCLUDED_FILES][512];
+static int g_num_included_files = 0;
+
+/* Preprocessor condition stack for #if/#ifdef/#ifndef/#else/#endif */
+#define MAX_COND_DEPTH 64
+static int g_cond_stack[MAX_COND_DEPTH];  /* 0 = active, 1 = skipping */
+static int g_cond_depth = 0;
+
 /* Keyword table */
 typedef struct {
     const char *name;
@@ -698,6 +708,20 @@ static int pc_handle_include(const char *filename) {
     if (fp == NULL) {
         pc_error(SEV_ERROR, "Cannot open include file: %s", filename);
         return 0;
+    }
+
+    /* Duplicate include guard: if this file was already included, skip it */
+    for (int i = 0; i < g_num_included_files; i++) {
+        if (strcmp(g_included_files[i], fullpath) == 0) {
+            fclose(fp);
+            return 1;
+        }
+    }
+    /* Track this file as included */
+    if (g_num_included_files < MAX_INCLUDED_FILES) {
+        strncpy(g_included_files[g_num_included_files], fullpath, 511);
+        g_included_files[g_num_included_files][511] = '\0';
+        g_num_included_files++;
     }
 
     /* Push current lex state */
