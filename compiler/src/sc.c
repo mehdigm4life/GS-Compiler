@@ -692,16 +692,35 @@ static int pc_handle_preproc(void) {
 
     if (strcmp(directive, "include") == 0) {
         char incname[256];
-        tok = pc_lexread(incname, sizeof(incname), &tok);
-        /* Strip quotes/angles */
-        int len = (int)strlen(incname);
-        if (len >= 2) {
-            if ((incname[0] == '"' && incname[len - 1] == '"') ||
-                (incname[0] == '<' && incname[len - 1] == '>')) {
-                memmove(incname, incname + 1, (size_t)(len - 2));
-                incname[len - 2] = '\0';
+        int inc_idx = 0;
+        int c;
+
+        /* Skip whitespace */
+        do {
+            c = lex_getc();
+        } while (c == ' ' || c == '\t');
+
+        if (c == '<' || c == '"') {
+            int delim = c;
+            while (inc_idx < (int)sizeof(incname) - 1) {
+                c = lex_getc();
+                if (c == EOF) break;
+                if (c == '\n') { lex_ungetc(c); break; }
+                if (c == delim) break;
+                incname[inc_idx++] = (char)c;
+            }
+        } else if (c != EOF && c != '\n') {
+            incname[inc_idx++] = (char)c;
+            while (inc_idx < (int)sizeof(incname) - 1) {
+                c = lex_getc();
+                if (c == EOF) break;
+                if (c == '\n') { lex_ungetc(c); break; }
+                if (c == ' ' || c == '\t') break;
+                incname[inc_idx++] = (char)c;
             }
         }
+        incname[inc_idx] = '\0';
+
         return pc_handle_include(incname);
     }
 
