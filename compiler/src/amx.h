@@ -1,6 +1,8 @@
 #ifndef AMX_H_INCLUDED
 #define AMX_H_INCLUDED
 
+#include <stdint.h>
+
 #define AMX_VERSION 9
 
 #define AMX_MAGIC 0x9f0f0000

@@ -530,7 +530,14 @@ class CompilerViewModel : ViewModel() {
         val ctx = contextCache ?: return
 
         viewModelScope.launch(Dispatchers.Main) {
-            /* Clear console first */
+            /* Clear console first and set compiling state */
+            val entries = mutableListOf<ConsoleEntry>()
+
+            fun log(text: String, isError: Boolean = false) {
+                entries.add(ConsoleEntry(text = text, isError = isError))
+                _uiState.value = _uiState.value.copy(consoleEntries = entries.toList())
+            }
+
             _uiState.value = _uiState.value.copy(
                 consoleEntries = emptyList(),
                 isCompiling = true,
@@ -538,9 +545,9 @@ class CompilerViewModel : ViewModel() {
                 navigateToConsole = true
             )
 
-            addConsoleEntry("=== Compilation started ===", isError = false)
-            addConsoleEntry("Compiler: ${version.displayName}", isError = false)
-            addConsoleEntry("Input: ${tab.displayName}", isError = false)
+            log("=== Compilation started ===")
+            log("Compiler: ${version.displayName}")
+            log("Input: ${tab.displayName}")
 
             val content = tab.content
             val file = withContext(Dispatchers.IO) {
@@ -561,15 +568,15 @@ class CompilerViewModel : ViewModel() {
             val includePaths = includeResult.includePaths
 
             if (includePaths.isNotEmpty()) {
-                addConsoleEntry("Include paths (${includePaths.size}):", isError = false)
+                log("Include paths (${includePaths.size}):")
                 includePaths.forEach { path ->
-                    addConsoleEntry("  -i $path", isError = false)
+                    log("  -i $path")
                 }
             }
 
             val callback = object : CompilationCallback {
                 override fun onOutput(text: String, isError: Boolean) {
-                    addConsoleEntry(text.trimEnd(), isError)
+                    log(text, isError)
                 }
             }
 
@@ -584,15 +591,16 @@ class CompilerViewModel : ViewModel() {
             }
 
             if (result.success) {
-                addConsoleEntry("\n=== Compilation successful! ===", isError = false)
-                addConsoleEntry("Output: ${result.outputPath}", isError = false)
+                log("\n=== Compilation successful! ===")
+                log("Output: ${result.outputPath}")
             } else {
-                addConsoleEntry("\n=== Compilation failed ===", isError = true)
+                log("\n=== Compilation failed ===", isError = true)
             }
 
             _uiState.value = _uiState.value.copy(
                 isCompiling = false,
-                isCompileSuccess = result.success
+                isCompileSuccess = result.success,
+                consoleEntries = entries.toList()
             )
         }
     }
