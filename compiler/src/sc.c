@@ -639,6 +639,7 @@ int pc_lexpeek(void) {
 static FILE *pc_open_include(const char *name, char *fullpath, int maxpath) {
     FILE *fp;
     int i;
+    int has_dot = (strchr(name, '.') != NULL);
 
     /* Try the include paths */
     for (i = 0; i < g_numincludes; i++) {
@@ -646,6 +647,12 @@ static FILE *pc_open_include(const char *name, char *fullpath, int maxpath) {
         fp = fopen(fullpath, "r");
         if (fp != NULL)
             return fp;
+        if (!has_dot) {
+            snprintf(fullpath, maxpath, "%s/%s.inc", g_inclist[i], name);
+            fp = fopen(fullpath, "r");
+            if (fp != NULL)
+                return fp;
+        }
     }
 
     /* Try the current directory */
@@ -659,6 +666,12 @@ static FILE *pc_open_include(const char *name, char *fullpath, int maxpath) {
     fp = fopen(fullpath, "r");
     if (fp != NULL)
         return fp;
+    if (!has_dot) {
+        snprintf(fullpath, maxpath, "pawno/include/%s.inc", name);
+        fp = fopen(fullpath, "r");
+        if (fp != NULL)
+            return fp;
+    }
 
     return NULL;
 }
