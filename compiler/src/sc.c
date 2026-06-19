@@ -14,6 +14,59 @@ static void pc_emit_code(FILE *fp);
 /* Include file handling */
 static FILE *pc_open_include(const char *name, char *fullpath, int maxpath);
 
+/* Canonicalize a path: resolve . and .. components in-place */
+static void pc_canonicalize_path(char *path) {
+    if (path == NULL || path[0] == '\0') return;
+    char *parts[256];
+    int np = 0;
+    char *p = path;
+    char *start = path;
+    /* If the path is absolute, preserve the leading / */
+    int absolute = 0;
+    if (path[0] == '/') {
+        absolute = 1;
+        p++;
+    }
+    /* Split on '/' manually (avoid strtok reentrancy issues) */
+    while (*p) {
+        if (*p == '/') {
+            *p = '\0';
+            char *seg = start;
+            if (seg[0] == '\0' || (seg[0] == '.' && seg[1] == '\0')) {
+                /* skip empty or . */
+            } else if (seg[0] == '.' && seg[1] == '.' && seg[2] == '\0') {
+                if (np > 0) np--;
+            } else {
+                if (np < 256) parts[np++] = seg;
+            }
+            p++;
+            start = p;
+        } else {
+            p++;
+        }
+    }
+    /* Last segment */
+    if (start[0] != '\0') {
+        if (start[0] == '.' && start[1] == '\0') {
+            /* skip */
+        } else if (start[0] == '.' && start[1] == '.' && start[2] == '\0') {
+            if (np > 0) np--;
+        } else {
+            if (np < 256) parts[np++] = start;
+        }
+    }
+    /* Rebuild */
+    char *dst = path;
+    if (absolute) *dst++ = '/';
+    for (int i = 0; i < np; i++) {
+        if (i > 0) *dst++ = '/';
+        int len = strlen(parts[i]);
+        memmove(dst, parts[i], len);
+        dst += len;
+    }
+    *dst = '\0';
+}
+
 /* Lexer state */
 typedef struct {
     FILE *fp;
@@ -709,6 +762,9 @@ static int pc_handle_include(const char *filename) {
         pc_error(SEV_ERROR, "Cannot open include file: %s", filename);
         return 0;
     }
+
+    /* Canonicalize path so .. / . / symlink duplicates are detected */
+    pc_canonicalize_path(fullpath);
 
     /* Duplicate include guard: if this file was already included, skip it */
     for (int i = 0; i < g_num_included_files; i++) {
