@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.mehdigm.compiler.compiler.CompilationCallback
 import com.mehdigm.compiler.compiler.CompilerVersion
 import com.mehdigm.compiler.compiler.NativeCompiler
+import com.mehdigm.compiler.include.IncludeDetector
 import com.mehdigm.compiler.storage.FileManager
 import com.mehdigm.compiler.utils.AppLogger
 import kotlinx.coroutines.Dispatchers
@@ -507,18 +508,6 @@ class CompilerViewModel : ViewModel() {
         )
     }
 
-    fun requestCompile() {
-        val s = _uiState.value
-        val tab = s.activeTab ?: return
-
-        if (!tab.displayName.endsWith(".pwn", ignoreCase = true)) {
-            addConsoleEntry("Not a .pwn file: ${tab.displayName}", isError = true)
-            return
-        }
-
-        _uiState.value = s.copy(showCompilerPicker = true)
-    }
-
     fun selectCompilerVersion(version: CompilerVersion) {
         _uiState.value = _uiState.value.copy(
             selectedCompilerVersion = version,
@@ -538,6 +527,7 @@ class CompilerViewModel : ViewModel() {
     private fun compileWithVersion(version: CompilerVersion) {
         val s = _uiState.value
         val tab = s.activeTab ?: return
+        val ctx = contextCache ?: return
 
         viewModelScope.launch(Dispatchers.Main) {
             /* Clear console first */
@@ -554,13 +544,21 @@ class CompilerViewModel : ViewModel() {
 
             val content = tab.content
             val file = withContext(Dispatchers.IO) {
-                val f = tab.file ?: File(contextCache, tab.displayName)
+                val f = tab.file ?: File(ctx, tab.displayName)
                 f.writeText(content, Charsets.UTF_8)
                 f
             }
 
             val outputFile = FileManager.getSuggestedOutputFile(file)
-            val includePaths = _uiState.value.detectedIncludes
+
+            /* Auto-detect include paths */
+            val includeResult = withContext(Dispatchers.IO) {
+                IncludeDetector.detect(file)
+            }
+            _uiState.value = _uiState.value.copy(
+                detectedIncludes = includeResult.includePaths
+            )
+            val includePaths = includeResult.includePaths
 
             if (includePaths.isNotEmpty()) {
                 addConsoleEntry("Include paths (${includePaths.size}):", isError = false)
