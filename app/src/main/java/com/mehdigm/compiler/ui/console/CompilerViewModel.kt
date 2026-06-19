@@ -551,7 +551,7 @@ class CompilerViewModel : ViewModel() {
 
             val content = tab.content
             val file = withContext(Dispatchers.IO) {
-                val f = tab.file ?: File(ctx, tab.displayName)
+                val f = tab.file ?: File(ctx.cacheDir, tab.displayName)
                 f.writeText(content, Charsets.UTF_8)
                 f
             }
