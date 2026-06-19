@@ -160,20 +160,20 @@ static void *output_reader_thread(void *arg) {
     return NULL;
 }
 
-jint JNI_OnLoad(JavaVM *vm, void *reserved) {
+extern "C" jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     (void)reserved;
     g_jvm = vm;
     LOGI("GS Compiler native library loaded");
     return JNI_VERSION_1_6;
 }
 
-void JNI_OnUnload(JavaVM *vm, void *reserved) {
+extern "C" void JNI_OnUnload(JavaVM *vm, void *reserved) {
     (void)vm;
     (void)reserved;
     LOGI("GS Compiler native library unloaded");
 }
 
-JNIEXPORT jboolean JNICALL
+extern "C" JNIEXPORT jboolean JNICALL
 Java_com_mehdigm_compiler_compiler_NativeCompiler_nativeCompile(
     JNIEnv *env,
     jobject thiz,
