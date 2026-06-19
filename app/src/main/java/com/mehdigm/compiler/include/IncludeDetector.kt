@@ -114,6 +114,39 @@ object IncludeDetector {
             }
         }
 
+        // Strategy 5: If source file is in cache (opened via URI), try to find
+        // include dirs by scanning subdirectories of well-known storage roots
+        if (foundPaths.isEmpty()) {
+            val roots = listOf(
+                "/storage/emulated/0/Download",
+                "/storage/emulated/0",
+                "/sdcard/Download",
+                "/sdcard",
+            )
+            for (rootPath in roots) {
+                val root = File(rootPath)
+                if (root.exists() && root.isDirectory) {
+                    val subDirs = root.listFiles() ?: continue
+                    for (sub in subDirs) {
+                        if (!sub.isDirectory) continue
+                        for (includeName in INCLUDE_FOLDER_NAMES) {
+                            val includeDir = File(sub, includeName)
+                            if (includeDir.exists() && includeDir.isDirectory) {
+                                val path = includeDir.absolutePath
+                                if (path !in foundPaths) {
+                                    foundPaths.add(path)
+                                    if (rootFolder == null) {
+                                        rootFolder = includeDir
+                                        detectedFrom = "scanned ${sub.name}/ from ${rootPath}"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         return IncludeResult(
             includePaths = foundPaths.distinct(),
             rootFolder = rootFolder,
