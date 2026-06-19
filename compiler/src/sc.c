@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <setjmp.h>
 #include <errno.h>
+#include <limits.h>
 
 /* Forward declarations of internal functions */
 static int pc_compile_file(const char *infile, const char *outfile);
@@ -765,6 +766,15 @@ static int pc_handle_include(const char *filename) {
 
     /* Canonicalize path so .. / . / symlink duplicates are detected */
     pc_canonicalize_path(fullpath);
+
+    /* Resolve symlinks (e.g., /sdcard -> /storage/emulated/0 on Android) */
+    {
+        char real[PATH_MAX];
+        if (realpath(fullpath, real) != NULL) {
+            strncpy(fullpath, real, 511);
+            fullpath[511] = '\0';
+        }
+    }
 
     /* Duplicate include guard: if this file was already included, skip it */
     for (int i = 0; i < g_num_included_files; i++) {

@@ -147,8 +147,18 @@ object IncludeDetector {
             }
         }
 
+        /* Deduplicate by canonical path (resolves symlinks like /sdcard -> /storage/emulated/0) */
+        val canonicalSet = mutableSetOf<String>()
+        val deduped = mutableListOf<String>()
+        for (raw in foundPaths) {
+            val canonical = try { File(raw).canonicalPath } catch (_: Exception) { raw }
+            if (canonicalSet.add(canonical)) {
+                deduped.add(raw)
+            }
+        }
+
         return IncludeResult(
-            includePaths = foundPaths.distinct(),
+            includePaths = deduped,
             rootFolder = rootFolder,
             detectedFrom = detectedFrom
         )
