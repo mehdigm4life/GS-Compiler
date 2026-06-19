@@ -8,6 +8,7 @@ int main(int argc, char *argv[]) {
     const char *outfile = NULL;
     const char *includes[MAX_INCLUDE_DEPTH];
     int num_includes = 0;
+    int compiler_version = COMPILER_VERSION_SAMP;
     int i;
 
     g_quiet = 0;
@@ -52,6 +53,10 @@ int main(int argc, char *argv[]) {
                     g_verbose = 1;
                 } else if (strcmp(argv[i], "--debug") == 0) {
                     g_debug = 1;
+                } else if (strcmp(argv[i], "--version-samp") == 0) {
+                    compiler_version = COMPILER_VERSION_SAMP;
+                } else if (strcmp(argv[i], "--version-omp") == 0) {
+                    compiler_version = COMPILER_VERSION_OMP;
                 }
             }
         } else {
@@ -82,22 +87,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    if (!g_quiet) {
-        fprintf(stdout, "%s v%s\n", PAWN_COMPILER_NAME, PAWN_COMPILER_VERSION);
-        fprintf(stdout, "Compiling: %s\n", infile);
-        fprintf(stdout, "Output:    %s\n", outfile);
-        fflush(stdout);
-    }
-
     char error_buf[4096] = {0};
-    int compiler_version = COMPILER_VERSION_SAMP;
-    for (i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "--version-samp") == 0) {
-            compiler_version = COMPILER_VERSION_SAMP;
-        } else if (strcmp(argv[i], "--version-omp") == 0) {
-            compiler_version = COMPILER_VERSION_OMP;
-        }
-    }
     int result = pc_compile(infile, outfile, includes, num_includes, error_buf, sizeof(error_buf), compiler_version);
 
     if (!g_quiet) {
