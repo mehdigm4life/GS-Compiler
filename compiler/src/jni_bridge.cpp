@@ -70,12 +70,14 @@ static void restore_stdout(void) {
         fclose(stdout);
         stdout = g_orig_stdout;
         g_orig_stdout = NULL;
+        g_output_capture_fd[1] = -1;
     }
     if (g_orig_stderr != NULL) {
         fflush(stderr);
         fclose(stderr);
         stderr = g_orig_stderr;
         g_orig_stderr = NULL;
+        g_error_capture_fd[1] = -1;
     }
     if (g_output_capture_fd[0] >= 0) {
         close(g_output_capture_fd[0]);
@@ -157,6 +159,11 @@ static void *output_reader_thread(void *arg) {
         }
     }
 
+    /* Detach from JVM if we attached */
+    if (g_jvm != NULL) {
+        g_jvm->DetachCurrentThread();
+    }
+
     return NULL;
 }
 
@@ -206,8 +213,10 @@ Java_com_mehdigm_compiler_compiler_NativeCompiler_nativeCompile(
     }
 
     const char *includes[MAX_INCLUDE_DEPTH];
+    jstring includeJstrings[MAX_INCLUDE_DEPTH];
     int num_includes = 0;
     memset(includes, 0, sizeof(includes));
+    memset(includeJstrings, 0, sizeof(includeJstrings));
 
     if (includePaths != NULL) {
         jsize len = env->GetArrayLength(includePaths);
@@ -215,8 +224,8 @@ Java_com_mehdigm_compiler_compiler_NativeCompiler_nativeCompile(
             jstring jpath = (jstring)env->GetObjectArrayElement(includePaths, i);
             if (jpath != NULL) {
                 includes[num_includes] = env->GetStringUTFChars(jpath, NULL);
+                includeJstrings[num_includes] = jpath;
                 num_includes++;
-                env->DeleteLocalRef(jpath);
             }
         }
     }
@@ -262,6 +271,8 @@ Java_com_mehdigm_compiler_compiler_NativeCompiler_nativeCompile(
 
     for (int i = 0; i < num_includes; i++) {
         if (includes[i] != NULL) {
+            env->ReleaseStringUTFChars(includeJstrings[i], includes[i]);
+            env->DeleteLocalRef(includeJstrings[i]);
         }
     }
 

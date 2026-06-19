@@ -213,7 +213,12 @@ static void code_init(void) {
 static void code_ensure(int bytes) {
     if (g_codeblock.curlength + bytes >= g_codeblock.maxlength) {
         g_codeblock.maxlength *= 2;
-        g_codeblock.code = (char *)realloc(g_codeblock.code, (size_t)g_codeblock.maxlength);
+        char *new_code = (char *)realloc(g_codeblock.code, (size_t)g_codeblock.maxlength);
+        if (new_code == NULL) {
+            pc_error(SEV_FATAL, "Out of memory in code generation");
+            return;
+        }
+        g_codeblock.code = new_code;
     }
 }
 
@@ -741,6 +746,11 @@ static int pc_handle_preproc(void) {
             }
         }
         incname[inc_idx] = '\0';
+
+        /* Convert backslashes to forward slashes (Linux/Android compatibility) */
+        for (char *p = incname; *p; p++) {
+            if (*p == '\\') *p = '/';
+        }
 
         return pc_handle_include(incname);
     }
