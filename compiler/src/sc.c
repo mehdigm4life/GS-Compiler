@@ -493,6 +493,14 @@ int pc_lexread(char *dest, int maxlen, int *toktype) {
         }
 
         if (c == EOF) {
+            /* If we're inside an included file, pop back to the parent */
+            if (lex_stack_ptr >= 0) {
+                if (g_lex.fp) fclose(g_lex.fp);
+                if (g_lex.mf) pc_memfile_close(g_lex.mf);
+                g_lex = lex_stack[lex_stack_ptr--];
+                g_line_number = g_lex.line;
+                return pc_lexread(dest, maxlen, toktype);
+            }
             *toktype = TOK_EOF;
             return TOK_EOF;
         }
@@ -747,6 +755,17 @@ static int pc_handle_preproc(void) {
         return 1;
     }
 
+    if (strcmp(directive, "endinput") == 0) {
+        /* Pop back to parent file if inside an include */
+        if (lex_stack_ptr >= 0) {
+            if (g_lex.fp) fclose(g_lex.fp);
+            if (g_lex.mf) pc_memfile_close(g_lex.mf);
+            g_lex = lex_stack[lex_stack_ptr--];
+            g_line_number = g_lex.line;
+        }
+        return 1;
+    }
+
     if (strcmp(directive, "if") == 0 ||
         strcmp(directive, "else") == 0 ||
         strcmp(directive, "elseif") == 0 ||
@@ -755,7 +774,6 @@ static int pc_handle_preproc(void) {
         strcmp(directive, "ifndef") == 0 ||
         strcmp(directive, "pragma") == 0 ||
         strcmp(directive, "tryinclude") == 0 ||
-        strcmp(directive, "endinput") == 0 ||
         strcmp(directive, "assert") == 0 ||
         strcmp(directive, "error") == 0 ||
         strcmp(directive, "warning") == 0 ||
