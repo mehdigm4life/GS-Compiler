@@ -725,7 +725,7 @@ static int pc_handle_preproc(void) {
         } while (c == ' ' || c == '\t');
 
         if (c == '<' || c == '"') {
-            int delim = c;
+            int delim = (c == '<') ? '>' : c;
             while (inc_idx < (int)sizeof(incname) - 1) {
                 c = lex_getc();
                 if (c == EOF) break;
