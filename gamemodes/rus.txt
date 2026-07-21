@@ -1,0 +1,163 @@
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(5866) : èäåíòèôèêàòîðó ïðèñâîåíî çíà÷åíèå, íî îí íå èñïîëüçóåòñÿ: "str"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(10726) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(10746) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(16687) : èäåíòèôèêàòîðó ïðèñâîåíî çíà÷åíèå, íî îí íå èñïîëüçóåòñÿ: "string"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(16808) : èäåíòèôèêàòîðó ïðèñâîåíî çíà÷åíèå, íî îí íå èñïîëüçóåòñÿ: "string"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(20678) : èäåíòèôèêàòîðó ïðèñâîåíî çíà÷åíèå, íî îí íå èñïîëüçóåòñÿ: "date"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(22753) : èäåíòèôèêàòîðó ïðèñâîåíî çíà÷åíèå, íî îí íå èñïîëüçóåòñÿ: "cost"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(22843) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(22844) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(23931) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(23960) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(28681) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(28682) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(31382) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(32717) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(26275) : èäåíòèôèêàòîðó ïðèñâîåíî çíà÷åíèå, íî îí íå èñïîëüçóåòñÿ: "object_int"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(26275) : èäåíòèôèêàòîðó ïðèñâîåíî çíà÷åíèå, íî îí íå èñïîëüçóåòñÿ: "object_world"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(23166) : èäåíòèôèêàòîðó ïðèñâîåíî çíà÷åíèå, íî îí íå èñïîëüçóåòñÿ: "string"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(33858) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(33864) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(37531) : èäåíòèôèêàòîðó ïðèñâîåíî çíà÷åíèå, íî îí íå èñïîëüçóåòñÿ: "rentalcar"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(38062) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(38068) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(38616) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "count"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(38756) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(38812) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(39031) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(39036) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(39044) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(39084) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(39099) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(39151) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(39153) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(38611) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "Pipis"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(38611) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "Haus"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(38611) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "Lapar"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(38611) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "Armour"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(38611) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "Health"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(39628) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(39634) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(39646) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(40113) : èäåíòèôèêàòîðó ïðèñâîåíî çíà÷åíèå, íî îí íå èñïîëüçóåòñÿ: "vstr"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(40112) : èäåíòèôèêàòîðó ïðèñâîåíî çíà÷åíèå, íî îí íå èñïîëüçóåòñÿ: "vehicleid"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(40764) : èäåíòèôèêàòîðó ïðèñâîåíî çíà÷åíèå, íî îí íå èñïîëüçóåòñÿ: "string"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(40785) : èäåíòèôèêàòîðó ïðèñâîåíî çíà÷åíèå, íî îí íå èñïîëüçóåòñÿ: "string"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(40937) : èäåíòèôèêàòîðó ïðèñâîåíî çíà÷åíèå, íî îí íå èñïîëüçóåòñÿ: "string"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(41223) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "amount"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(41269) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "amount"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(41339) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "amount"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(41385) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "amount"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(41455) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "amount"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(41501) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "amount"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(41571) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "amount"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(41617) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "amount"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(41687) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "amount"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(41733) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "amount"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(41803) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "amount"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(41849) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "amount"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(41895) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "amount"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(45800) : èäåíòèôèêàòîðó ïðèñâîåíî çíà÷åíèå, íî îí íå èñïîëüçóåòñÿ: "string"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(45834) : èäåíòèôèêàòîðó ïðèñâîåíî çíà÷åíèå, íî îí íå èñïîëüçóåòñÿ: "string"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(45842) : èäåíòèôèêàòîðó ïðèñâîåíî çíà÷åíèå, íî îí íå èñïîëüçóåòñÿ: "string"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(45850) : èäåíòèôèêàòîðó ïðèñâîåíî çíà÷åíèå, íî îí íå èñïîëüçóåòñÿ: "string"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(45872) : èäåíòèôèêàòîðó ïðèñâîåíî çíà÷åíèå, íî îí íå èñïîëüçóåòñÿ: "string"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(46231) : èäåíòèôèêàòîðó ïðèñâîåíî çíà÷åíèå, íî îí íå èñïîëüçóåòñÿ: "string"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(46396) : èäåíòèôèêàòîðó ïðèñâîåíî çíà÷åíèå, íî îí íå èñïîëüçóåòñÿ: "string"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(46592) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(46595) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(46611) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(46613) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(46629) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(46631) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(46650) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(46650) : èäåíòèôèêàòîðó ïðèñâîåíî çíà÷åíèå, íî îí íå èñïîëüçóåòñÿ: "string"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(46702) : èäåíòèôèêàòîðó ïðèñâîåíî çíà÷åíèå, íî îí íå èñïîëüçóåòñÿ: "string"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(48317) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(48322) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(48657) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "amount"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(48701) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "amount"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(48765) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "amount"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(49042) : èäåíòèôèêàòîðó ïðèñâîåíî çíà÷åíèå, íî îí íå èñïîëüçóåòñÿ: "string"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(49087) : èäåíòèôèêàòîðó ïðèñâîåíî çíà÷åíèå, íî îí íå èñïîëüçóåòñÿ: "string"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(49926) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "string"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(50038) : èäåíòèôèêàòîðó ïðèñâîåíî çíà÷åíèå, íî îí íå èñïîëüçóåòñÿ: "string"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(51581) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "amount"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(52187) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "amount"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(52518) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "amount"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(52669) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "amount"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(52704) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "amount"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(52773) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "amount"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(52851) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "amount"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(52989) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "amount"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(53164) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "amount"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(53237) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "amount"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(53324) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "amount"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(54125) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(54131) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(54588) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "amount"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(54588) : èäåíòèôèêàòîðó ïðèñâîåíî çíà÷åíèå, íî îí íå èñïîëüçóåòñÿ: "action"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(54732) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(54804) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(54824) : èäåíòèôèêàòîðó ïðèñâîåíî çíà÷åíèå, íî îí íå èñïîëüçóåòñÿ: "i"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(54824) -- (54836) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(54843) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(54865) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(61506) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(65357) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(65361) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(65337) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "weaponid"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(66378) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "amount"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(66675) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(66684) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(68720) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(68904) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "level"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(68904) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "targetid"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(74045) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "targetid"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(77331) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(77332) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(77334) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(77339) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(84897) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(84943) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(84944) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(87905) : íåïðàâèëüíàÿ òàáóëÿöèÿ
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(88033) : èäåíòèôèêàòîðó ïðèñâîåíî çíà÷åíèå, íî îí íå èñïîëüçóåòñÿ: "dag"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(88032) : èäåíòèôèêàòîðó ïðèñâîåíî çíà÷åíèå, íî îí íå èñïîëüçóåòñÿ: "price"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(643) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "ActorJob"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(8057) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "AddToPaycheck"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(6265) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "CanPlayerUseAnims"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(645) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "DynamicActor"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(14763) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "GetVehicleSpeedMPH"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(9278) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "Introduction"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(14975) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "IsACluckNBellVehicle"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(14876) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "IsAbicycle"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(11335) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "IsOstad"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(15405) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "IsPlayerAtFishingPlace"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(15295) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "IsPlayerInMiningArea"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(641) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "PAWNSHOP"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(546) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "PublicTD"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(4188) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "RandomIndihome"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(89353) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "RecordDamage"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(8303) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "RefundPlayer"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(89378) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "ResetDamages"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(6495) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "ResetPlayerVariables"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(544) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "StaticObject"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(8314) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "VIPRefund"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(522) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "VehicleObject"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(61532) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "WaktuAyam"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(61539) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "WaktuAyam1"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(61550) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "WaktuSapi"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(61560) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "WaktuSapi1"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(238) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "_RenderBar"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(665) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "addtexttd"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(4209) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "blackhospitalspawns"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(2415) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "brinksVehicles"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(583) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "fleecaRobbank"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(4297) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "rentalcar"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(402) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "robammo"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(12417) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "speed_color"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(2423) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "streetsweeperVehicles"
+C:\Users\Admin\Desktop\gm\gamemodes\MTDR.pwn(698) : èäåíòèôèêàòîð íå èñïîëüçóåòñÿ: "tweet"
+Pawn compiler 3.2.3664	 	 	Copyright (c) 1997-2016, ITB CompuPhase
+
