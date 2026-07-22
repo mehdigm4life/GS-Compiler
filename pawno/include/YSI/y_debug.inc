@@ -147,45 +147,45 @@ Notes:
 #define DBGC5 Debug_Code5
 
 #if _DEBUG >= 1
-	#define Debug_Code1(%1); \
+	#define Debug_Code1(%1) \
 		%1
 #else
-	#define Debug_Code1(%1);
+	#define Debug_Code1(%1)
 #endif
 
 #if _DEBUG >= 2
-	#define Debug_Code2(%1); \
+	#define Debug_Code2(%1) \
 		%1
 #else
-	#define Debug_Code2(%1);
+	#define Debug_Code2(%1)
 #endif
 
 #if _DEBUG >= 3
-	#define Debug_Code3(%1); \
+	#define Debug_Code3(%1) \
 		%1
 #else
-	#define Debug_Code3(%1);
+	#define Debug_Code3(%1)
 #endif
 
 #if _DEBUG >= 4
-	#define Debug_Code4(%1); \
+	#define Debug_Code4(%1) \
 		%1
 #else
-	#define Debug_Code4(%1);
+	#define Debug_Code4(%1)
 #endif
 
 #if _DEBUG >= 5
-	#define Debug_Code5(%1); \
+	#define Debug_Code5(%1) \
 		%1
 #else
-	#define Debug_Code5(%1);
+	#define Debug_Code5(%1)
 #endif
 
 #if _DEBUG >= 6
-	#define Debug_Code6(%1); \
+	#define Debug_Code6(%1) \
 		%1
 #else
-	#define Debug_Code6(%1);
+	#define Debug_Code6(%1)
 #endif
 
 /*----------------------------------------------------------------------------*\
@@ -258,20 +258,20 @@ Notes:
 	#define Debug_Print7(%1);
 #endif
 
-#define Debug_PrintE(%1); \
-	Debug_Print0("\7\7\7*** YSI Error: " #%1);
+#define Debug_PrintE(%1) \
+	Debug_Print0("\7\7\7*** YSI Error: " #%1)
 
-#define Debug_PrintW(%1); \
-	Debug_Print0("\7*** YSI Warning: " #%1);
+#define Debug_PrintW(%1) \
+	Debug_Print0("\7*** YSI Warning: " #%1)
 
-#define Debug_PrintI(%1); \
-	Debug_Print0("*** YSI Info: " #%1);
+#define Debug_PrintI(%1) \
+	Debug_Print0("*** YSI Info: " #%1)
 
-#define Debug_PrintF(%1); \
-	Debug_Print0("\7\7\7\7\7*** YSI Fatal Error: " #%1);
+#define Debug_PrintF(%1) \
+	Debug_Print0("\7\7\7\7\7*** YSI Fatal Error: " #%1)
 
-#define Debug_PrintC(%1); \
-	Debug_Code1(%1);
+#define Debug_PrintC(%1) \
+	Debug_Code1(%1)
 
 stock Debug_Print0(str[], {Float,_}:...) <ysi_debug : on>
 {
