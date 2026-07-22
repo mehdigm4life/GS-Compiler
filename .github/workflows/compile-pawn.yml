@@ -1,0 +1,89 @@
+name: Compile PAWN Script
+
+on:
+  workflow_dispatch:
+    inputs:
+      script_name:
+        description: 'PAWN script filename (e.g. MTDR.pwn)'
+        required: true
+        default: 'MTDR.pwn'
+      compiler_version:
+        description: 'pawncc compiler version'
+        required: true
+        default: '3.10.10'
+        type: choice
+        options:
+          - '3.10.10'
+          - '3.10.9'
+          - '3.10.8'
+          - '3.10.7'
+          - '3.10.6'
+          - '3.10.5'
+          - '3.10.4'
+          - '3.10.3'
+          - '3.10.2'
+          - '3.10.1'
+      include_path:
+        description: 'Custom include path (leave empty for default pawno/include)'
+        required: false
+        default: ''
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download pawncc compiler
+        run: |
+          curl -L -o /tmp/pawnc.tar.gz \
+            "https://github.com/pawn-lang/compiler/releases/download/v${{ github.event.inputs.compiler_version }}/pawnc-${{ github.event.inputs.compiler_version }}-linux.tar.gz"
+          mkdir -p /tmp/pawnc
+          tar -xzf /tmp/pawnc.tar.gz -C /tmp/pawnc --strip-components=1
+
+      - name: Compile script
+        run: |
+          SCRIPT="${{ github.event.inputs.script_name }}"
+          VERSION="${{ github.event.inputs.compiler_version }}"
+          INC_PATH="${{ github.event.inputs.include_path }}"
+
+          if [ ! -f "$SCRIPT" ]; then
+            echo "::error::File $SCRIPT not found in repository root"
+            exit 1
+          fi
+
+          # Build compiler command
+          CMD="LD_LIBRARY_PATH=/tmp/pawnc/lib /tmp/pawnc/bin/pawncc $SCRIPT"
+
+          if [ -n "$INC_PATH" ]; then
+            CMD="$CMD -i$INC_PATH"
+          else
+            CMD="$CMD -ipawno/include"
+          fi
+
+          CMD="$CMD -Z"
+
+          echo "Compiler: pawncc v$VERSION"
+          echo "Script: $SCRIPT"
+          echo "Command: $CMD"
+          echo "---"
+
+          eval "$CMD"
+
+          # Verify output
+          AMX_FILE="${SCRIPT%.pwn}.amx"
+          if [ -f "$AMX_FILE" ]; then
+            echo "Compilation successful: $AMX_FILE"
+            ls -lh "$AMX_FILE"
+          else
+            echo "::error::Compilation failed - $AMX_FILE not found"
+            exit 1
+          fi
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiled-${{ github.event.inputs.script_name }}
+          path: "*.amx"
+          if-no-files-found: error
