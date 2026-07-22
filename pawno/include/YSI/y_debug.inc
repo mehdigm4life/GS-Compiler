@@ -120,8 +120,8 @@ Operators:
 	#define _DEBUG 0
 #endif
 
-#define P:%1(%2); Debug_Print%1(%2);
-#define C:%1(%2); Debug_Code%1(%2);
+#define P:%1(%2) Debug_Print%1(%2)
+#define C:%1(%2) Debug_Code%1(%2)
 
 /*----------------------------------------------------------------------------*\
 Function:
