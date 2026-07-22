@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       script_name:
-        description: 'PAWN script filename (e.g. MTDR.pwn)'
+        description: 'PAWN script path (e.g. gamemodes/MTDR.pwn)'
         required: true
-        default: 'MTDR.pwn'
+        default: 'gamemodes/MTDR.pwn'
       compiler_version:
         description: 'pawncc compiler version'
         required: true
@@ -49,32 +49,38 @@ jobs:
           INC_PATH="${{ github.event.inputs.include_path }}"
 
           if [ ! -f "$SCRIPT" ]; then
-            echo "::error::File $SCRIPT not found in repository root"
+            echo "::error::File $SCRIPT not found in repository"
             exit 1
           fi
 
+          # Extract directory and filename
+          SCRIPT_DIR="$(dirname "$SCRIPT")"
+          SCRIPT_BASE="$(basename "$SCRIPT")"
+
           # Build compiler command
-          CMD="LD_LIBRARY_PATH=/tmp/pawnc/lib /tmp/pawnc/bin/pawncc $SCRIPT"
+          CMD="LD_LIBRARY_PATH=/tmp/pawnc/lib /tmp/pawnc/bin/pawncc $SCRIPT_BASE"
 
           if [ -n "$INC_PATH" ]; then
             CMD="$CMD -i$INC_PATH"
           else
-            CMD="$CMD -ipawno/include"
+            CMD="$CMD -i../../pawno/include"
           fi
 
           CMD="$CMD -Z"
 
           echo "Compiler: pawncc v$VERSION"
-          echo "Script: $SCRIPT"
+          echo "Script: $SCRIPT (dir: $SCRIPT_DIR)"
           echo "Command: $CMD"
           echo "---"
 
+          # Compile inside the script's directory
+          cd "$SCRIPT_DIR"
           eval "$CMD"
 
           # Verify output
-          AMX_FILE="${SCRIPT%.pwn}.amx"
+          AMX_FILE="${SCRIPT_BASE%.pwn}.amx"
           if [ -f "$AMX_FILE" ]; then
-            echo "Compilation successful: $AMX_FILE"
+            echo "Compilation successful: $SCRIPT_DIR/$AMX_FILE"
             ls -lh "$AMX_FILE"
           else
             echo "::error::Compilation failed - $AMX_FILE not found"
@@ -84,6 +90,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: compiled-${{ github.event.inputs.script_name }}
-          path: "*.amx"
+          name: compiled-amx
+          path: "**/gamemodes/*.amx"
           if-no-files-found: error
+          retention-days: 7
