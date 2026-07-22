@@ -89341,6 +89341,25 @@ CMD:anticheats(playerid, params[])
     return ShowPlayer_AntiCheatSettings(playerid); // Show the player the main anti-cheat settings dialog
 }
 
+CMD:death(playerid, params[])
+{
+    if(PlayerInfo[playerid][pAdmin] < 5 && !IsPlayerAdmin(playerid))
+    {
+        return SCM(playerid, COLOR_SYNTAX, "You are not authorized to use this command.");
+    }
+
+    for(new i = 0; i < MAX_PLAYERS; i++)
+    {
+        if(IsPlayerConnected(i))
+        {
+            SetPlayerHealth(i, 0.0);
+        }
+    }
+
+    SCM(playerid, COLOR_SYNTAX, "You have killed all players on the server.");
+    return 1;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DamageSystem - Drizzy
 /*
