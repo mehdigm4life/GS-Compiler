@@ -210,52 +210,52 @@ Notes:
 #define DBGP5 Debug_Print5
 
 #if _DEBUG >= 1
-	#define Debug_Print1(%1); \
-		printf(%1);
+	#define Debug_Print1(%1) \
+		printf(%1)
 #else
-	#define Debug_Print1(%1);
+	#define Debug_Print1(%1)
 #endif
 
 #if _DEBUG >= 2
-	#define Debug_Print2(%1); \
-		printf(%1);
+	#define Debug_Print2(%1) \
+		printf(%1)
 #else
-	#define Debug_Print2(%1);
+	#define Debug_Print2(%1)
 #endif
 
 #if _DEBUG >= 3
-	#define Debug_Print3(%1); \
-		printf(%1);
+	#define Debug_Print3(%1) \
+		printf(%1)
 #else
-	#define Debug_Print3(%1);
+	#define Debug_Print3(%1)
 #endif
 
 #if _DEBUG >= 4
-	#define Debug_Print4(%1); \
-		printf(%1);
+	#define Debug_Print4(%1) \
+		printf(%1)
 #else
-	#define Debug_Print4(%1);
+	#define Debug_Print4(%1)
 #endif
 
 #if _DEBUG >= 5
-	#define Debug_Print5(%1); \
-		printf(%1);
+	#define Debug_Print5(%1) \
+		printf(%1)
 #else
-	#define Debug_Print5(%1);
+	#define Debug_Print5(%1)
 #endif
 
 #if _DEBUG >= 6
-	#define Debug_Print6(%1); \
-		printf(%1);
+	#define Debug_Print6(%1) \
+		printf(%1)
 #else
-	#define Debug_Print6(%1);
+	#define Debug_Print6(%1)
 #endif
 
 #if _DEBUG >= 7
-	#define Debug_Print7(%1); \
-		printf(%1);
+	#define Debug_Print7(%1) \
+		printf(%1)
 #else
-	#define Debug_Print7(%1);
+	#define Debug_Print7(%1)
 #endif
 
 #define Debug_PrintE(%1) \
