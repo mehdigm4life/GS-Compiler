@@ -299,10 +299,10 @@ forward OnRejectedHit(playerid, hit[E_REJECTED_HIT]);
 		format(s_DebugMsgBuf,512,"(wc) " %1),SendClientMessageToAll(0xcc0000ff,s_DebugMsgBuf), \
 		printf(s_DebugMsgBuf,"(wc) WARN: " %1)
 #else
-	#define DebugMessage(%1) ((void)0)
-	#define DebugMessageRed(%1) ((void)0)
-	#define DebugMessageAll(%1) ((void)0)
-	#define DebugMessageRedAll(%1) ((void)0)
+	#define DebugMessage(%1) (0)
+	#define DebugMessageRed(%1) (0)
+	#define DebugMessageAll(%1) (0)
+	#define DebugMessageRedAll(%1) (0)
 #endif
 
 // Weapons allowed in OnPlayerGiveDamage
