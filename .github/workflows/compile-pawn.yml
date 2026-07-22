@@ -63,7 +63,7 @@ jobs:
           if [ -n "$INC_PATH" ]; then
             CMD="$CMD -i$INC_PATH"
           else
-            CMD="$CMD -i../../pawno/include"
+            CMD="$CMD -i../pawno/include"
           fi
 
           CMD="$CMD -Z"
