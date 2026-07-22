@@ -94,3 +94,19 @@ jobs:
           path: "**/gamemodes/*.amx"
           if-no-files-found: error
           retention-days: 7
+
+      - name: Commit .amx to repository
+        run: |
+          SCRIPT="${{ github.event.inputs.script_name }}"
+          SCRIPT_DIR="$(dirname "$SCRIPT")"
+          SCRIPT_BASE="$(basename "$SCRIPT")"
+          AMX_FILE="${SCRIPT_BASE%.pwn}.amx"
+
+          cd "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add "$SCRIPT_DIR/$AMX_FILE"
+          git diff --cached --quiet && echo "No changes to commit" && exit 0
+          git commit -m "Update $AMX_FILE via CI (pawncc v${{ github.event.inputs.compiler_version }})"
+          git push
